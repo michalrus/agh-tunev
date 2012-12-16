@@ -6,6 +6,12 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		Board board = new Board();
+		
+		board.initCells();
+		
+		UI.start(board);
+		
+		board.start();
 	}
 
 }

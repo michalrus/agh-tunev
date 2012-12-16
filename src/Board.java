@@ -6,14 +6,20 @@ public class Board {
 	
 	public Board () {
 		agents = new ArrayList<Agent>();
+	}
+	
+	public void initCells () {
 		
+	}
+	
+	public void start () {
 		for (;;) {
 			setFdsData();
 			updateAgentsPosition();
 			addNewAgents();
 			
-			for (int i = 0; i < agents.size(); i++)
-				agents.get(i).update();
+			for (Agent agent : agents)
+				agent.update();
 			
 			// TODO: check end conditions
 			// if (...)
