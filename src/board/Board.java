@@ -1,4 +1,8 @@
+package board;
+
 import java.util.ArrayList;
+
+import agent.Agent;
 
 public class Board {
 
