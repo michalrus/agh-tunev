@@ -39,7 +39,6 @@ public class Agent {
 	 * @param _board			referencja do planszy
 	 * @param _surroundings		referencja do komórek bêd¹cych pierwotnym otoczeniem agenta
 	 */
-	
 	//TODO: Tworzenie cech osobniczych
 	public Agent (Board _board, ArrayList<ArrayList<Cell>> _surroundings) {
 		alive = true;
@@ -48,6 +47,7 @@ public class Agent {
 		// TODO: losowanie moich cech/charakterystyki
 	}
 	
+	/**Akcje agenta w danej iteracji*/
 	public void update () {
 		if (!alive)
 			return;
@@ -65,6 +65,16 @@ public class Agent {
 		updateMotorSkills();
 	}
 
+	/**Statyczna metoda, mo¿e byæ wywo³ana przed utworzeniem agenta*/
+	public static int getWidth(){
+		return AGENT_WIDTH;
+	}
+	
+	/**Statyczna metoda, mo¿e byæ wywo³ana przed utworzeniem agenta*/
+	public static int getLength(){
+		return AGENT_LENGTH;
+	}
+	
 	private void checkIfIWillLive () {
 		// TODO: sprawdzenie czy prze¿yjê nastêpn¹ iteracjê
 		// if (...)
