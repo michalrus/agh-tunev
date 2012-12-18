@@ -11,12 +11,8 @@ public class Board {
 
 	private ArrayList<Agent> agents;
 
-	public Board() {
+	public Board(String path) {
 		agents = new ArrayList<Agent>();
-	}
-
-	public void initCells() {
-
 	}
 
 	public void initAgents() {
