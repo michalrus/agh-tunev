@@ -1,46 +1,47 @@
 package board;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import agent.Agent;
+import agent.Neighborhood;
 
 public class Board {
 
 	private ArrayList<Agent> agents;
-	
-	public Board () {
+
+	public Board() {
 		agents = new ArrayList<Agent>();
 	}
-	
-	public void initCells () {
-		
-	}
-	
-	public void start () {
-		for (;;) {
-			setFdsData();
-			updateAgentsPosition();
-			addNewAgents();
-			
-			for (Agent agent : agents)
-				agent.update();
-			
-			// TODO: check end conditions
-			// if (...)
-			//	break;
-		}
-	}
-	
-	private void setFdsData () {
-		// TODO: 
+
+	public void initCells() {
+
 	}
 
-	private void updateAgentsPosition () {
-		// TODO: 
+	public void initAgents() {
+		// TODO: sk¹d braæ inicjalne pozycje ludzi? random?
 	}
 
-	private void addNewAgents () {
-		// TODO: 
+	/**
+	 * Jedna iteracja symulacji.
+	 */
+	public void update() {
+		setFdsData();
+
+		for (Agent agent : agents)
+			agent.update();
+	}
+
+	private void setFdsData() {
+		// TODO:
+	}
+
+	public Map<Neighborhood.Direction, Neighborhood> getNeighborhoods(
+			Agent agent) {
+		Map<Neighborhood.Direction, Neighborhood> map = new HashMap<Neighborhood.Direction, Neighborhood>();
+
+		return map;
 	}
 
 }

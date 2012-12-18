@@ -1,6 +1,5 @@
 import board.Board;
 
-
 public class Main {
 
 	/**
@@ -8,12 +7,18 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		Board board = new Board();
-		
+
 		board.initCells();
-		
-		UI.start(board);
-		
-		board.start();
+		board.initAgents();
+	
+		UI ui = new UI();
+
+		for (;;) {
+			board.update();
+			ui.draw(board);
+			
+			// TODO: check end conditions
+		}
 	}
 
 }
