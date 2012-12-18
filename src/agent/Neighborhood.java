@@ -3,7 +3,7 @@ package agent;
 public class Neighborhood {
 
 	public enum Direction {
-		TOP, BOTTOM, LEFT, RIGHT
+		TOP, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOM, BOTTOMLEFT, LEFT, TOPLEFT
 	}
 
 	public int getTemperature() {
