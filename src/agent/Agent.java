@@ -40,10 +40,10 @@ public class Agent {
 	 * @param _surroundings		referencja do komórek bêd¹cych pierwotnym otoczeniem agenta
 	 */
 	//TODO: Tworzenie cech osobniczych
-	public Agent (Board _board, ArrayList<ArrayList<Cell>> _surroundings) {
+	public Agent (Board board, ArrayList<ArrayList<Cell>> surroundings) {
 		alive = true;
-		this.surroundings = _surroundings;
-		this.board = _board;
+		this.surroundings = surroundings;
+		this.board = board;
 		// TODO: losowanie moich cech/charakterystyki
 	}
 	
