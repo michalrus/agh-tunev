@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,9 +16,9 @@ import agent.Neighborhood;
 
 public class Board {
 
-	private int width, length;
+	private List<Agent> agents;
 
-	private ArrayList<Agent> agents;
+	private List<List<Cell>> cells;
 
 	public Board(String path) throws FileNotFoundException {
 		agents = new ArrayList<Agent>();
@@ -28,7 +29,7 @@ public class Board {
 	/**
 	 * Wczytywanie danych z pliku wejœciowego FDS-a.
 	 * 
-	 * Pamiêtaj: x to d³ugoœæ tunelu, y to szerokoœæ. Podajemy czêsto
+	 * Pamiêtaj: x to szerokoœæ tunelu, y to d³ugoœæ. Podajemy czêsto
 	 * wspó³rzêdne x,y,z albo x,x1,y,y1,z,z1.
 	 * 
 	 * @param path
@@ -50,8 +51,12 @@ public class Board {
 				if (!gotDimensions) {
 					matcher = patternDimensions.matcher(line);
 					if (matcher.find()) {
-						width = Integer.parseInt(matcher.group(1));
-						length = Integer.parseInt(matcher.group(2));
+						int width = Integer.parseInt(matcher.group(1));
+						int length = Integer.parseInt(matcher.group(2));
+						if (width <= 0 || length <= 0)
+							throw new RuntimeException(
+									"width <= 0 or length <= 0");
+						initCells(width, length);
 						gotDimensions = true;
 						continue;
 					}
@@ -60,6 +65,8 @@ public class Board {
 				// obstacles
 				matcher = patternObstacle.matcher(line);
 				if (matcher.find()) {
+					if (!gotDimensions)
+						throw new RuntimeException("&OBST before &MESH!");
 					int x1 = Integer.parseInt(matcher.group(1));
 					int x2 = Integer.parseInt(matcher.group(2));
 					int y1 = Integer.parseInt(matcher.group(3));
@@ -85,11 +92,38 @@ public class Board {
 		}
 	}
 
+	private void initCells(int width, int length) {
+		cells = new ArrayList<List<Cell>>();
+		for (int x = 0; x < width; x++) {
+			List<Cell> row = new ArrayList<Cell>();
+			for (int y = 0; y < length; y++)
+				row.add(new Cell());
+			cells.add(row);
+		}
+	}
+	
+	public int getWidth() {
+		return cells.size();
+	}
+	
+	public int getLength() {
+		return cells.get(0).size();
+	}
+
+	public Cell cellAt(int x, int y) {
+		if (x < cells.size())
+			if (y < cells.get(x).size())
+				return cells.get(x).get(y);
+		return null;
+	}
+
 	private void addObstacle(int x1, int x2, int y1, int y2) {
 		for (int x = x1; x < x2; x++)
-			for (int y = y1; y < y2; y++)
-				break;
-		System.out.println("addObstacle():  L:" + x1 + "-" + x2 + "  W:" + y1 + "-" + y2);
+			for (int y = y1; y < y2; y++) {
+				Cell c = cellAt(x, y);
+				if (c != null)
+					c.setType(Cell.Type.BLOCKED);
+			}
 	}
 
 	public void initAgents() {
