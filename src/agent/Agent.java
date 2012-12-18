@@ -9,17 +9,16 @@ import board.Cell;
 
 public class Agent {
 
-	/** D³ugoœæ p³aszczyzny zajmowanej przez agenta - linia barkowa */
-	private static final int AGENT_LENGTH = 3; // TODO: zastanowic sie, czy
-												// kazdy agent ma te sam¹
-												// wielkosc
-
-	/**
-	 * Szerokoœæ p³aszczyzny zajmowane przez agenta - oœ prostopad³a do linii
-	 * barkowej
-	 */
-	private static final int AGENT_WIDTH = 2;
-
+	/**Mo¿liwa orientacja agenta */
+	public enum Orientation {
+		SOUTH, EAST, NORTH, WEST;
+		
+		/**Losuje orientacje*/
+		public static Orientation getRandom(){
+			return values()[(int)Math.random() * values().length];
+		}
+	}
+	
 	/** Wspolczynnik wagowy obliczonego zagro¿enia */
 	private static final int THREAT_COEFF = 100;
 
@@ -28,30 +27,53 @@ public class Agent {
 
 	/** Wspolczynnik wagowy dla czynników spo³ecznych */
 	private static final int SOCIAL_COEFF = 1;
+	
+	/**Stezenie CO w powietrzu powodujace natychmiastowy zgon [ppm]*/
+	private static final int LETHAL_CO_CONCN = 30000;
+	
+	/**Stezenie karboksyhemoglobiny we krwi powodujace natychmiastowy zgon [%]*/
+	private static final int LETHAL_HbCO_CONCN = 75;
 
-	/** Referencja do planszy */
-	private Board board;
+	/**Prêdkoœæ z jak¹ usuwane s¹ karboksyhemoglobiny z organizmu*/
+	private static final int CLEANSING_VELOCITY = 6;
+	
 
 	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
 	
-	/** Agent's own direction, use only TOP,BOTTOM,LEFT,RIGHT */
-	private Neighborhood.Direction direction;
+	/** Referencja do planszy */
+	private Board board;
+	
+	/**Komórka, w której aktualnie znajduje siê agent*/
+	private Cell position;
+	
+	/** Kierunek, w którym zwrócony jest agent */
+	private Orientation orientation;
 
 	/** Otoczenie agenta pobierane przy ka¿dym update()'cie */
 	private Map<Direction, Neighborhood> neighborhood;
+	
+	/**Aktualne stezenie karboksyhemoglobiny we krwii*/
+	private double hbco;
 
+	
 	/**
-	 * Konstruktor agenta. Zmienia jego status na alive.
+	 * Konstruktor agenta. Inicjuje wszystkie pola niezbêdne do jego egzystencji na planszy. 
+	 * Pozycja jest z góry narzucona z poziomu Board. Orientacja zostaje wylosowana.
 	 * 
 	 * @param board
 	 *            referencja do planszy
+	 * @param position
+	 * 			  referencja to komórki bêd¹cej pierwotn¹ pozycj¹ agenta
 	 */
 	// TODO: Tworzenie cech osobniczych
-	public Agent(Board board) {
+	public Agent(Board _board, Cell _position) {
 		alive = true;
-		this.board = board;
-		// TODO: losowanie moich cech/charakterystyki
+		this.board = _board;
+		this.position = _position;
+		orientation = Orientation.getRandom();
+		neighborhood = board.getNeighborhoods(this);
+		hbco = 0;
 	}
 
 	/** Akcje agenta w danej iteracji */
@@ -79,20 +101,35 @@ public class Agent {
 		updateMotorSkills();
 	}
 
-	/** Statyczna metoda, mo¿e byæ wywo³ana przed utworzeniem agenta */
-	public static int getWidth() {
-		return AGENT_WIDTH;
+	/**Zwraca kierunek, w którym zwrócony jest agent*/
+	public Orientation getOrientation(){
+		return orientation;
 	}
 
-	/** Statyczna metoda, mo¿e byæ wywo³ana przed utworzeniem agenta */
-	public static int getLength() {
-		return AGENT_LENGTH;
+	/**Funkcja oblicza aktualne stezenie karboksyhemoglobiny, 
+	 * uwzgledniajac zdolnosci organizmu do usuwania toksyn*/
+	private void evaluateHbCO(){
+		if(hbco > CLEANSING_VELOCITY)
+			hbco -= CLEANSING_VELOCITY;
+		
+		hbco += LETHAL_HbCO_CONCN * (position.getCOConcentration() / LETHAL_CO_CONCN);
 	}
-
-	private void checkIfIWillLive() {
-		// TODO: sprawdzenie czy prze¿yjê nastêpn¹ iteracjê
-		// if (...)
-		// alive = false;
+	
+	/**Okresla, czy agent przezyje, sprawdzajac temperature otoczenia i 
+	 * stezenie toksyn we krwii 
+	 *
+	 * @return  
+	 * 			zwraca status agenta, zeby nie wykonywac potem niepotrzebnie obliczen w update(),
+	 * 			skoro i tak jest martwy ;)
+	 */
+	private boolean checkIfIWillLive() {
+		evaluateHbCO();
+		
+		if(hbco > LETHAL_HbCO_CONCN ||
+		   position.getTemperature() > 80)
+			alive = false;
+		
+		return alive;
 	}
 
 	private void checkCollisions() {
