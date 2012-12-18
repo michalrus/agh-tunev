@@ -34,6 +34,9 @@ public class Agent {
 
 	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
+	
+	/** Agent's own direction, use only TOP,BOTTOM,LEFT,RIGHT */
+	private Neighborhood.Direction direction;
 
 	/** Otoczenie agenta pobierane przy ka¿dym update()'cie */
 	private Map<Direction, Neighborhood> neighborhood;
