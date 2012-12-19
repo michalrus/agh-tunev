@@ -187,20 +187,27 @@ public class Agent {
 			}
 		}
 
-		// <Micha³> wykomentowa³em to, bo po uruchomieniu daje
-		// NullPointerException ;]
+		//TODO: prototyp - rozwinac
+		switch (dir) {
+			case LEFT : 
+				rotate();
+				break;
+			case RIGHT :
+				rotate();
+				break;
+			case BOTTOMLEFT : case BOTTOMRIGHT : 
+			case BOTTOM:
+				rotate(); rotate();
+				break;		
+		}
 
-		// switch (dir) {
-		// TODO: Zaimplementowac ruch. Potrzebujê dodatkowych metod w Board i
-		// Cell
-		// }
-
+		setPosition(neighborhood.get(dir).getFirstCell());
 		// <Micha³> doda³em te¿ na razie jakiœ randomowy ruch, ¿eby zobaczyæ czy
 		// dzia³a rysowanie
 
 		// wywal to wszystko poni¿ej!
 
-		if (Math.random() < 0.04) // 4% szans na prze¿ycie ; to wszystko jest
+		/*if (Math.random() < 0.04) // 4% szans na prze¿ycie ; to wszystko jest
 									// tylko mój test rysowania!
 			alive = false;
 		for (;;) {
@@ -213,9 +220,16 @@ public class Agent {
 				setPosition(cell);
 				break;
 			}
-		}
+		}*/
 	}
 
+	/**Funkcja obraca agenta do kierunku jego ruchu*/
+	//TODO: stub
+	private void rotate(){
+		
+	}
+	
+	
 	private double computeAttractivnessComponentByThreat(Neighborhood neigh) {
 		return neigh.getTemperature();
 		// TODO: rozwinac
@@ -228,7 +242,7 @@ public class Agent {
 	private void computeAttractivnessComponentBySocialDistances() {
 		// TODO: sk³adowa potencja³u od Social Distances
 	}
-
+	
 	private void updateMotorSkills() {
 		// TODO: ograniczenie zdolnoœci poruszania siê w wyniku zatrucia?
 	}

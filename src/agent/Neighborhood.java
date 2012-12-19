@@ -13,7 +13,7 @@ public class Neighborhood {
 		 * @return
 		 * 			kierunek przeciwny do podanego
 		 */			
-		public static Direction getOppositDir(Direction dir){
+		public static Direction getOppositeDir(Direction dir){
 			Direction opposite = null;
 			switch(dir){
 				case TOP:
