@@ -233,6 +233,7 @@ public class Agent {
 			case BOTTOMLEFT: case BOTTOMRIGHT: case BOTTOM:
 				orientation = Orientation.turnRight(orientation);
 				orientation = Orientation.turnRight(orientation);
+				break;
 		}
 	}
 	
