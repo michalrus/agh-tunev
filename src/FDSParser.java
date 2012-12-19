@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import board.Board;
+import board.Cell;
 
 public class FDSParser {
 
@@ -156,7 +157,7 @@ public class FDSParser {
 
 	private DataFile currentDataFile;
 
-	public void readData(int currentTime) {
+	public void readData(int currentTime) throws FileNotFoundException {
 		if (currentTime < currentDataFile.start
 				|| currentTime > currentDataFile.end)
 			for (DataFile f : dataFiles)
@@ -164,10 +165,41 @@ public class FDSParser {
 					currentDataFile = f;
 					break;
 				}
+		if (currentDataFile.alreadyRead)
+			return;
 
-		System.out.println(currentTime + ": " + currentDataFile.start + "-"
-				+ currentDataFile.end + ": "
-				+ currentDataFile.file.getAbsolutePath());
+		String line;
+		BufferedReader br = new BufferedReader(new FileReader(
+				currentDataFile.file));
+		try {
+			br.readLine();
+			br.readLine();
+			while ((line = br.readLine()) != null) {
+				String[] v = line.trim().split("\\s*,\\s*");
+				if (v.length != 3)
+					throw new RuntimeException(currentDataFile.file.getPath()
+							+ ": invalid format");
+				int x = (int) Math.round(Double.valueOf(v[0]) / dx);
+				int y = (int) Math.round(Double.valueOf(v[1]) / dy);
+				double temperature = Double.valueOf(v[2]);
+
+				Cell cell = board.getCellAt(x, y);
+				if (cell == null)
+					continue;
+
+				cell.setTemperature((float) temperature);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (br != null)
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
+
+		currentDataFile.alreadyRead = true;
 	}
-
 }
