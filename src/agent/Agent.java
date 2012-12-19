@@ -157,7 +157,7 @@ public class Agent {
 		HashMap<Direction, Double> move_options = new HashMap<Direction, Double>();
 
 		for (Map.Entry<Direction, Neighborhood> entry : neighborhood.entrySet()) {
-			if (entry.getValue().getFirstCell().getType() == Cell.Type.EMPTY)
+			if (!entry.getValue().getFirstCell().isOccupied())
 				move_options.put(entry.getKey(), 0.0);
 		}
 
@@ -239,12 +239,22 @@ public class Agent {
 		// <Micha³> doda³em te¿ na razie jakiœ randomowy ruch, ¿eby zobaczyæ czy
 		// dzia³a rysowanie
 
-		setPosition(board
-				.getCellAt(
-						(int) Math.round(Math.floor(Math.random()
-								* board.getWidth())),
-						(int) Math.round(Math.floor(Math.random()
-								* board.getLength()))));
+		// wywal to wszystko poni¿ej!
+
+		if (Math.random() < 0.04) // 4% szans na prze¿ycie ; to wszystko jest
+									// tylko mój test rysowania!
+			alive = false;
+		for (;;) {
+			Cell cell = board.getCellAt(
+					(int) Math.round(Math.floor(Math.random()
+							* board.getWidth())),
+					(int) Math.round(Math.floor(Math.random()
+							* board.getLength())));
+			if (!cell.isOccupied()) {
+				setPosition(cell);
+				break;
+			}
+		}
 	}
 
 	private double computeAttractivnessComponentByThreat(Neighborhood neigh) {
