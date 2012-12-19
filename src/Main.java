@@ -38,7 +38,7 @@ public class Main {
 
 			try {
 				Thread.sleep(Math
-						.round(ITERATION_DURATION * SIMULATION_SPEEDUP));
+						.round(ITERATION_DURATION / SIMULATION_SPEEDUP));
 			} catch (InterruptedException e) {
 			}
 			currentTime += ITERATION_DURATION;
