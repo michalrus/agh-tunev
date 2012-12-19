@@ -59,13 +59,13 @@ public class Agent {
 	private static final int SOCIAL_COEFF = 1;
 
 	/** Stezenie CO w powietrzu powodujace natychmiastowy zgon [ppm] */
-	private static final int LETHAL_CO_CONCN = 30000;
+	private static final double LETHAL_CO_CONCN = 30000.0;
 
 	/** Stezenie karboksyhemoglobiny we krwi powodujace natychmiastowy zgon [%] */
-	private static final int LETHAL_HbCO_CONCN = 75;
+	private static final double LETHAL_HbCO_CONCN = 75.0;
 
 	/** Prêdkoœæ z jak¹ usuwane s¹ karboksyhemoglobiny z organizmu */
-	private static final int CLEANSING_VELOCITY = 6;
+	private static final double CLEANSING_VELOCITY = 0.04;
 
 	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
@@ -165,6 +165,7 @@ public class Agent {
 	 * Funkcja oblicza aktualne stezenie karboksyhemoglobiny, uwzgledniajac
 	 * zdolnosci organizmu do usuwania toksyn
 	 */
+	//TODO: Zastanowic sie, czy to faktycznie jest funkcja liniowa
 	private void evaluateHbCO() {
 		if (hbco > CLEANSING_VELOCITY)
 			hbco -= CLEANSING_VELOCITY;
