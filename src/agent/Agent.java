@@ -92,6 +92,14 @@ public class Agent {
 		}
 	}
 
+	public Cell getPosition() {
+		return position;
+	}
+
+	public boolean isAlive() {
+		return alive;
+	}
+
 	/** Zwraca kierunek, w którym zwrócony jest agent */
 	public Orientation getOrientation() {
 		return orientation;
@@ -210,10 +218,13 @@ public class Agent {
 			}
 		}
 
-		switch (dir) {
+		// <Micha³> wykomentowa³em to, bo po uruchomieniu daje
+		// NullPointerException ;]
+
+		// switch (dir) {
 		// TODO: Zaimplementowac ruch. Potrzebujê dodatkowych metod w Board i
 		// Cell
-		}
+		// }
 
 	}
 

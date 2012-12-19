@@ -6,8 +6,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,8 +23,12 @@ public class Board {
 
 	private List<List<Cell>> cells;
 
+	private static final int MAX_RANDOM_FAILURES = 10;
+	private Random rng;
+
 	public Board(String path) throws FileNotFoundException {
 		agents = new ArrayList<Agent>();
+		rng = new Random();
 
 		parseFDSInputFile(path);
 	}
@@ -97,15 +104,15 @@ public class Board {
 		for (int x = 0; x < width; x++) {
 			List<Cell> row = new ArrayList<Cell>();
 			for (int y = 0; y < length; y++)
-				row.add(new Cell());
+				row.add(new Cell(x, y));
 			cells.add(row);
 		}
 	}
-	
+
 	public int getWidth() {
 		return cells.size();
 	}
-	
+
 	public int getLength() {
 		return cells.get(0).size();
 	}
@@ -126,8 +133,34 @@ public class Board {
 			}
 	}
 
-	public void initAgents() {
-		// TODO: sk¹d braæ inicjalne pozycje ludzi? random?
+	public void initAgentsRandomly(int num) {
+		if (num <= 0)
+			return;
+
+		int width = getWidth();
+		int length = getLength();
+		Set<Cell> usedCells = new HashSet<Cell>();
+
+		for (int i = 0; i < num; i++) {
+			int numFails = 0;
+
+			while (numFails < MAX_RANDOM_FAILURES) {
+				int x = rng.nextInt(width);
+				int y = rng.nextInt(length);
+
+				Cell cell = cellAt(x, y);
+
+				if (cell.getType() != Cell.Type.BLOCKED
+						&& !usedCells.contains(cell)) {
+					Agent agent = new Agent(this, cell);
+					agents.add(agent);
+					usedCells.add(cell);
+					break;
+				}
+
+				numFails++;
+			}
+		}
 	}
 
 	/**
@@ -135,7 +168,7 @@ public class Board {
 	 */
 	public void update() {
 		try {
-			Thread.sleep(1000); // na razie, póki nic tu nie ma do liczenia
+			Thread.sleep(1000); // na razie, bo póki nic tu nie ma do liczenia
 		} catch (InterruptedException e) {
 		}
 
@@ -154,6 +187,10 @@ public class Board {
 		Map<Neighborhood.Direction, Neighborhood> map = new HashMap<Neighborhood.Direction, Neighborhood>();
 
 		return map;
+	}
+
+	public List<Agent> getAgents() {
+		return agents;
 	}
 
 }

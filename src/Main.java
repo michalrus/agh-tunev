@@ -16,7 +16,7 @@ public class Main {
 
 		board = new Board("firedata/tunnel.fds");
 
-		board.initAgents(); // w jaki sposób? gdzie inicjalni agenci? random?
+		board.initAgentsRandomly(20);
 
 		UI ui = new UI();
 

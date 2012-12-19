@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -13,15 +14,16 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 
+import agent.Agent;
 import board.Board;
 import board.Cell;
 
 public class UI extends JFrame {
 	private static final long serialVersionUID = 1L;
-	
+
 	private JScrollPane panel;
 	private Grid grid;
-	
+
 	public UI() {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -51,7 +53,7 @@ public class UI extends JFrame {
 		grid = new Grid();
 		panel = new JScrollPane(grid);
 		paMain.add(panel);
-		
+
 		setVisible(true);
 	}
 
@@ -67,63 +69,86 @@ public class UI extends JFrame {
 
 	/**
 	 * Visual representation of a Board.
+	 * 
 	 * @author Michal
-	 *
+	 * 
 	 */
 	private class Grid extends JComponent {
 		private static final long serialVersionUID = 1L;
 		private static final int CELL_SIZE = 20;
-		
+
 		private Board board = null;
-		
-		public void setBoard (Board board) {
+
+		public void setBoard(Board board) {
 			this.board = board;
 		}
-		
+
 		@Override
 		public Dimension getPreferredSize() {
 			return getMySize();
 		}
-		
+
 		@Override
 		public Dimension getMinimumSize() {
 			return getMySize();
 		}
-		
+
 		@Override
 		public Dimension getMaximumSize() {
 			return getMySize();
 		}
-		
+
 		private Dimension getMySize() {
 			if (board == null)
 				return new Dimension(0, 0);
-		    return new Dimension(board.getLength() * CELL_SIZE, board.getWidth() * CELL_SIZE);
+			return new Dimension(board.getLength() * CELL_SIZE,
+					board.getWidth() * CELL_SIZE);
 		}
 
-		public void paintComponent (Graphics g) {
+		public void paintComponent(Graphics g) {
 			if (board == null)
 				return;
-			
+
+			// raw cells
 			int width = board.getWidth();
 			int length = board.getLength();
 			for (int x = 0; x < width; x++)
-				for (int y = 0; y < length; y++) {
-					Cell cell = board.cellAt(x, y);
+				for (int y = 0; y < length; y++)
+					paintCell(g, board.cellAt(x, y), null);
 
-					switch (cell.getType()) {
-					case BLOCKED:
-						g.setColor(Color.BLACK);
-						break;
-					default:
-						g.setColor(Color.WHITE);
-						break;
-					}
-					
-					g.fillRect(y * CELL_SIZE, x * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-					g.setColor(Color.LIGHT_GRAY);
-					g.drawRect(y * CELL_SIZE, x * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+			// agents
+			List<Agent> agents = board.getAgents();
+			for (Agent agent : agents) {
+				paintCell(g, null, agent);
+			}
+
+		}
+
+		private void paintCell(Graphics g, Cell cell, Agent agent) {
+			Color c;
+
+			if (agent != null) {
+				cell = agent.getPosition();
+				if (agent.isAlive())
+					c = Color.GREEN;
+				else
+					c = Color.RED;
+			} else
+				switch (cell.getType()) {
+				case BLOCKED:
+					c = Color.BLACK;
+					break;
+				default:
+					c = Color.WHITE;
+					break;
 				}
+
+			g.setColor(c);
+			g.fillRect(cell.getY() * CELL_SIZE, cell.getX() * CELL_SIZE,
+					CELL_SIZE, CELL_SIZE);
+			g.setColor(Color.LIGHT_GRAY);
+			g.drawRect(cell.getY() * CELL_SIZE, cell.getX() * CELL_SIZE,
+					CELL_SIZE, CELL_SIZE);
 		}
 	}
 
