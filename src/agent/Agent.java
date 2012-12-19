@@ -87,6 +87,9 @@ public class Agent {
 	/** Wspolczynnik wagowy dla potencjalnego kierunku ruchu */
 	private static double THREAT_COMP_AHEAD = 1;
 
+	//TODO: do wywalenia jak najszybciej
+	private static double RIGHT_EXIT_COEFF = 2000;
+	
 	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
 
@@ -224,6 +227,32 @@ public class Agent {
 			attractivness += THREAT_COEFF
 					* computeAttractivnessComponentByThreat(key);
 			move_options.put(key, attractivness);
+		}
+		
+		//prowizorka
+		for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
+			Direction key = entry.getKey();
+			double val = entry.getValue();
+			switch(orientation){
+				case NORTH:
+					if(key == Neighborhood.Direction.LEFT)
+						val += RIGHT_EXIT_COEFF;
+					break;
+				case SOUTH:
+					if(key == Neighborhood.Direction.RIGHT)
+						val += RIGHT_EXIT_COEFF;
+					break;
+				case EAST:
+					if(key == Neighborhood.Direction.BOTTOM)
+						val += RIGHT_EXIT_COEFF;
+					break;
+				case WEST:
+					if(key == Neighborhood.Direction.TOP)
+						val += RIGHT_EXIT_COEFF;
+					break;
+			}
+			
+			move_options.put(key, val);
 		}
 
 		return move_options;
