@@ -50,13 +50,16 @@ public class Agent {
 	}
 
 	/** Wspolczynnik wagowy obliczonego zagro¿enia */
-	private static final int THREAT_COEFF = 100;
+	private static final double THREAT_COEFF = 10;
 
 	/** Wspolczynnik wagowy odleg³oœci od wyjœcia */
-	private static final int EXIT_COEFF = 10;
+	private static final double EXIT_COEFF = 5;
 
 	/** Wspolczynnik wagowy dla czynników spo³ecznych */
-	private static final int SOCIAL_COEFF = 1;
+	private static final double SOCIAL_COEFF = 0.01;
+	
+	/**Smiertelna wartosc temp. na wysokosci 1,5m*/
+	private static final double LETHAL_TEMP = 80;
 
 	/** Stezenie CO w powietrzu powodujace natychmiastowy zgon [ppm] */
 	private static final double LETHAL_CO_CONCN = 30000.0;
@@ -65,7 +68,7 @@ public class Agent {
 	private static final double LETHAL_HbCO_CONCN = 75.0;
 
 	/** Prêdkoœæ z jak¹ usuwane s¹ karboksyhemoglobiny z organizmu */
-	private static final double CLEANSING_VELOCITY = 0.04;
+	private static final double CLEANSING_VELOCITY = 0.08;
 
 	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
@@ -155,7 +158,7 @@ public class Agent {
 	private boolean checkIfIWillLive() {
 		evaluateHbCO();
 
-		if (hbco > LETHAL_HbCO_CONCN || position.getTemperature() > 80)
+		if (hbco > LETHAL_HbCO_CONCN || position.getTemperature() > LETHAL_TEMP)
 			alive = false;
 
 		return alive;
@@ -195,7 +198,7 @@ public class Agent {
 		for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
 			Direction key = entry.getKey();
 			Double attractivness = 0.0;
-			attractivness += computeAttractivnessComponentByThreat(neighborhood.get(key));
+			attractivness += THREAT_COEFF * computeAttractivnessComponentByThreat(neighborhood.get(key));
 		}
 
 		return move_options;
