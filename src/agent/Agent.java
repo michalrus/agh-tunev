@@ -131,6 +131,10 @@ public class Agent {
 		position = newPosition;
 		position.addAgent(this);
 	}
+	
+	public Cell getPosition() {
+		return position;
+	}
 
 	public boolean isAlive() {
 		return alive;
