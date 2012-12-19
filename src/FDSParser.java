@@ -131,35 +131,35 @@ public class FDSParser {
 		}
 	}
 
-	SortedSet<DataFile> dataFiles;
+	SortedSet<DataFile> tempDataFiles;
 
 	public void setDataDirectory(String directory) {
 		Pattern patternName = Pattern.compile("^temp_(\\d+)-(\\d+)s\\.csv$");
 		Matcher matcher;
 
-		dataFiles = new TreeSet<DataFile>();
+		tempDataFiles = new TreeSet<DataFile>();
 
 		for (File file : (new File(directory)).listFiles())
 			if (file.isFile()) {
 				matcher = patternName.matcher(file.getName());
 				if (matcher.find()) {
-					dataFiles.add(new DataFile(file, 1000 * Integer
+					tempDataFiles.add(new DataFile(file, 1000 * Integer
 							.parseInt(matcher.group(1)), 1000 * Integer
 							.parseInt(matcher.group(2))));
 				}
 			}
 
-		if (dataFiles.isEmpty())
+		if (tempDataFiles.isEmpty())
 			throw new RuntimeException(directory + ": no data files inside!");
 
-		currentDataFile = dataFiles.first();
+		currentDataFile = tempDataFiles.first();
 	}
 
 	private DataFile currentDataFile;
 
 	public void readData(int currentTime) throws FileNotFoundException {
 		if (!(currentTime >= currentDataFile.start && currentTime < currentDataFile.end))
-			for (DataFile f : dataFiles)
+			for (DataFile f : tempDataFiles)
 				if (currentTime >= f.start && currentTime < f.end) {
 					currentDataFile = f;
 					break;
