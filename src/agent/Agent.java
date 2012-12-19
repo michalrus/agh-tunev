@@ -38,8 +38,12 @@ public class Agent {
 			Orientation right_orient = null;
 			int val_len = values().length;
 			for(int i = 0; i < val_len; ++i){
-				if(values()[i] == currOrient)
-					right_orient = values()[(i-1) % (val_len)];
+				if(values()[i] == currOrient){
+					int index = i-1;
+					if(index < 0)
+						index += val_len;
+					right_orient = values()[index];
+				}
 			}
 			return right_orient;
 		}
