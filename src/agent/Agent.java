@@ -17,38 +17,49 @@ public class Agent {
 		public static Orientation getRandom() {
 			return values()[(int) (Math.random() * values().length)];
 		}
-		
-		/**Zaklada ze stoimy posrodku rozy wiatrow
+
+		/**
+		 * Zaklada ze stoimy posrodku rozy wiatrow. Zwraca wartosc posiadajaca
+		 * indeks tablicy values() wiekszy o 1
 		 * 
-		 * @return
-		 * 			kierunek po obrocie w lewo
+		 * @return kierunek po obrocie w lewo
 		 */
-		public static Orientation turnLeft(Orientation currOrient){
-			Orientation left_orient = null;
+		public static Orientation turnLeft(Orientation currOrient) {
+			if (values() == null)
+				return null;
+
+			int index = 0;
 			int val_len = values().length;
-			for(int i = 0; i < val_len; ++i){
-				if(values()[i] == currOrient)
-					left_orient = values()[(i+1) % (val_len)];
+			for (int i = 0; i < val_len; ++i) {
+				if (values()[i] == currOrient)
+					index = (i + 1) % (val_len);
 			}
-			return left_orient;
+			return values()[index];
+
 		}
-		
-		/**Analogicznie do turnLeft(), tylko ze tym razem obrot w prawo*/
-		public static Orientation turnRight(Orientation currOrient){
-			Orientation right_orient = null;
+
+		/**
+		 * Analogicznie do turnLeft(), tylko ze tym razem obrot w prawo. Zwraca
+		 * element o indeksie mniejszym o 1
+		 */
+		public static Orientation turnRight(Orientation currOrient) {
+			if (values() == null)
+				return null;
+
+			int index = 0;
 			int val_len = values().length;
-			for(int i = 0; i < val_len; ++i){
-				if(values()[i] == currOrient){
-					int index = i-1;
-					if(index < 0)
+			for (int i = 0; i < val_len; ++i) {
+				if (values()[i] == currOrient) {
+					index = i - 1;
+					if (index < 0)
 						index += val_len;
-					right_orient = values()[index];
 				}
 			}
-			return right_orient;
+			return values()[index];
 		}
 	}
 
+	
 	/** Wspolczynnik wagowy obliczonego zagro¿enia */
 	private static final double THREAT_COEFF = 10;
 
@@ -57,8 +68,8 @@ public class Agent {
 
 	/** Wspolczynnik wagowy dla czynników spo³ecznych */
 	private static final double SOCIAL_COEFF = 0.01;
-	
-	/**Smiertelna wartosc temp. na wysokosci 1,5m*/
+
+	/** Smiertelna wartosc temp. na wysokosci 1,5m */
 	private static final double LETHAL_TEMP = 80;
 
 	/** Stezenie CO w powietrzu powodujace natychmiastowy zgon [ppm] */
@@ -69,6 +80,12 @@ public class Agent {
 
 	/** Prêdkoœæ z jak¹ usuwane s¹ karboksyhemoglobiny z organizmu */
 	private static final double CLEANSING_VELOCITY = 0.08;
+
+	/** Wspolczynnik wagowy dla kierunku przeciwnego do potencjalnego ruchu */
+	private static double THREAT_COMP_BEHIND = 0.5;
+
+	/** Wspolczynnik wagowy dla potencjalnego kierunku ruchu */
+	private static double THREAT_COMP_AHEAD = 1;
 
 	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
@@ -91,6 +108,7 @@ public class Agent {
 	/** Aktualne stezenie karboksyhemoglobiny we krwii */
 	private double hbco;
 
+	
 	/**
 	 * Konstruktor agenta. Inicjuje wszystkie pola niezbêdne do jego egzystencji
 	 * na planszy. Pozycja jest z góry narzucona z poziomu Board. Orientacja
@@ -168,7 +186,7 @@ public class Agent {
 	 * Funkcja oblicza aktualne stezenie karboksyhemoglobiny, uwzgledniajac
 	 * zdolnosci organizmu do usuwania toksyn
 	 */
-	//TODO: Zastanowic sie, czy to faktycznie jest funkcja liniowa
+	// TODO: Zastanowic sie, czy to faktycznie jest funkcja liniowa
 	private void evaluateHbCO() {
 		if (hbco > CLEANSING_VELOCITY)
 			hbco -= CLEANSING_VELOCITY;
@@ -198,17 +216,17 @@ public class Agent {
 		for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
 			Direction key = entry.getKey();
 			Double attractivness = 0.0;
-			attractivness += THREAT_COEFF * computeAttractivnessComponentByThreat(neighborhood.get(key));
+			attractivness += THREAT_COEFF
+					* computeAttractivnessComponentByThreat(key);
 		}
 
 		return move_options;
 	}
 
 	/**
-	 * 1. Analizuje wszystkie dostepne opcje ruchu pod katem atrakcyjnosci i dokonuje wyboru.
-	 * 2. Obraca sie w kierunku ruchu.
-	 * 3. Wykonuje ruch.
-	 * 4. Aktualizuje sasiedztwo.
+	 * 1. Analizuje wszystkie dostepne opcje ruchu pod katem atrakcyjnosci i
+	 * dokonuje wyboru. 2. Obraca sie w kierunku ruchu. 3. Wykonuje ruch. 4.
+	 * Aktualizuje sasiedztwo.
 	 */
 	private void move(HashMap<Direction, Double> move_options) {
 		Direction dir = null;
@@ -228,26 +246,42 @@ public class Agent {
 		neighborhood = board.getNeighborhoods(this);
 	}
 
-	/**Funkcja obraca agenta do kierunku jego ruchu*/
-	//TODO: Poprawic
-	private void rotate(Direction dir){
-		switch(dir){
-			case LEFT :
-				orientation = Orientation.turnLeft(orientation);
-				break;
-			case RIGHT :
-				orientation = Orientation.turnRight(orientation);
-				break;
-			case BOTTOMLEFT: case BOTTOMRIGHT: case BOTTOM:
-				orientation = Orientation.turnRight(orientation);
-				orientation = Orientation.turnRight(orientation);
-				break;
+	/** Funkcja obraca agenta do kierunku jego ruchu */
+	// TODO: Poprawic
+	private void rotate(Direction dir) {
+		switch (dir) {
+		case LEFT:
+			orientation = Orientation.turnLeft(orientation);
+			break;
+		case RIGHT:
+			orientation = Orientation.turnRight(orientation);
+			break;
+		case BOTTOMLEFT:
+		case BOTTOMRIGHT:
+		case BOTTOM:
+			orientation = Orientation.turnRight(orientation);
+			orientation = Orientation.turnRight(orientation);
+			break;
 		}
 	}
-	
-	
-	private double computeAttractivnessComponentByThreat(Neighborhood neigh) {
-		return neigh.getTemperature();
+
+	/**
+	 * Oblicza chec wyboru danego kierunku, biorac pod uwage zarowno chec ruchu
+	 * w dana strone, jak i chec ucieczki od zrodla zagrozenia.
+	 * 
+	 * @param dir
+	 *            potencjalnie obrany kierunek
+	 * @return wspolczynnik atrakcyjnosci dla zadanego kierunku
+	 */
+	private double computeAttractivnessComponentByThreat(Direction dir) {
+		double attractivness_comp = 0.0;
+		attractivness_comp += THREAT_COMP_AHEAD
+				* neighborhood.get(dir).getTemperature();
+		attractivness_comp -= THREAT_COMP_BEHIND
+				* neighborhood.get(Direction.getOppositeDir(dir))
+						.getTemperature();
+
+		return attractivness_comp;
 		// TODO: rozwinac
 	}
 
@@ -258,7 +292,7 @@ public class Agent {
 	private void computeAttractivnessComponentBySocialDistances() {
 		// TODO: sk³adowa potencja³u od Social Distances
 	}
-	
+
 	private void updateMotorSkills() {
 		// TODO: ograniczenie zdolnoœci poruszania siê w wyniku zatrucia?
 	}
