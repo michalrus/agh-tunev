@@ -1,8 +1,6 @@
 package agent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import agent.Neighborhood.Direction;
@@ -17,7 +15,7 @@ public class Agent {
 
 		/** Losuje orientacje */
 		public static Orientation getRandom() {
-			return values()[(int) Math.random() * values().length];
+			return values()[(int)(Math.random() * values().length)];
 		}
 	}
 
