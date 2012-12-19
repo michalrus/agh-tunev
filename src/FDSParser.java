@@ -1,7 +1,14 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,8 +16,8 @@ import board.Board;
 
 public class FDSParser {
 
-	Board board;
-	float dx, dy, offsetX, offsetY; // [m]
+	private Board board;
+	private float dx, dy, offsetX, offsetY; // [m]
 
 	public FDSParser(Board board) {
 		this.board = board;
@@ -26,8 +33,7 @@ public class FDSParser {
 	 * @param path
 	 * @return Simulation time in [ms].
 	 */
-	public int inputFile(String path)
-			throws FileNotFoundException {
+	public int inputFile(String path) throws FileNotFoundException {
 		boolean gotDimensions = false;
 		Pattern patternDimensions = Pattern
 				.compile("^&MESH\\s+IJK=(\\d+),(\\d+),\\d+,\\s*XB=(\\d+),(\\d+),(\\d+),(\\d+),\\d+,\\d+");
@@ -52,12 +58,12 @@ public class FDSParser {
 						int length = Integer.parseInt(matcher.group(2));
 
 						offsetX = Integer.parseInt(matcher.group(3));
-						dx = (Integer.parseInt(matcher.group(4)) - offsetX) / width;
+						dx = (Integer.parseInt(matcher.group(4)) - offsetX)
+								/ width;
 						offsetY = Integer.parseInt(matcher.group(5));
-						dy = (Integer.parseInt(matcher.group(6)) - offsetY) / length;
-						
-						System.out.println("dx=" + dx + "  dy=" + dy + "  offsetX=" + offsetX + "  offsetY=" + offsetY);
-						
+						dy = (Integer.parseInt(matcher.group(6)) - offsetY)
+								/ length;
+
 						board.initCells(width, length);
 						gotDimensions = true;
 						continue;
@@ -109,7 +115,61 @@ public class FDSParser {
 		return duration;
 	}
 
-	public void dataFile(String directory, int currentTime) {
+	private class DataFile implements Comparable<DataFile> {
+		public File file;
+		public int start, end;
+
+		public DataFile(File file, int start, int end) {
+			this.file = file;
+			this.start = start;
+			this.end = end;
+		}
+
+		@Override
+		public int compareTo(DataFile o) {
+			if (start == o.start)
+				return end - o.end;
+			return start - o.start;
+		}
+	}
+
+	SortedSet<DataFile> dataFiles;
+
+	public void setDataDirectory(String directory) {
+		Pattern patternName = Pattern.compile("^temp_(\\d+)-(\\d+)s\\.csv$");
+		Matcher matcher;
+
+		dataFiles = new TreeSet<DataFile>();
+
+		for (File file : (new File(directory)).listFiles())
+			if (file.isFile()) {
+				matcher = patternName.matcher(file.getName());
+				if (matcher.find()) {
+					dataFiles.add(new DataFile(file, 1000 * Integer
+							.parseInt(matcher.group(1)), 1000 * Integer
+							.parseInt(matcher.group(2))));
+				}
+			}
+
+		if (dataFiles.isEmpty())
+			throw new RuntimeException(directory + ": no data files inside!");
+
+		currentDataFile = dataFiles.first();
+	}
+
+	private DataFile currentDataFile;
+
+	public void readData(int currentTime) {
+		if (currentTime < currentDataFile.start
+				|| currentTime > currentDataFile.end)
+			for (DataFile f : dataFiles)
+				if (currentTime >= f.start && currentTime <= f.end) {
+					currentDataFile = f;
+					break;
+				}
+
+		System.out.println(currentTime + ": " + currentDataFile.start + "-" + currentDataFile.end
+				+ ": " + currentDataFile.file.getAbsolutePath());
 	}
 
 }

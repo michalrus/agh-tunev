@@ -20,8 +20,10 @@ public class Main {
 		board = new Board();
 
 		FDSParser parser = new FDSParser(board);
-		
+
 		int duration = parser.inputFile("firedata/tunnel.fds");
+		parser.setDataDirectory("firedata/data");
+		
 		int currentTime = 0; // [ms]
 
 		board.initAgentsRandomly(20);
@@ -29,7 +31,7 @@ public class Main {
 		UI ui = new UI();
 
 		while (currentTime < duration) {
-			parser.dataFile("firedata/data", currentTime);
+			parser.readData(currentTime);
 
 			board.update();
 			ui.draw(board);
