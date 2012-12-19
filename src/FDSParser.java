@@ -158,10 +158,9 @@ public class FDSParser {
 	private DataFile currentDataFile;
 
 	public void readData(int currentTime) throws FileNotFoundException {
-		if (currentTime < currentDataFile.start
-				|| currentTime > currentDataFile.end)
+		if (!(currentTime >= currentDataFile.start && currentTime < currentDataFile.end))
 			for (DataFile f : dataFiles)
-				if (currentTime >= f.start && currentTime <= f.end) {
+				if (currentTime >= f.start && currentTime < f.end) {
 					currentDataFile = f;
 					break;
 				}
