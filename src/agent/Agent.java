@@ -164,48 +164,7 @@ public class Agent {
 		for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
 			Direction key = entry.getKey();
 			Double attractivness = 0.0;
-			switch (key) {
-			case TOP:
-				attractivness += THREAT_COEFF
-						* computeAttractivnessComponentByThreat(neighborhood
-								.get(Neighborhood.Direction.TOP));
-				break;
-			case TOPRIGHT:
-				attractivness += THREAT_COEFF
-						* computeAttractivnessComponentByThreat(neighborhood
-								.get(Neighborhood.Direction.TOPRIGHT));
-				break;
-			case RIGHT:
-				attractivness += THREAT_COEFF
-						* computeAttractivnessComponentByThreat(neighborhood
-								.get(Neighborhood.Direction.RIGHT));
-				break;
-			case BOTTOMRIGHT:
-				attractivness += THREAT_COEFF
-						* computeAttractivnessComponentByThreat(neighborhood
-								.get(Neighborhood.Direction.BOTTOMRIGHT));
-				break;
-			case BOTTOM:
-				attractivness += THREAT_COEFF
-						* computeAttractivnessComponentByThreat(neighborhood
-								.get(Neighborhood.Direction.BOTTOM));
-				break;
-			case BOTTOMLEFT:
-				attractivness += THREAT_COEFF
-						* computeAttractivnessComponentByThreat(neighborhood
-								.get(Neighborhood.Direction.BOTTOMLEFT));
-				break;
-			case LEFT:
-				attractivness += THREAT_COEFF
-						* computeAttractivnessComponentByThreat(neighborhood
-								.get(Neighborhood.Direction.LEFT));
-				break;
-			case TOPLEFT:
-				attractivness += THREAT_COEFF
-						* computeAttractivnessComponentByThreat(neighborhood
-								.get(Neighborhood.Direction.TOPLEFT));
-				break;
-			}
+			attractivness += computeAttractivnessComponentByThreat(neighborhood.get(key));
 		}
 
 		return move_options;
