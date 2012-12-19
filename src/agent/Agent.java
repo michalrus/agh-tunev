@@ -88,7 +88,7 @@ public class Agent {
 	private static double THREAT_COMP_AHEAD = 1;
 
 	//TODO: do wywalenia jak najszybciej
-	private static double RIGHT_EXIT_COEFF = 2000;
+	private static double RIGHT_EXIT_COEFF = 15;
 	
 	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
@@ -211,7 +211,7 @@ public class Agent {
 	 * 
 	 * @return HashMapa kierunków wraz ze wspó³czynnikami atrakcyjnoœci
 	 * */
-	// TODO: dodac wiecej
+	// TODO: Zmodyfikowac mozliwosc pozostanie w miejscu
 	private HashMap<Direction, Double> createMoveOptions() {
 		HashMap<Direction, Double> move_options = new HashMap<Direction, Double>();
 
@@ -250,8 +250,7 @@ public class Agent {
 					if(key == Neighborhood.Direction.TOP)
 						val += RIGHT_EXIT_COEFF;
 					break;
-			}
-			
+			}	
 			move_options.put(key, val);
 		}
 
@@ -260,8 +259,11 @@ public class Agent {
 
 	/**
 	 * 1. Analizuje wszystkie dostepne opcje ruchu pod katem atrakcyjnosci i
-	 * dokonuje wyboru. 2. Obraca sie w kierunku ruchu. 3. Wykonuje ruch. 4.
-	 * Aktualizuje sasiedztwo.
+	 * dokonuje wyboru. 
+	 * 2. Sprawdza, czy op³aca jej sie ruch, jesli nie to pomija kolejne instrukcje.
+	 * 2. Obraca sie w kierunku ruchu. 
+	 * 3. Wykonuje ruch.
+	 * 4. Aktualizuje sasiedztwo.
 	 */
 	private void move(HashMap<Direction, Double> move_options) {
 		Direction dir = null;
@@ -270,15 +272,17 @@ public class Agent {
 		for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
 			Double curr_attractivness = entry.getValue();
 			if (top_attractivness == null
-					|| curr_attractivness < top_attractivness) {
+					|| curr_attractivness > top_attractivness) {
 				top_attractivness = curr_attractivness;
 				dir = entry.getKey();
 			}
 		}
 
-		rotate(dir);
-		setPosition(neighborhood.get(dir).getFirstCell());
-		neighborhood = board.getNeighborhoods(this);
+		if (top_attractivness > -THREAT_COEFF * position.getTemperature()){
+			rotate(dir);
+			setPosition(neighborhood.get(dir).getFirstCell());
+			neighborhood = board.getNeighborhoods(this);
+		}
 	}
 
 	/** Funkcja obraca agenta do kierunku jego ruchu */
@@ -306,13 +310,14 @@ public class Agent {
 	 * 
 	 * @param dir
 	 *            potencjalnie obrany kierunek
-	 * @return wspolczynnik atrakcyjnosci dla zadanego kierunku
+	 * @return wspolczynnik atrakcyjnosci dla zadanego kierunku,
+	 * 		   im wyzszy tym LEPIEJ
 	 */
 	private double computeAttractivnessComponentByThreat(Direction dir) {
-		double attractivness_comp = 0.0;
-		attractivness_comp += THREAT_COMP_AHEAD
+		double attractivness_comp = 0.0;		
+		attractivness_comp -= THREAT_COMP_AHEAD
 				* neighborhood.get(dir).getTemperature();
-		attractivness_comp -= THREAT_COMP_BEHIND
+		attractivness_comp += THREAT_COMP_BEHIND
 				* neighborhood.get(Direction.getOppositeDir(dir))
 						.getTemperature();
 

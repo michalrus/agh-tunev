@@ -9,7 +9,7 @@ import board.Cell;
 public class Neighborhood {
 
 	public enum Direction {
-		TOP, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOM, BOTTOMLEFT, LEFT, TOPLEFT;
+		TOP, TOPRIGHT, RIGHT, BOTTOMRIGHT, BOTTOM, BOTTOMLEFT, LEFT, TOPLEFT, CENTRE;
 
 		/**
 		 * Potrzebne miedzy innymi do badania zagrozenia.

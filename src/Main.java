@@ -26,7 +26,7 @@ public class Main {
 		
 		int currentTime = 0; // [ms]
 
-		board.initAgentsRandomly(20);
+		board.initAgentsRandomly(10);
 
 		UI ui = new UI();
 
