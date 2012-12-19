@@ -223,6 +223,7 @@ public class Agent {
 			Double attractivness = 0.0;
 			attractivness += THREAT_COEFF
 					* computeAttractivnessComponentByThreat(key);
+			move_options.put(key, attractivness);
 		}
 
 		return move_options;
