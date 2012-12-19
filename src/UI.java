@@ -3,7 +3,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Insets;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
