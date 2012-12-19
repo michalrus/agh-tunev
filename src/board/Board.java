@@ -119,8 +119,8 @@ public class Board {
 	}
 
 	public Cell getCellAt(int x, int y) {
-		if (x < cells.size())
-			if (y < cells.get(x).size())
+		if (x >= 0 && x < cells.size())
+			if (y >= 0 && y < cells.get(x).size())
 				return cells.get(x).get(y);
 		return null;
 	}
@@ -186,6 +186,10 @@ public class Board {
 	public Map<Neighborhood.Direction, Neighborhood> getNeighborhoods(
 			Agent agent) {
 		Map<Neighborhood.Direction, Neighborhood> map = new HashMap<Neighborhood.Direction, Neighborhood>();
+		
+		for (Neighborhood.Direction dir : Neighborhood.Direction.values()) {
+			map.put(dir, new Neighborhood(this, agent, dir));
+		}
 
 		return map;
 	}

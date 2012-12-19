@@ -156,6 +156,10 @@ public class Agent {
 		position = newPosition;
 		position.addAgent(this);
 	}
+	
+	public Cell getPosition() {
+		return position;
+	}
 
 	public boolean isAlive() {
 		return alive;
@@ -209,7 +213,8 @@ public class Agent {
 		HashMap<Direction, Double> move_options = new HashMap<Direction, Double>();
 
 		for (Map.Entry<Direction, Neighborhood> entry : neighborhood.entrySet()) {
-			if (!entry.getValue().getFirstCell().isOccupied())
+			Cell first = entry.getValue().getFirstCell(); 
+			if (first != null && !first.isOccupied())
 				move_options.put(entry.getKey(), 0.0);
 		}
 
