@@ -17,6 +17,32 @@ public class Agent {
 		public static Orientation getRandom() {
 			return values()[(int) (Math.random() * values().length)];
 		}
+		
+		/**Zaklada ze stoimy posrodku rozy wiatrow
+		 * 
+		 * @return
+		 * 			kierunek po obrocie w lewo
+		 */
+		public static Orientation turnLeft(Orientation currOrient){
+			Orientation left_orient = null;
+			int val_len = values().length;
+			for(int i = 0; i < val_len; ++i){
+				if(values()[i] == currOrient)
+					left_orient = values()[(i+1) % (val_len)];
+			}
+			return left_orient;
+		}
+		
+		/**Analogicznie do turnLeft(), tylko ze tym razem obrot w prawo*/
+		public static Orientation turnRight(Orientation currOrient){
+			Orientation right_orient = null;
+			int val_len = values().length;
+			for(int i = 0; i < val_len; ++i){
+				if(values()[i] == currOrient)
+					right_orient = values()[(i-1) % (val_len)];
+			}
+			return right_orient;
+		}
 	}
 
 	/** Wspolczynnik wagowy obliczonego zagro¿enia */
@@ -171,8 +197,10 @@ public class Agent {
 	}
 
 	/**
-	 * Przeszukuje dostêpne opcje, wybiera najbardziej atrakcyjna i wykonuje
-	 * ruch
+	 * 1. Analizuje wszystkie dostepne opcje ruchu pod katem atrakcyjnosci i dokonuje wyboru.
+	 * 2. Obraca sie w kierunku ruchu.
+	 * 3. Wykonuje ruch.
+	 * 4. Aktualizuje sasiedztwo.
 	 */
 	private void move(HashMap<Direction, Double> move_options) {
 		Direction dir = null;
@@ -187,46 +215,25 @@ public class Agent {
 			}
 		}
 
-		//TODO: prototyp - rozwinac
-		switch (dir) {
-			case LEFT : 
-				rotate();
-				break;
-			case RIGHT :
-				rotate();
-				break;
-			case BOTTOMLEFT : case BOTTOMRIGHT : 
-			case BOTTOM:
-				rotate(); rotate();
-				break;		
-		}
-
+		rotate(dir);
 		setPosition(neighborhood.get(dir).getFirstCell());
-		// <Micha³> doda³em te¿ na razie jakiœ randomowy ruch, ¿eby zobaczyæ czy
-		// dzia³a rysowanie
-
-		// wywal to wszystko poni¿ej!
-
-		/*if (Math.random() < 0.04) // 4% szans na prze¿ycie ; to wszystko jest
-									// tylko mój test rysowania!
-			alive = false;
-		for (;;) {
-			Cell cell = board.getCellAt(
-					(int) Math.round(Math.floor(Math.random()
-							* board.getWidth())),
-					(int) Math.round(Math.floor(Math.random()
-							* board.getLength())));
-			if (!cell.isOccupied()) {
-				setPosition(cell);
-				break;
-			}
-		}*/
+		neighborhood = board.getNeighborhoods(this);
 	}
 
 	/**Funkcja obraca agenta do kierunku jego ruchu*/
-	//TODO: stub
-	private void rotate(){
-		
+	//TODO: Poprawic
+	private void rotate(Direction dir){
+		switch(dir){
+			case LEFT :
+				orientation = Orientation.turnLeft(orientation);
+				break;
+			case RIGHT :
+				orientation = Orientation.turnRight(orientation);
+				break;
+			case BOTTOMLEFT: case BOTTOMRIGHT: case BOTTOM:
+				orientation = Orientation.turnRight(orientation);
+				orientation = Orientation.turnRight(orientation);
+		}
 	}
 	
 	
