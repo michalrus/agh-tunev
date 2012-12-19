@@ -114,21 +114,14 @@ public class UI extends JFrame {
 			int length = board.getLength();
 			for (int x = 0; x < width; x++)
 				for (int y = 0; y < length; y++)
-					paintCell(g, board.cellAt(x, y), null);
-
-			// agents
-			List<Agent> agents = board.getAgents();
-			for (Agent agent : agents) {
-				paintCell(g, null, agent);
-			}
-
+					paintCell(g, board.getCellAt(x, y));
 		}
 
-		private void paintCell(Graphics g, Cell cell, Agent agent) {
+		private void paintCell(Graphics g, Cell cell) {
 			Color c;
+			Agent agent = cell.getAgent();
 
 			if (agent != null) {
-				cell = agent.getPosition();
 				if (agent.isAlive())
 					c = Color.GREEN;
 				else

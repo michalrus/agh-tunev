@@ -15,7 +15,7 @@ public class Agent {
 
 		/** Losuje orientacje */
 		public static Orientation getRandom() {
-			return values()[(int)(Math.random() * values().length)];
+			return values()[(int) (Math.random() * values().length)];
 		}
 	}
 
@@ -43,7 +43,10 @@ public class Agent {
 	/** Referencja do planszy */
 	private Board board;
 
-	/** Komórka, w której aktualnie znajduje siê agent */
+	/**
+	 * Komórka, w której aktualnie znajduje siê agent. Nie nadpisujemy jej
+	 * rêcznie, tylko przez {@link #setPosition()}!
+	 */
 	private Cell position;
 
 	/** Kierunek, w którym zwrócony jest agent */
@@ -60,16 +63,16 @@ public class Agent {
 	 * na planszy. Pozycja jest z góry narzucona z poziomu Board. Orientacja
 	 * zostaje wylosowana.
 	 * 
-	 * @param board
+	 * @param _board
 	 *            referencja do planszy
-	 * @param position
+	 * @param _position
 	 *            referencja to komórki bêd¹cej pierwotn¹ pozycj¹ agenta
 	 */
 	// TODO: Tworzenie cech osobniczych
 	public Agent(Board _board, Cell _position) {
 		alive = true;
 		this.board = _board;
-		this.position = _position;
+		setPosition(_position);
 		orientation = Orientation.getRandom();
 		neighborhood = board.getNeighborhoods(this);
 		hbco = 0;
@@ -90,8 +93,17 @@ public class Agent {
 		}
 	}
 
-	public Cell getPosition() {
-		return position;
+	/**
+	 * Nie nadpisujmy {@link #position} rêcznie, tylko t¹ metod¹. Potrzebujê w
+	 * komórce mieæ referencjê do agenta, jeœli na niej stoi (rysowanie).
+	 * 
+	 * @param newPosition
+	 */
+	public void setPosition(Cell newPosition) {
+		if (position != null)
+			position.removeAgent();
+		position = newPosition;
+		position.addAgent(this);
 	}
 
 	public boolean isAlive() {
@@ -145,7 +157,7 @@ public class Agent {
 		HashMap<Direction, Double> move_options = new HashMap<Direction, Double>();
 
 		for (Map.Entry<Direction, Neighborhood> entry : neighborhood.entrySet()) {
-			if (entry.getValue().getFirstCell().getType() != Cell.Type.BLOCKED)
+			if (entry.getValue().getFirstCell().getType() == Cell.Type.EMPTY)
 				move_options.put(entry.getKey(), 0.0);
 		}
 
@@ -224,6 +236,15 @@ public class Agent {
 		// Cell
 		// }
 
+		// <Micha³> doda³em te¿ na razie jakiœ randomowy ruch, ¿eby zobaczyæ czy
+		// dzia³a rysowanie
+
+		setPosition(board
+				.getCellAt(
+						(int) Math.round(Math.floor(Math.random()
+								* board.getWidth())),
+						(int) Math.round(Math.floor(Math.random()
+								* board.getLength()))));
 	}
 
 	private double computeAttractivnessComponentByThreat(Neighborhood neigh) {

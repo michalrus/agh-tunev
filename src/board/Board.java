@@ -117,7 +117,7 @@ public class Board {
 		return cells.get(0).size();
 	}
 
-	public Cell cellAt(int x, int y) {
+	public Cell getCellAt(int x, int y) {
 		if (x < cells.size())
 			if (y < cells.get(x).size())
 				return cells.get(x).get(y);
@@ -127,7 +127,7 @@ public class Board {
 	private void addObstacle(int x1, int x2, int y1, int y2) {
 		for (int x = x1; x < x2; x++)
 			for (int y = y1; y < y2; y++) {
-				Cell c = cellAt(x, y);
+				Cell c = getCellAt(x, y);
 				if (c != null)
 					c.setType(Cell.Type.BLOCKED);
 			}
@@ -148,7 +148,7 @@ public class Board {
 				int x = rng.nextInt(width);
 				int y = rng.nextInt(length);
 
-				Cell cell = cellAt(x, y);
+				Cell cell = getCellAt(x, y);
 
 				if (cell.getType() != Cell.Type.BLOCKED
 						&& !usedCells.contains(cell)) {
@@ -168,7 +168,7 @@ public class Board {
 	 */
 	public void update() {
 		try {
-			Thread.sleep(1000); // na razie, bo póki nic tu nie ma do liczenia
+			Thread.sleep(500); // na razie, bo póki nic tu nie ma do liczenia
 		} catch (InterruptedException e) {
 		}
 
