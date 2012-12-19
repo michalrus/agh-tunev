@@ -3,10 +3,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -118,6 +114,7 @@ public class FDSParser {
 	private class DataFile implements Comparable<DataFile> {
 		public File file;
 		public int start, end;
+		public boolean alreadyRead = false;
 
 		public DataFile(File file, int start, int end) {
 			this.file = file;
@@ -168,8 +165,9 @@ public class FDSParser {
 					break;
 				}
 
-		System.out.println(currentTime + ": " + currentDataFile.start + "-" + currentDataFile.end
-				+ ": " + currentDataFile.file.getAbsolutePath());
+		System.out.println(currentTime + ": " + currentDataFile.start + "-"
+				+ currentDataFile.end + ": "
+				+ currentDataFile.file.getAbsolutePath());
 	}
 
 }

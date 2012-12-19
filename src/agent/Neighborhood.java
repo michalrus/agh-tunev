@@ -136,27 +136,27 @@ public class Neighborhood {
 	 */
 	private int tx(int x, int y) {
 		switch (orientation) {
-		default:
-			return x;
 		case SOUTH:
 			return -x;
 		case EAST:
 			return -y;
 		case WEST:
 			return y;
+		default:
+			return x;
 		}
 	}
 
 	private int ty(int x, int y) {
 		switch (orientation) {
-		default:
-			return y;
 		case SOUTH:
 			return -y;
 		case EAST:
 			return x;
 		case WEST:
 			return -x;
+		default:
+			return y;
 		}
 	}
 
