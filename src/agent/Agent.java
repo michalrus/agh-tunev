@@ -39,7 +39,6 @@ public class Agent {
 	/** Prêdkoœæ z jak¹ usuwane s¹ karboksyhemoglobiny z organizmu */
 	private static final int CLEANSING_VELOCITY = 6;
 
-	
 	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
 
@@ -58,7 +57,6 @@ public class Agent {
 	/** Aktualne stezenie karboksyhemoglobiny we krwii */
 	private double hbco;
 
-	
 	/**
 	 * Konstruktor agenta. Inicjuje wszystkie pola niezbêdne do jego egzystencji
 	 * na planszy. Pozycja jest z góry narzucona z poziomu Board. Orientacja
@@ -79,11 +77,11 @@ public class Agent {
 		hbco = 0;
 	}
 
-	/** Akcje agenta w danej iteracji.
-	 *	1. Sprawdza, czy agent zyje - jesli nie, to wychodzi z funkcji.
-	 *	2. Sprawdza, czy agent nie powinien zginac w tej turze.
-	 *	3. Sprawdza jakie sa dostepne opcje ruchu.
-	 *	4. Na podstawie danych otrzymanych w poprzednim punkcie podejmuje decyzje i wykouje ruch 
+	/**
+	 * Akcje agenta w danej iteracji. 1. Sprawdza, czy agent zyje - jesli nie,
+	 * to wychodzi z funkcji. 2. Sprawdza, czy agent nie powinien zginac w tej
+	 * turze. 3. Sprawdza jakie sa dostepne opcje ruchu. 4. Na podstawie danych
+	 * otrzymanych w poprzednim punkcie podejmuje decyzje i wykouje ruch
 	 */
 	public void update() {
 		if (!alive)
@@ -91,7 +89,7 @@ public class Agent {
 
 		if (checkIfIWillLive()) {
 			move(createMoveOptions());
-			}	
+		}
 	}
 
 	/** Zwraca kierunek, w którym zwrócony jest agent */
@@ -99,7 +97,7 @@ public class Agent {
 		return orientation;
 	}
 
-	/** 
+	/**
 	 * Okresla, czy agent przezyje, sprawdzajac temperature otoczenia i stezenie
 	 * toksyn we krwii
 	 * 
@@ -114,9 +112,11 @@ public class Agent {
 
 		return alive;
 	}
-	
-	/**Funkcja oblicza aktualne stezenie karboksyhemoglobiny, uwzgledniajac
-	 * zdolnosci organizmu do usuwania toksyn */
+
+	/**
+	 * Funkcja oblicza aktualne stezenie karboksyhemoglobiny, uwzgledniajac
+	 * zdolnosci organizmu do usuwania toksyn
+	 */
 	private void evaluateHbCO() {
 		if (hbco > CLEANSING_VELOCITY)
 			hbco -= CLEANSING_VELOCITY;
@@ -126,76 +126,95 @@ public class Agent {
 	}
 
 	/**
-	 * Sprawdza jakie s¹ dostêpne opcje ruchu, a nastêpnie szacuje, na ile sa atrakcyjne dla agenta
-	 * Najpierw przeszukuje s¹siednie komórki w poszukiwaniu przeszkód i wybieram tylko te,
-	 * które s¹ puste.
-	 * Nastêpnie szacuje wspó³czynnik atrakcyjnoœci dla ka¿dej z mo¿liwych opcji ruchu na podstawie
-	 * zagro¿enia, odleg³oœci od wyjœcia, itd.
+	 * Sprawdza jakie s¹ dostêpne opcje ruchu, a nastêpnie szacuje, na ile sa
+	 * atrakcyjne dla agenta Najpierw przeszukuje s¹siednie komórki w
+	 * poszukiwaniu przeszkód i wybieram tylko te, które s¹ puste. Nastêpnie
+	 * szacuje wspó³czynnik atrakcyjnoœci dla ka¿dej z mo¿liwych opcji ruchu na
+	 * podstawie zagro¿enia, odleg³oœci od wyjœcia, itd.
 	 * 
-	 * @return
-	 * 			HashMapa kierunków wraz ze wspó³czynnikami atrakcyjnoœci
+	 * @return HashMapa kierunków wraz ze wspó³czynnikami atrakcyjnoœci
 	 * */
-	//TODO: dodac wiecej 
+	// TODO: dodac wiecej
 	private HashMap<Direction, Double> createMoveOptions() {
 		HashMap<Direction, Double> move_options = new HashMap<Direction, Double>();
-		
-		for (Map.Entry<Direction, Neighborhood> entry : neighborhood
-				.entrySet()) {
-			if (!entry.getValue().getFirstCell().isOccupied())
+
+		for (Map.Entry<Direction, Neighborhood> entry : neighborhood.entrySet()) {
+			if (entry.getValue().getFirstCell().getType() != Cell.Type.BLOCKED)
 				move_options.put(entry.getKey(), 0.0);
 		}
 
 		for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
-			Direction key = entry.getKey();	
+			Direction key = entry.getKey();
 			Double attractivness = 0.0;
 			switch (key) {
-				case TOP :		
-					attractivness += THREAT_COEFF * computeAttractivnessComponentByThreat(neighborhood.get(Neighborhood.Direction.TOP));
-					break;
-				case TOPRIGHT :
-					attractivness += THREAT_COEFF * computeAttractivnessComponentByThreat(neighborhood.get(Neighborhood.Direction.TOPRIGHT));
-					break;
-				case RIGHT :
-					attractivness += THREAT_COEFF * computeAttractivnessComponentByThreat(neighborhood.get(Neighborhood.Direction.RIGHT));
-					break;
-				case BOTTOMRIGHT :
-					attractivness += THREAT_COEFF * computeAttractivnessComponentByThreat(neighborhood.get(Neighborhood.Direction.BOTTOMRIGHT));
-					break;
-				case BOTTOM :
-					attractivness += THREAT_COEFF * computeAttractivnessComponentByThreat(neighborhood.get(Neighborhood.Direction.BOTTOM));
-					break;
-				case BOTTOMLEFT :
-					attractivness += THREAT_COEFF * computeAttractivnessComponentByThreat(neighborhood.get(Neighborhood.Direction.BOTTOMLEFT));
-					break;
-				case LEFT :
-					attractivness += THREAT_COEFF * computeAttractivnessComponentByThreat(neighborhood.get(Neighborhood.Direction.LEFT));
-					break;
-				case TOPLEFT :
-					attractivness += THREAT_COEFF * computeAttractivnessComponentByThreat(neighborhood.get(Neighborhood.Direction.TOPLEFT));
-					break;			
+			case TOP:
+				attractivness += THREAT_COEFF
+						* computeAttractivnessComponentByThreat(neighborhood
+								.get(Neighborhood.Direction.TOP));
+				break;
+			case TOPRIGHT:
+				attractivness += THREAT_COEFF
+						* computeAttractivnessComponentByThreat(neighborhood
+								.get(Neighborhood.Direction.TOPRIGHT));
+				break;
+			case RIGHT:
+				attractivness += THREAT_COEFF
+						* computeAttractivnessComponentByThreat(neighborhood
+								.get(Neighborhood.Direction.RIGHT));
+				break;
+			case BOTTOMRIGHT:
+				attractivness += THREAT_COEFF
+						* computeAttractivnessComponentByThreat(neighborhood
+								.get(Neighborhood.Direction.BOTTOMRIGHT));
+				break;
+			case BOTTOM:
+				attractivness += THREAT_COEFF
+						* computeAttractivnessComponentByThreat(neighborhood
+								.get(Neighborhood.Direction.BOTTOM));
+				break;
+			case BOTTOMLEFT:
+				attractivness += THREAT_COEFF
+						* computeAttractivnessComponentByThreat(neighborhood
+								.get(Neighborhood.Direction.BOTTOMLEFT));
+				break;
+			case LEFT:
+				attractivness += THREAT_COEFF
+						* computeAttractivnessComponentByThreat(neighborhood
+								.get(Neighborhood.Direction.LEFT));
+				break;
+			case TOPLEFT:
+				attractivness += THREAT_COEFF
+						* computeAttractivnessComponentByThreat(neighborhood
+								.get(Neighborhood.Direction.TOPLEFT));
+				break;
 			}
 		}
-		
+
 		return move_options;
 	}
-	
-	/**Przeszukuje dostêpne opcje, wybiera najbardziej atrakcyjna i wykonuje ruch*/
+
+	/**
+	 * Przeszukuje dostêpne opcje, wybiera najbardziej atrakcyjna i wykonuje
+	 * ruch
+	 */
 	private void move(HashMap<Direction, Double> move_options) {
 		Direction dir = null;
 		Double top_attractivness = null;
-		
-		for(Map.Entry<Direction, Double> entry : move_options.entrySet()){
+
+		for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
 			Double curr_attractivness = entry.getValue();
-			if(top_attractivness == null || curr_attractivness < top_attractivness){
+			if (top_attractivness == null
+					|| curr_attractivness < top_attractivness) {
 				top_attractivness = curr_attractivness;
 				dir = entry.getKey();
 			}
 		}
-		
-		switch(dir){
-		 //TODO: Zaimplementowac ruch. Potrzebujê dodatkowych metod w Board i Cell
+
+		switch (dir) {
+		// TODO: Zaimplementowac ruch. Potrzebujê dodatkowych metod w Board i
+		// Cell
 		}
-		
+
 	}
 
 	private double computeAttractivnessComponentByThreat(Neighborhood neigh) {
@@ -210,8 +229,6 @@ public class Agent {
 	private void computeAttractivnessComponentBySocialDistances() {
 		// TODO: sk³adowa potencja³u od Social Distances
 	}
-
-	
 
 	private void updateMotorSkills() {
 		// TODO: ograniczenie zdolnoœci poruszania siê w wyniku zatrucia?
