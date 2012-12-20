@@ -1,4 +1,5 @@
 import java.io.FileNotFoundException;
+import java.text.ParseException;
 
 import board.Board;
 
@@ -13,17 +14,16 @@ public class Main {
 	 * 
 	 * @param args
 	 * @throws FileNotFoundException
+	 * @throws ParseException
 	 */
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws FileNotFoundException, ParseException {
 		Board board;
 
 		board = new Board();
 
-		FDSParser parser = new FDSParser(board);
+		FDSParser parser = new FDSParser(board, "data/");
 
-		int duration = parser.inputFile("firedata/tunnel.fds");
-		parser.setDataDirectory("firedata/data");
-		
+		int duration = parser.getDuration();
 		int currentTime = 0; // [ms]
 
 		board.initAgentsRandomly(10);
@@ -31,7 +31,15 @@ public class Main {
 		UI ui = new UI();
 
 		while (currentTime < duration) {
-			parser.readData(currentTime);
+			try {
+				parser.readData(currentTime);
+			} catch (FileNotFoundException | ParseException e1) {
+				/*
+				 * if user deleted a needed data file *during* simulation, then
+				 * they won't have that data -,- ignore, keep simulating
+				 */
+				e1.printStackTrace();
+			}
 
 			board.update();
 			ui.draw(board);
