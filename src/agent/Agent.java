@@ -63,10 +63,10 @@ public class Agent {
 	private static final double THREAT_COEFF = 10;
 
 	/** Wspolczynnik wagowy odleg³oœci od wyjœcia */
-	//private static final double EXIT_COEFF = 5;
+	// private static final double EXIT_COEFF = 5;
 
 	/** Wspolczynnik wagowy dla czynników spo³ecznych */
-	//private static final double SOCIAL_COEFF = 0.01;
+	// private static final double SOCIAL_COEFF = 0.01;
 
 	/** Smiertelna wartosc temp. na wysokosci 1,5m */
 	private static final double LETHAL_TEMP = 80;
@@ -115,26 +115,32 @@ public class Agent {
 	 * na planszy. Pozycja jest z góry narzucona z poziomu Board. Orientacja
 	 * zostaje wylosowana.
 	 * 
-	 * @param _board
+	 * @param board
 	 *            referencja do planszy
-	 * @param _position
+	 * @param position
 	 *            referencja to komórki bêd¹cej pierwotn¹ pozycj¹ agenta
 	 */
 	// TODO: Tworzenie cech osobniczych
-	public Agent(Board _board, Cell _position) {
+	public Agent(Board board, Cell position) {
 		alive = true;
-		this.board = _board;
-		setPosition(_position);
+		this.board = board;
+		setPosition(position);
 		orientation = Orientation.getRandom();
 		neighborhood = board.getNeighborhoods(this);
 		hbco = 0;
 	}
 
 	/**
-	 * Akcje agenta w danej iteracji. 1. Sprawdza, czy agent zyje - jesli nie,
-	 * to wychodzi z funkcji. 2. Sprawdza, czy agent nie powinien zginac w tej
-	 * turze. 3. Sprawdza jakie sa dostepne opcje ruchu. 4. Na podstawie danych
-	 * otrzymanych w poprzednim punkcie podejmuje decyzje i wykouje ruch
+	 * Akcje agenta w danej iteracji.
+	 * 
+	 * 1. Sprawdza, czy agent zyje - jesli nie, to wychodzi z funkcji.
+	 * 
+	 * 2. Sprawdza, czy agent nie powinien zginac w tej turze.
+	 * 
+	 * 3. Sprawdza jakie sa dostepne opcje ruchu.
+	 * 
+	 * 4. Na podstawie danych otrzymanych w poprzednim punkcie podejmuje decyzje
+	 * i wykouje ruch
 	 */
 	public void update() {
 		if (!alive)
@@ -148,6 +154,8 @@ public class Agent {
 	/**
 	 * Nie nadpisujmy {@link #position} rêcznie, tylko t¹ metod¹. Potrzebujê w
 	 * komórce mieæ referencjê do agenta, jeœli na niej stoi (rysowanie).
+	 * 
+	 * TODO: to wyleci w nowym podejœciu oczywiœcie. :>
 	 * 
 	 * @param newPosition
 	 */
@@ -177,6 +185,8 @@ public class Agent {
 	 * 
 	 * @return zwraca status agenta, zeby nie wykonywac potem niepotrzebnie
 	 *         obliczen w update(), skoro i tak jest martwy ;)
+	 *         {@code // Micha³ Rus lubi
+	 *         to. ^-^ Czat w komentarzach, jea!}
 	 */
 	private boolean checkIfIWillLive() {
 		evaluateHbCO();
@@ -257,9 +267,16 @@ public class Agent {
 
 	/**
 	 * 1. Analizuje wszystkie dostepne opcje ruchu pod katem atrakcyjnosci i
-	 * dokonuje wyboru. 2. Sprawdza, czy op³aca jej sie ruch, jesli nie to
-	 * pomija kolejne instrukcje. 2. Obraca sie w kierunku ruchu. 3. Wykonuje
-	 * ruch. 4. Aktualizuje sasiedztwo.
+	 * dokonuje wyboru.
+	 * 
+	 * 2. Sprawdza, czy op³aca jej sie ruch, jesli nie to pomija kolejne
+	 * instrukcje.
+	 * 
+	 * 2. Obraca sie w kierunku ruchu.
+	 * 
+	 * 3. Wykonuje ruch.
+	 * 
+	 * 4. Aktualizuje sasiedztwo.
 	 */
 	private void move(HashMap<Direction, Double> move_options) {
 		Direction dir = null;
@@ -281,7 +298,11 @@ public class Agent {
 		}
 	}
 
-	/** Funkcja obraca agenta do kierunku jego ruchu */
+	/**
+	 * Funkcja obraca agenta do kierunku jego ruchu
+	 * 
+	 * Ale¿ to jest zakrêcone, czas na zmiany! -- m.
+	 */
 	// TODO: Poprawic
 	private void rotate(Direction dir) {
 		switch (dir) {
