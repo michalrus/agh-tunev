@@ -1,66 +1,42 @@
 package agent;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Random;
 
-import agent.Neighborhood.Direction;
 import board.Board;
-import board.Cell;
+import board.Board.NoPhysicsDataException;
+import board.Board.Physics;
+import board.Point;
 
-public class Agent {
+public final class Agent {
 
-	/** Mo¿liwa orientacja agenta */
-	public enum Orientation {
-		SOUTH, EAST, NORTH, WEST;
+	/**
+	 * Orientacja: k¹t miêdzy wektorem "wzroku" i osi¹ OX w [deg]. Kiedy wynosi
+	 * 0.0 deg, to Agent "patrzy" jak oœ OX (jak na geometrii analitycznej).
+	 * Wtedy te¿ sin() i cos() dzia³aj¹ ~intuicyjne, tak samo jak analityczne
+	 * wzory. :] -- m.
+	 */
+	private double phi;
 
-		/** Losuje orientacje */
-		public static Orientation getRandom() {
-			return values()[(int) (Math.random() * values().length)];
-		}
+	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
+	private Point position;
+	
+	/** Szerokoœæ elipsy Agenta w [m]. */
+	public static final double BROADNESS = 0.33;
+	
+	/** Ten drugi wymiar (gruboœæ?) elipsy Agenta w [m]. */
+	public static final double THICKNESS = 0.2;
 
-		/**
-		 * Zaklada ze stoimy posrodku rozy wiatrow. Zwraca wartosc posiadajaca
-		 * indeks tablicy values() wiekszy o 1
-		 * 
-		 * @return kierunek po obrocie w lewo
-		 */
-		public static Orientation turnLeft(Orientation currOrient) {
-			if (values() == null)
-				return null;
+	/** D³ugoœæ wektora orientacji Agenta w [m]. Nic nie robi, tylko do rysowania. */
+	public static final double ORIENTATION_VECTOR = 1.0;
 
-			int index = 0;
-			int val_len = values().length;
-			for (int i = 0; i < val_len; ++i) {
-				if (values()[i] == currOrient)
-					index = (i + 1) % (val_len);
-			}
-			return values()[index];
+	/** Referencja do planszy. */
+	private Board board;
 
-		}
-
-		/**
-		 * Analogicznie do turnLeft(), tylko ze tym razem obrot w prawo. Zwraca
-		 * element o indeksie mniejszym o 1
-		 */
-		public static Orientation turnRight(Orientation currOrient) {
-			if (values() == null)
-				return null;
-
-			int index = 0;
-			int val_len = values().length;
-			for (int i = 0; i < val_len; ++i) {
-				if (values()[i] == currOrient) {
-					index = i - 1;
-					if (index < 0)
-						index += val_len;
-				}
-			}
-			return values()[index];
-		}
-	}
+	/** Random number generator. */
+	private Random rng;
 
 	/** Wspolczynnik wagowy obliczonego zagro¿enia */
-	private static final double THREAT_COEFF = 10;
+	// private static final double THREAT_COEFF = 10;
 
 	/** Wspolczynnik wagowy odleg³oœci od wyjœcia */
 	// private static final double EXIT_COEFF = 5;
@@ -81,31 +57,13 @@ public class Agent {
 	private static final double CLEANSING_VELOCITY = 0.08;
 
 	/** Wspolczynnik wagowy dla kierunku przeciwnego do potencjalnego ruchu */
-	private static double THREAT_COMP_BEHIND = 0.5;
+	// private static double THREAT_COMP_BEHIND = 0.5;
 
 	/** Wspolczynnik wagowy dla potencjalnego kierunku ruchu */
-	private static double THREAT_COMP_AHEAD = 1;
-
-	// TODO: do wywalenia jak najszybciej
-	private static double RIGHT_EXIT_COEFF = 15;
+	// private static double THREAT_COMP_AHEAD = 1;
 
 	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
-
-	/** Referencja do planszy */
-	private Board board;
-
-	/**
-	 * Komórka, w której aktualnie znajduje siê agent. Nie nadpisujemy jej
-	 * rêcznie, tylko przez {@link #setPosition()}!
-	 */
-	private Cell position;
-
-	/** Kierunek, w którym zwrócony jest agent */
-	private Orientation orientation;
-
-	/** Otoczenie agenta pobierane przy ka¿dym update()'cie */
-	private Map<Direction, Neighborhood> neighborhood;
 
 	/** Aktualne stezenie karboksyhemoglobiny we krwii */
 	private double hbco;
@@ -120,14 +78,17 @@ public class Agent {
 	 * @param position
 	 *            referencja to komórki bêd¹cej pierwotn¹ pozycj¹ agenta
 	 */
-	// TODO: Tworzenie cech osobniczych
-	public Agent(Board board, Cell position) {
-		alive = true;
+	public Agent(Board board, Point position) {
 		this.board = board;
-		setPosition(position);
-		orientation = Orientation.getRandom();
-		neighborhood = board.getNeighborhoods(this);
+		this.position = position;
+
+		rng = new Random();
+		phi = rng.nextDouble() * 360;
+
+		alive = true;
 		hbco = 0;
+
+		// TODO: Agent(): Tworzenie cech osobniczych.
 	}
 
 	/**
@@ -140,74 +101,95 @@ public class Agent {
 	 * 3. Sprawdza jakie sa dostepne opcje ruchu.
 	 * 
 	 * 4. Na podstawie danych otrzymanych w poprzednim punkcie podejmuje decyzje
-	 * i wykouje ruch
+	 * i wykonuje ruch
+	 * 
+	 * @param dt
+	 *            Czas w [ms] jaki up³yn¹³ od ostatniego update()'u. Mo¿na
+	 *            wykorzystaæ go do policzenia przesuniêcia w tej iteracji z
+	 *            zadan¹ wartoœci¹ prêdkoœci:
+	 *            {@code dx = dt * v * cos(phi); dy = dt * v * sin(phi);}
 	 */
-	public void update() {
+	public void update(double dt) {
 		if (!alive)
 			return;
 
-		if (checkIfIWillLive()) {
-			move(createMoveOptions());
-		}
+		checkIfIWillLive();
+
+		if (!alive) // ten sam koszt, a czytelniej, przemieni³em -- m.
+			return;
+
+		// TODO: Agent::update(): Poruszanie siê.
+		// move(createMoveOptions());
 	}
 
 	/**
-	 * Nie nadpisujmy {@link #position} rêcznie, tylko t¹ metod¹. Potrzebujê w
-	 * komórce mieæ referencjê do agenta, jeœli na niej stoi (rysowanie).
+	 * Sprawdza czy Agent na swojej planszy aktualnie koliduje z *czymkolwiek*
+	 * (innym Agentem, przeszkod¹).
 	 * 
-	 * TODO: to wyleci w nowym podejœciu oczywiœcie. :>
+	 * U¿ywanie: najpierw ustawiamy nowe {@link #position} i {@link #phi},
+	 * sprawdzamy czy {@link #hasCollision()}, jeœli tak, to wracamy do starych.
 	 * 
-	 * @param newPosition
+	 * Prawdopodobnie do modyfikacji, na razie tak zapisa³em. -- m.
+	 * 
+	 * TODO: Agent::hasCollision(): Sprawdzanie kolizji.
+	 * 
+	 * @return
 	 */
-	public void setPosition(Cell newPosition) {
-		if (position != null)
-			position.removeAgent();
-		position = newPosition;
-		position.addAgent(this);
+	public boolean hasCollision() {
+		return false;
 	}
 
-	public Cell getPosition() {
+	public Point getPosition() {
 		return position;
+	}
+
+	/** Zwraca kierunek, w którym zwrócony jest agent */
+	public double getOrientation() {
+		return phi;
 	}
 
 	public boolean isAlive() {
 		return alive;
 	}
 
-	/** Zwraca kierunek, w którym zwrócony jest agent */
-	public Orientation getOrientation() {
-		return orientation;
-	}
-
 	/**
 	 * Okresla, czy agent przezyje, sprawdzajac temperature otoczenia i stezenie
 	 * toksyn we krwii
-	 * 
-	 * @return zwraca status agenta, zeby nie wykonywac potem niepotrzebnie
-	 *         obliczen w update(), skoro i tak jest martwy ;)
-	 *         {@code // Micha³ Rus lubi
-	 *         to. ^-^ Czat w komentarzach, jea!}
 	 */
-	private boolean checkIfIWillLive() {
+	private void checkIfIWillLive() {
 		evaluateHbCO();
 
-		if (hbco > LETHAL_HbCO_CONCN || position.getTemperature() > LETHAL_TEMP)
-			alive = false;
-
-		return alive;
+		try {
+			if (hbco > LETHAL_HbCO_CONCN
+					|| board.getPhysics(position, Physics.TEMPERATURE) > LETHAL_TEMP)
+				alive = false;
+		} catch (NoPhysicsDataException e) {
+			// nie zmieniaj flagi ¿ycia, jeœli nie mamy danych o temperaturze w
+			// aktualnym punkcie przestrzeni i czasu (ale ofc. tylko gdy
+			// stê¿enie CO pozwala prze¿yæ)
+		}
 	}
 
 	/**
 	 * Funkcja oblicza aktualne stezenie karboksyhemoglobiny, uwzgledniajac
 	 * zdolnosci organizmu do usuwania toksyn
 	 */
-	// TODO: Zastanowic sie, czy to faktycznie jest funkcja liniowa
 	private void evaluateHbCO() {
+		// TODO: trzeba tê prêdkoœæ teraz uzale¿niæ od dt; jeœli to by³o
+		// 0.08/500 ms, to jakby ustawiæ to w³aœnie na 0.08/500 i zawsze tutaj
+		// mno¿yæ przez dt tê sta³¹ prêdkoœæ, bêdzie dzia³a³o tak samo.
+
 		if (hbco > CLEANSING_VELOCITY)
 			hbco -= CLEANSING_VELOCITY;
 
-		hbco += LETHAL_HbCO_CONCN
-				* (position.getCOConcentration() / LETHAL_CO_CONCN);
+		// TODO: Zastanowiæ siê, czy to faktycznie jest funkcja liniowa.
+		try {
+			hbco += LETHAL_HbCO_CONCN
+					* (board.getPhysics(position, Physics.CO) / LETHAL_CO_CONCN);
+		} catch (NoPhysicsDataException e) {
+			// TODO: mo¿e nic nie rób z hbco, jeœli nie mamy danych o tlenku
+			// wêgla (II)? KASIU?!...
+		}
 	}
 
 	/**
@@ -219,51 +201,33 @@ public class Agent {
 	 * 
 	 * @return HashMapa kierunków wraz ze wspó³czynnikami atrakcyjnoœci
 	 * */
-	// TODO: Zmodyfikowac mozliwosc pozostanie w miejscu
-	private HashMap<Direction, Double> createMoveOptions() {
-		HashMap<Direction, Double> move_options = new HashMap<Direction, Double>();
-
-		for (Map.Entry<Direction, Neighborhood> entry : neighborhood.entrySet()) {
-			Cell first = entry.getValue().getFirstCell();
-			if (first != null && !first.isOccupied())
-				move_options.put(entry.getKey(), 0.0);
-		}
-
-		for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
-			Direction key = entry.getKey();
-			Double attractivness = 0.0;
-			attractivness += THREAT_COEFF
-					* computeAttractivnessComponentByThreat(key);
-			move_options.put(key, attractivness);
-		}
-
-		// prowizorka
-		for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
-			Direction key = entry.getKey();
-			double val = entry.getValue();
-			switch (orientation) {
-			case NORTH:
-				if (key == Neighborhood.Direction.LEFT)
-					val += RIGHT_EXIT_COEFF;
-				break;
-			case SOUTH:
-				if (key == Neighborhood.Direction.RIGHT)
-					val += RIGHT_EXIT_COEFF;
-				break;
-			case EAST:
-				if (key == Neighborhood.Direction.BOTTOM)
-					val += RIGHT_EXIT_COEFF;
-				break;
-			case WEST:
-				if (key == Neighborhood.Direction.TOP)
-					val += RIGHT_EXIT_COEFF;
-				break;
-			}
-			move_options.put(key, val);
-		}
-
-		return move_options;
-	}
+	/*
+	 * // TODO: Agent::createMoveOptions(): Zmodyfikowac mozliwosc pozostanie w
+	 * // miejscu private HashMap<Direction, Double> createMoveOptions() {
+	 * HashMap<Direction, Double> move_options = new HashMap<Direction,
+	 * Double>();
+	 * 
+	 * for (Map.Entry<Direction, Neighborhood> entry : neighborhood.entrySet())
+	 * { Cell first = entry.getValue().getFirstCell(); if (first != null &&
+	 * !first.isOccupied()) move_options.put(entry.getKey(), 0.0); }
+	 * 
+	 * for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
+	 * Direction key = entry.getKey(); Double attractivness = 0.0; attractivness
+	 * += THREAT_COEFF computeAttractivnessComponentByThreat(key);
+	 * move_options.put(key, attractivness); }
+	 * 
+	 * // prowizorka for (Map.Entry<Direction, Double> entry :
+	 * move_options.entrySet()) { Direction key = entry.getKey(); double val =
+	 * entry.getValue(); switch (orientation) { case NORTH: if (key ==
+	 * Neighborhood.Direction.LEFT) val += RIGHT_EXIT_COEFF; break; case SOUTH:
+	 * if (key == Neighborhood.Direction.RIGHT) val += RIGHT_EXIT_COEFF; break;
+	 * case EAST: if (key == Neighborhood.Direction.BOTTOM) val +=
+	 * RIGHT_EXIT_COEFF; break; case WEST: if (key ==
+	 * Neighborhood.Direction.TOP) val += RIGHT_EXIT_COEFF; break; }
+	 * move_options.put(key, val); }
+	 * 
+	 * return move_options; }
+	 */
 
 	/**
 	 * 1. Analizuje wszystkie dostepne opcje ruchu pod katem atrakcyjnosci i
@@ -278,50 +242,19 @@ public class Agent {
 	 * 
 	 * 4. Aktualizuje sasiedztwo.
 	 */
-	private void move(HashMap<Direction, Double> move_options) {
-		Direction dir = null;
-		Double top_attractivness = null;
-
-		for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
-			Double curr_attractivness = entry.getValue();
-			if (top_attractivness == null
-					|| curr_attractivness > top_attractivness) {
-				top_attractivness = curr_attractivness;
-				dir = entry.getKey();
-			}
-		}
-
-		if (top_attractivness > -THREAT_COEFF * position.getTemperature()) {
-			rotate(dir);
-			setPosition(neighborhood.get(dir).getFirstCell());
-			neighborhood = board.getNeighborhoods(this);
-		}
-	}
-
-	/**
-	 * Funkcja obraca agenta do kierunku jego ruchu
+	/*
+	 * private void move(HashMap<Direction, Double> move_options) { Direction
+	 * dir = null; Double top_attractivness = null;
 	 * 
-	 * Ale¿ to jest zakrêcone, czas na zmiany! -- m.
+	 * for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
+	 * Double curr_attractivness = entry.getValue(); if (top_attractivness ==
+	 * null || curr_attractivness > top_attractivness) { top_attractivness =
+	 * curr_attractivness; dir = entry.getKey(); } }
+	 * 
+	 * if (top_attractivness > -THREAT_COEFF * position.getTemperature()) {
+	 * rotate(dir); setPosition(neighborhood.get(dir).getFirstCell());
+	 * neighborhood = board.getNeighborhoods(this); } }
 	 */
-	// TODO: Poprawic
-	private void rotate(Direction dir) {
-		switch (dir) {
-		case LEFT:
-			orientation = Orientation.turnLeft(orientation);
-			break;
-		case RIGHT:
-			orientation = Orientation.turnRight(orientation);
-			break;
-		case BOTTOMLEFT:
-		case BOTTOMRIGHT:
-		case BOTTOM:
-			orientation = Orientation.turnRight(orientation);
-			orientation = Orientation.turnRight(orientation);
-			break;
-		default:
-			break;
-		}
-	}
 
 	/**
 	 * Oblicza chec wyboru danego kierunku, biorac pod uwage zarowno chec ruchu
@@ -332,28 +265,27 @@ public class Agent {
 	 * @return wspolczynnik atrakcyjnosci dla zadanego kierunku, im wyzszy tym
 	 *         LEPIEJ
 	 */
-	private double computeAttractivnessComponentByThreat(Direction dir) {
-		double attractivness_comp = 0.0;
-		attractivness_comp -= THREAT_COMP_AHEAD
-				* neighborhood.get(dir).getTemperature();
-		attractivness_comp += THREAT_COMP_BEHIND
-				* neighborhood.get(Direction.getOppositeDir(dir))
-						.getTemperature();
-
-		return attractivness_comp;
-		// TODO: rozwinac
-	}
+	/*
+	 * private double computeAttractivnessComponentByThreat(Direction dir) {
+	 * double attractivness_comp = 0.0; attractivness_comp -= THREAT_COMP_AHEAD
+	 * neighborhood.get(dir).getTemperature(); attractivness_comp +=
+	 * THREAT_COMP_BEHIND neighborhood.get(Direction.getOppositeDir(dir))
+	 * .getTemperature();
+	 * 
+	 * return attractivness_comp; // TODO:
+	 * Agent::computeAttractivnessComponentByThreat(): Rozwin¹æ. }
+	 */
 
 	// private void computeAttractivnessComponentByExit() {
-	// TODO: sk³adowa potencja³u od ew. wyjœcia (jeœli widoczne)
+	// sk³adowa potencja³u od ew. wyjœcia (jeœli widoczne)
 	// }
 
 	// private void computeAttractivnessComponentBySocialDistances() {
-	// TODO: sk³adowa potencja³u od Social Distances
+	// sk³adowa potencja³u od Social Distances
 	// }
 
 	// private void updateMotorSkills() {
-	// TODO: ograniczenie zdolnoœci poruszania siê w wyniku zatrucia?
+	// ograniczenie zdolnoœci poruszania siê w wyniku zatrucia?
 	// }
 
 }

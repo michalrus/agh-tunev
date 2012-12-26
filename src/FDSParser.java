@@ -12,15 +12,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import board.Board;
-import board.Cell;
+import board.Board.Physics;
+import board.Point;
 
-public class FDSParser {
+public final class FDSParser {
 
 	private Board board;
-	private float dx, dy, offsetX, offsetY; // [m]
+	private double offsetX, offsetY; // [m]
 	private File dataFolder, inputFile;
 	private SortedSet<DataFile> dataFiles;
-	private int duration;
+	private double duration;
 
 	public FDSParser(Board board, String dataFolder)
 			throws FileNotFoundException, ParseException {
@@ -33,17 +34,17 @@ public class FDSParser {
 
 	/**
 	 * Czyta folder {@link #dataFolder} i jeœli znajdzie pliki o nazwach
-	 * pasuj¹ch do konwencji ustalonej z Kaœk¹, zapisuje je sobie odpowiednio w
-	 * pamiêci (w {@link #inputFile} i {@link #dataFiles}).
+	 * pasuj¹cych do konwencji ustalonej z Kaœk¹, zapisuje je sobie odpowiednio
+	 * w pamiêci (w {@link #inputFile} i {@link #dataFiles}).
 	 */
 	public void parseFilenames() {
-		Map<DataFile.Type, Pattern> patterns = new HashMap<DataFile.Type, Pattern>();
+		Map<Physics, Pattern> patterns = new HashMap<Physics, Pattern>();
 
-		patterns.put(DataFile.Type.TEMPERATURE, Pattern.compile(
+		patterns.put(Physics.TEMPERATURE, Pattern.compile(
 				"^temp_(\\d+)-(\\d+)s\\.csv$", Pattern.CASE_INSENSITIVE));
 
-		patterns.put(DataFile.Type.CO, Pattern.compile(
-				"^co_(\\d+)-(\\d+)s\\.csv$", Pattern.CASE_INSENSITIVE));
+		patterns.put(Physics.CO, Pattern.compile("^co_(\\d+)-(\\d+)s\\.csv$",
+				Pattern.CASE_INSENSITIVE));
 
 		Pattern patternInput = Pattern.compile("^tunnel\\.fds$",
 				Pattern.CASE_INSENSITIVE);
@@ -54,12 +55,12 @@ public class FDSParser {
 
 		FILES_LOOP: for (File file : dataFolder.listFiles())
 			if (file.isFile()) {
-				for (DataFile.Type key : patterns.keySet()) {
+				for (Physics key : patterns.keySet()) {
 					matcher = patterns.get(key).matcher(file.getName());
 					if (matcher.find()) {
-						dataFiles.add(new DataFile(key, file, 1000 * Integer
-								.parseInt(matcher.group(1)), 1000 * Integer
-								.parseInt(matcher.group(2))));
+						dataFiles.add(new DataFile(key, file, 1000 * Long
+								.parseLong(matcher.group(1)), 1000 * Long
+								.parseLong(matcher.group(2))));
 						continue FILES_LOOP;
 					}
 				}
@@ -86,15 +87,20 @@ public class FDSParser {
 			throw new FileNotFoundException(dataFolder.getPath()
 					+ ": no .fds input file found inside");
 
-		boolean gotDimensions = false;
-		Pattern patternDimensions = Pattern
-				.compile("^&MESH\\s+IJK=(\\d+),(\\d+),\\d+,\\s*XB=(\\d+),(\\d+),(\\d+),(\\d+),\\d+,\\d+");
+		// regular expression of a Double
+		String d = "[^,\\s/]+";
 
-		Pattern patternObstacle = Pattern
-				.compile("^&OBST\\s+XB=(\\d+),(\\d+),(\\d+),(\\d+),\\d+,\\d+");
+		boolean gotDimensions = false;
+		Pattern patternDimensions = Pattern.compile("^&MESH\\s+IJK=(" + d
+				+ "),(" + d + ")," + d + ",\\s*XB=(" + d + "),(" + d + "),("
+				+ d + "),(" + d + ")," + d + "," + d);
+
+		Pattern patternObstacle = Pattern.compile("^&OBST\\s+XB=(" + d + "),("
+				+ d + "),(" + d + "),(" + d + ")," + d + "," + d);
 
 		boolean gotDuration = false;
-		Pattern patternDuration = Pattern.compile("^&TIME\\s+T_END=(\\d+)");
+		Pattern patternDuration = Pattern
+				.compile("^&TIME\\s+T_END=(" + d + ")");
 		Matcher matcher;
 
 		String line;
@@ -105,17 +111,18 @@ public class FDSParser {
 				if (!gotDimensions) {
 					matcher = patternDimensions.matcher(line);
 					if (matcher.find()) {
-						int width = Integer.parseInt(matcher.group(1));
-						int length = Integer.parseInt(matcher.group(2));
+						long numCellsX = Long.parseLong(matcher.group(1));
+						long numCellsY = Long.parseLong(matcher.group(2));
 
-						offsetX = Integer.parseInt(matcher.group(3));
-						dx = (Integer.parseInt(matcher.group(4)) - offsetX)
-								/ width;
-						offsetY = Integer.parseInt(matcher.group(5));
-						dy = (Integer.parseInt(matcher.group(6)) - offsetY)
-								/ length;
+						Point dimensions = new Point();
+						offsetX = Double.parseDouble(matcher.group(3));
+						offsetY = Double.parseDouble(matcher.group(5));
+						dimensions.x = Double.parseDouble(matcher.group(4))
+								- offsetX;
+						dimensions.y = Double.parseDouble(matcher.group(6))
+								- offsetY;
+						board.setGeometry(dimensions, numCellsX, numCellsY);
 
-						board.initCells(width, length);
 						gotDimensions = true;
 						continue;
 					}
@@ -125,7 +132,7 @@ public class FDSParser {
 				if (!gotDuration) {
 					matcher = patternDuration.matcher(line);
 					if (matcher.find()) {
-						duration = 1000 * Integer.parseInt(matcher.group(1));
+						duration = 1000 * Double.parseDouble(matcher.group(1));
 						gotDuration = true;
 						continue;
 					}
@@ -136,23 +143,24 @@ public class FDSParser {
 				if (matcher.find()) {
 					if (!gotDimensions)
 						throw new RuntimeException("&OBST before &MESH!");
-					int x1 = Integer.parseInt(matcher.group(1));
-					int x2 = Integer.parseInt(matcher.group(2));
-					int y1 = Integer.parseInt(matcher.group(3));
-					int y2 = Integer.parseInt(matcher.group(4));
-					board.addObstacle(x1, x2, y1, y2);
+
+					board.addObstacle(
+							new Point(Double.parseDouble(matcher.group(1))
+									- offsetX, Double.parseDouble(matcher
+									.group(3)) - offsetY),
+							new Point(Double.parseDouble(matcher.group(2))
+									- offsetX, Double.parseDouble(matcher
+									.group(4)) - offsetY));
 					continue;
 				}
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			if (br != null)
 				try {
 					br.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			if (!gotDimensions)
@@ -164,17 +172,13 @@ public class FDSParser {
 		}
 	}
 
-	private static class DataFile implements Comparable<DataFile> {
+	private static final class DataFile implements Comparable<DataFile> {
 		public File file;
-		public int start, end; // [ms]
+		public long start, end; // [ms]
 		public boolean alreadyRead = false;
-		public Type type;
+		public Physics type;
 
-		public enum Type {
-			TEMPERATURE, CO
-		}
-
-		public DataFile(Type type, File file, int start, int end) {
+		public DataFile(Physics type, File file, long start, long end) {
 			this.type = type;
 			this.file = file;
 			this.start = start;
@@ -184,8 +188,8 @@ public class FDSParser {
 		@Override
 		public int compareTo(DataFile o) {
 			if (start == o.start)
-				return end - o.end;
-			return start - o.start;
+				return (int) (end - o.end);
+			return (int) (start - o.start);
 		}
 	}
 
@@ -195,46 +199,42 @@ public class FDSParser {
 	 * wywo³ujemy {@link readData} z zawsze WIÊKSZYM argumentem ni¿ w poprzednim
 	 * wywo³aniu!
 	 * 
-	 * @param currentTime
+	 * @param simulationTime
 	 * @throws FileNotFoundException
 	 * @throws ParseException
 	 */
-	public void readData(int currentTime) throws FileNotFoundException,
+	public void readData(double simulationTime) throws FileNotFoundException,
 			ParseException {
 		for (DataFile f : dataFiles)
-			if (currentTime >= f.start && currentTime < f.end) {
-				if (f.alreadyRead) //
+			if (simulationTime >= f.start && simulationTime < f.end) {
+				if (f.alreadyRead)
 					continue;
 
 				String line;
-				int lineNum = 0;
+				long lineNum = 0;
 				BufferedReader br = new BufferedReader(new FileReader(f.file));
 				try {
+					// read header
 					br.readLine();
-					lineNum++;
 					br.readLine();
-					lineNum++;
+					lineNum += 2;
+
+					// read data
 					while ((line = br.readLine()) != null) {
 						lineNum++;
 						String[] v = line.trim().split("\\s*,\\s*");
+
 						if (v.length != 3)
 							throw new ParseException(f.file.getPath() + ":"
-									+ lineNum + ": invalid format", lineNum);
-						int x = (int) Math.round(Double.valueOf(v[0]) / dx);
-						int y = (int) Math.round(Double.valueOf(v[1]) / dy);
-						double value = Double.valueOf(v[2]);
+									+ lineNum + ": invalid format",
+									(int) lineNum);
 
-						Cell cell = board.getCellAt(x, y);
-						if (cell == null)
-							continue;
-
-						switch (f.type){
-						case CO:
-							// cell.setCO((float)value);
-							break;
-						case TEMPERATURE:
-							cell.setTemperature((float)value);
-							break;
+						try {
+							board.setPhysics(
+									new Point(Double.parseDouble(v[0]), Double
+											.parseDouble(v[1])), f.type, Double
+											.parseDouble(v[2]));
+						} catch (IndexOutOfBoundsException e) {
 						}
 					}
 				} catch (IOException e) {
@@ -252,7 +252,7 @@ public class FDSParser {
 			}
 	}
 
-	public int getDuration() {
+	public double getDuration() {
 		return duration;
 	}
 }
