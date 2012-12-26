@@ -95,6 +95,28 @@ public final class Agent {
 	}
 
 	/**
+	 * Zwraca œredni¹ wartoœæ parametru fizycznego na wybranej powierzchni --
+	 * wycinka ko³a o œrodku w œrodku danego Agenta.
+	 * 
+	 * @param orientation
+	 *            K¹t miêdzy wektorem orientacji Agenta a osi¹ symetrii wycinka
+	 *            ko³a. Innymi s³owy, jak chcemy wycinek po lewej rêce danego
+	 *            Agenta, to dajemy tu 90.0 [deg], jak po prawej to -90.0 [deg].
+	 *            (Dlatego, ¿e k¹ty w geometrii analitycznej rosn¹ przeciwnie do
+	 *            ruchu wskazówek zegara!).
+	 * @param alpha
+	 *            Rozstaw "ramion" wycinka ko³a w [deg]. Jak chcemy np. 1/8
+	 *            ko³a, to dajemy 45.0 [deg], w miarê oczywiste chyba. Byæ mo¿e
+	 *            warto zmieniæ nazwê tego parametru.
+	 * @param what
+	 *            O któr¹ wielkoœæ fizyczn¹ nam chodzi.
+	 * @return
+	 */
+	private double getMeanPhysics(double orientation, double alpha, Physics what) {
+		return 0.0;
+	}
+
+	/**
 	 * Akcje agenta w danej iteracji.
 	 * 
 	 * 1. Sprawdza, czy agent zyje - jesli nie, to wychodzi z funkcji.
@@ -272,8 +294,7 @@ public final class Agent {
 	 * THREAT_COMP_BEHIND neighborhood.get(Direction.getOppositeDir(dir))
 	 * .getTemperature();
 	 * 
-	 * return attractivness_comp; TODO: Rozwin¹æ.
-	 * }
+	 * return attractivness_comp; TODO: Rozwin¹æ. }
 	 */
 
 	// private void computeAttractivnessComponentByExit() {
