@@ -19,14 +19,17 @@ public final class Agent {
 
 	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
 	private Point position;
-	
+
 	/** Szerokoœæ elipsy Agenta w [m]. */
 	public static final double BROADNESS = 0.33;
-	
+
 	/** Ten drugi wymiar (gruboœæ?) elipsy Agenta w [m]. */
 	public static final double THICKNESS = 0.2;
 
-	/** D³ugoœæ wektora orientacji Agenta w [m]. Nic nie robi, tylko do rysowania. */
+	/**
+	 * D³ugoœæ wektora orientacji Agenta w [m]. Nic nie robi, tylko do
+	 * rysowania.
+	 */
 	public static final double ORIENTATION_VECTOR = 1.0;
 
 	/** Referencja do planszy. */
@@ -88,7 +91,7 @@ public final class Agent {
 		alive = true;
 		hbco = 0;
 
-		// TODO: Agent(): Tworzenie cech osobniczych.
+		// TODO: Tworzenie cech osobniczych.
 	}
 
 	/**
@@ -118,7 +121,7 @@ public final class Agent {
 		if (!alive) // ten sam koszt, a czytelniej, przemieni³em -- m.
 			return;
 
-		// TODO: Agent::update(): Poruszanie siê.
+		// TODO: Poruszanie siê.
 		// move(createMoveOptions());
 	}
 
@@ -129,13 +132,12 @@ public final class Agent {
 	 * U¿ywanie: najpierw ustawiamy nowe {@link #position} i {@link #phi},
 	 * sprawdzamy czy {@link #hasCollision()}, jeœli tak, to wracamy do starych.
 	 * 
-	 * Prawdopodobnie do modyfikacji, na razie tak zapisa³em. -- m.
-	 * 
-	 * TODO: Agent::hasCollision(): Sprawdzanie kolizji.
+	 * Koncept prawdopodobnie do modyfikacji, na razie tak zapisa³em. -- m.
 	 * 
 	 * @return
 	 */
 	public boolean hasCollision() {
+		// TODO: Sprawdzanie kolizji.
 		return false;
 	}
 
@@ -175,20 +177,20 @@ public final class Agent {
 	 * zdolnosci organizmu do usuwania toksyn
 	 */
 	private void evaluateHbCO() {
-		// TODO: trzeba tê prêdkoœæ teraz uzale¿niæ od dt; jeœli to by³o
+		// TODO: Trzeba tê prêdkoœæ teraz uzale¿niæ od dt; jeœli to by³o
 		// 0.08/500 ms, to jakby ustawiæ to w³aœnie na 0.08/500 i zawsze tutaj
 		// mno¿yæ przez dt tê sta³¹ prêdkoœæ, bêdzie dzia³a³o tak samo.
 
 		if (hbco > CLEANSING_VELOCITY)
 			hbco -= CLEANSING_VELOCITY;
 
-		// TODO: Zastanowiæ siê, czy to faktycznie jest funkcja liniowa.
 		try {
+			// TODO: Zastanowiæ siê, czy to faktycznie jest funkcja liniowa.
 			hbco += LETHAL_HbCO_CONCN
 					* (board.getPhysics(position, Physics.CO) / LETHAL_CO_CONCN);
 		} catch (NoPhysicsDataException e) {
-			// TODO: mo¿e nic nie rób z hbco, jeœli nie mamy danych o tlenku
-			// wêgla (II)? KASIU?!...
+			// TODO: Mo¿e po prostu nic nie rób z hbco, jeœli nie mamy danych o
+			// tlenku wêgla (II)? KASIU?!...
 		}
 	}
 
@@ -202,10 +204,8 @@ public final class Agent {
 	 * @return HashMapa kierunków wraz ze wspó³czynnikami atrakcyjnoœci
 	 * */
 	/*
-	 * // TODO: Agent::createMoveOptions(): Zmodyfikowac mozliwosc pozostanie w
-	 * // miejscu private HashMap<Direction, Double> createMoveOptions() {
-	 * HashMap<Direction, Double> move_options = new HashMap<Direction,
-	 * Double>();
+	 * HashMap<Direction, Double> createMoveOptions() { HashMap<Direction,
+	 * Double> move_options = new HashMap<Direction, Double>();
 	 * 
 	 * for (Map.Entry<Direction, Neighborhood> entry : neighborhood.entrySet())
 	 * { Cell first = entry.getValue().getFirstCell(); if (first != null &&
@@ -272,8 +272,8 @@ public final class Agent {
 	 * THREAT_COMP_BEHIND neighborhood.get(Direction.getOppositeDir(dir))
 	 * .getTemperature();
 	 * 
-	 * return attractivness_comp; // TODO:
-	 * Agent::computeAttractivnessComponentByThreat(): Rozwin¹æ. }
+	 * return attractivness_comp; TODO: Rozwin¹æ.
+	 * }
 	 */
 
 	// private void computeAttractivnessComponentByExit() {
