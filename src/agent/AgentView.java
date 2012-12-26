@@ -26,6 +26,9 @@ public class AgentView {
 
 	/** Rysowanko! */
 	public void paint(BoardView bv, Graphics2D g2, double scale) {
+		if (agent.exited)
+			return;
+
 		// push()
 		AffineTransform at = g2.getTransform();
 
@@ -46,7 +49,8 @@ public class AgentView {
 
 		// orientation
 		BoardView.drawVector(g2, 0, 0,
-				(int) Math.round(Agent.ORIENTATION_VECTOR * scale));
+				(int) Math.round(Agent.ORIENTATION_VECTOR * scale),
+				agent.velocity > 0.0);
 
 		// pop()
 		g2.setTransform(at);

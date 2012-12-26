@@ -119,15 +119,22 @@ public final class BoardView extends JComponent {
 
 	private void paintAgents(Graphics g) {
 		for (Agent agent : board.agents)
-			new AgentView(agent).paint(this, (Graphics2D)g, SCALE);
+			new AgentView(agent).paint(this, (Graphics2D) g, SCALE);
 	}
 
-	/** Rysuje skierowany w górê wektor o zadanej d³ugoœci. */
-	public static void drawVector(Graphics2D g, int x, int y, int length) {
+	/**
+	 * Rysuje skierowany w górê wektor o zadanej d³ugoœci.
+	 * 
+	 * @param forward
+	 */
+	public static void drawVector(Graphics2D g, int x, int y, int length,
+			boolean forward) {
 		g.fillOval(x - 2, y - 2, 4, 4);
-		g.drawLine(x, y, 0, length);
-		g.drawLine(x, y + length, x - 2, y + length - 4);
-		g.drawLine(x, y + length, x + 2, y + length - 4);
+		g.drawLine(x, y, 0, -length);
+		// -length, not '+'! odwrotne wspó³rzêdne na OY obrazka ni¿ OY
+		// prawdziwym
+		g.drawLine(x, y - length, x - 2, y - length + (forward ? 4 : -4));
+		g.drawLine(x, y - length, x + 2, y - length + (forward ? 4 : -4));
 	}
 
 }

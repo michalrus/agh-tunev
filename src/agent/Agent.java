@@ -32,6 +32,9 @@ public final class Agent {
 	 */
 	public static final double ORIENTATION_VECTOR = 1.0;
 
+	/** Flaga mówi¹ca o tym, czy Agentowi uda³o siê ju¿ ucieæ. */
+	boolean exited;
+
 	/** Referencja do planszy. */
 	private Board board;
 
@@ -86,9 +89,10 @@ public final class Agent {
 		this.position = position;
 
 		rng = new Random();
-		phi = rng.nextDouble() * 360;
+		phi = 0;// rng.nextDouble() * 360;
 
 		alive = true;
+		exited = false;
 		hbco = 0;
 
 		// TODO: Tworzenie cech osobniczych.
@@ -135,16 +139,22 @@ public final class Agent {
 	 *            {@code dx = dt * v * cos(phi); dy = dt * v * sin(phi);}
 	 */
 	public void update(double dt) {
-		if (!alive)
+		if (!alive || exited)
 			return;
 
 		checkIfIWillLive();
 
-		if (!alive) // ten sam koszt, a czytelniej, przemieni³em -- m.
-			return;
+		if (alive) { // ten sam koszt, a czytelniej, przemieni³em -- m.
+			lookAround();
+			move(dt);
+		}
 
-		// TODO: Poruszanie siê.
-		// move(createMoveOptions());
+		// jak wyszliœmy poza planszê, to wyszliœmy z tunelu? exited = true
+		// spowoduje zaprzestanie wyœwietlania agenta i podbicie statystyk
+		// uratowanych w ka¿dym razie :]
+		exited = (position.x < 0 || position.y < 0
+				|| position.x > board.getDimension().x || position.y > board
+				.getDimension().y);
 	}
 
 	/**
@@ -191,6 +201,8 @@ public final class Agent {
 			// nie zmieniaj flagi ¿ycia, jeœli nie mamy danych o temperaturze w
 			// aktualnym punkcie przestrzeni i czasu (ale ofc. tylko gdy
 			// stê¿enie CO pozwala prze¿yæ)
+		} catch (IndexOutOfBoundsException e) {
+			// proœba o dane spoza planszy
 		}
 	}
 
@@ -213,9 +225,46 @@ public final class Agent {
 		} catch (NoPhysicsDataException e) {
 			// TODO: Mo¿e po prostu nic nie rób z hbco, jeœli nie mamy danych o
 			// tlenku wêgla (II)? KASIU?!...
+		} catch (IndexOutOfBoundsException e) {
+			// proœba o dane spoza planszy
 		}
 	}
 
+	/**
+	 * Rozejrzenie siê, wstêpna(?) decyzja dok¹d chcia³oby siê iœæ. (Darujmy
+	 * sobie na razie te œcie¿ki).
+	 * 
+	 * Nazwa³em to bardziej po ludzku, a mniej komputerowo (w por. do
+	 * createMoveOptions). ^_^ Ofc. jeœli Ci siê nie podoba, to zmieñ,
+	 * Alt+Shift+R po najechaniu na nazwê, szalenie wygodne.
+	 */
+	private void lookAround() {
+	}
+
+	private double angleVelocity = 0.0;
+	double velocity = 0.0;
+
+	/**
+	 * Ruszanie na podstawie podjêtej decyzji.
+	 * 
+	 * Na razie kompletny random (test rysowania), chodz¹ jak pijani trochê. ^.-
+	 * 
+	 * @param dt
+	 */
+	private void move(double dt) {
+		// change velocities
+		// randomowe zmiany prêdkoœci do +-0.1 [m/s^2]
+		velocity += .1 / 1000.0 * (rng.nextDouble() * 2 - 1.0);
+		// randomowe zmiany prêdkoœci k¹towej do +-5.0 [deg/s]
+		angleVelocity += 5.0 / 1000.0 * (rng.nextDouble() * 2 - 1.0);
+
+		// rotate
+		phi += angleVelocity * dt;
+
+		// move
+		position.x += velocity * dt * Math.cos(Math.toRadians(phi));
+		position.y += velocity * dt * Math.sin(Math.toRadians(phi));
+	}
 	/**
 	 * Sprawdza jakie s¹ dostêpne opcje ruchu, a nastêpnie szacuje, na ile sa
 	 * atrakcyjne dla agenta Najpierw przeszukuje s¹siednie komórki w
