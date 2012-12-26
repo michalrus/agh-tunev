@@ -42,9 +42,9 @@ public class AgentView {
 		g2.rotate(Math.toRadians(90 - agent.getOrientation()));
 
 		// oval
-		g2.setColor(Color.CYAN);
+		g2.setColor(agent.isAlive() ? Color.CYAN : Color.PINK);
 		g2.fillOval(-w / 2, -h / 2, w, h);
-		g2.setColor(Color.BLUE);
+		g2.setColor(agent.isAlive() ? Color.BLUE : Color.RED);
 		g2.drawOval(-w / 2, -h / 2, w, h);
 
 		// orientation
