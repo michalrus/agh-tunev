@@ -102,6 +102,17 @@ public final class Agent {
 	 * Zwraca œredni¹ wartoœæ parametru fizycznego na wybranej powierzchni --
 	 * wycinka ko³a o œrodku w œrodku danego Agenta.
 	 * 
+	 * Koncept: 1) jedziemy ze sta³ym {@code dalpha} po ca³ym {@code alpha}; 2)
+	 * dla ka¿dego z tych k¹tów jedziemy ze sta³ym {@code dr} po {@code r}. 3)
+	 * Bierzemy wartoœæ parametru w punkcie okreœlonym przez {@code dalpha} i
+	 * {@code dr}, dodajemy do sumy, a na koñcu 4) zwracamy sumê podzielon¹
+	 * przez liczbê wybranych w ten sposób punktów.
+	 * 
+	 * Taki sposób ma 2 zalety: 1) jest ultraprosty, 2) punkty bli¿ej pozycji
+	 * Agenta s¹ gêœciej rozmieszczone na wycinku, dlatego wiêksze znaczenie ma
+	 * temperatura przy nim. ^_^ (Jeszcze kwestia dobrego dobrania
+	 * {@code dalpha} i {@code dr}).
+	 * 
 	 * @param orientation
 	 *            K¹t miêdzy wektorem orientacji Agenta a osi¹ symetrii wycinka
 	 *            ko³a. Innymi s³owy, jak chcemy wycinek po lewej rêce danego
@@ -112,12 +123,61 @@ public final class Agent {
 	 *            Rozstaw "ramion" wycinka ko³a w [deg]. Jak chcemy np. 1/8
 	 *            ko³a, to dajemy 45.0 [deg], w miarê oczywiste chyba. Byæ mo¿e
 	 *            warto zmieniæ nazwê tego parametru.
+	 * 
+	 *            Nic nie stoi na przeszkodzie, ¿eby wywo³aæ tê funkcjê z
+	 *            {@code alpha == 0.0} i zdj¹æ œredni¹ tylko z linii.
+	 * 
+	 *            Mo¿na tak¿e przyj¹æ {@code alpha == 360.0} i policzyæ œredni¹
+	 *            z ca³ego otoczenia, np. do wyznaczenia warunków œmierci
+	 *            (zamiast punktowo, tylko na pozycji Agenta). ^_^
+	 * @param r
+	 *            Promieñ ko³a, na powierzchni wycinka którego obliczamy
+	 *            œredni¹. (Ale konstrukt jêzykowy ;b).
 	 * @param what
 	 *            O któr¹ wielkoœæ fizyczn¹ nam chodzi.
 	 * @return
 	 */
-	private double getMeanPhysics(double orientation, double alpha, Physics what) {
-		return 0.0;
+	private double getMeanPhysics(double orientation, double alpha, double r,
+			Physics what) {
+		if (alpha < 0)
+			throw new IllegalArgumentException("alpha < 0");
+		if (r < 0)
+			throw new IllegalArgumentException("r < 0");
+
+		double dalpha = 10; // [deg]
+		double dr = 0.5; // [m]
+
+		double alphaA = phi + orientation - alpha / 2;
+		double alphaB = phi + orientation + alpha / 2;
+		double rA = 0;
+		double rB = r;
+
+		double sum = 0.0;
+		long num = 0;
+
+		alpha = alphaA;
+		// dlatego jest porzebna konstrukcja do-while, ¿eby to wykona³o siê
+		// przynajmniej raz (nie jestem pewien czy przy k¹cie zerowym by
+		// zadzia³a³o z u¿yciem for-a -- b³êdy numeryczne: nie mo¿na porównywaæ
+		// zmiennoprzecinkowych)
+		do {
+			double sin = Math.sin(Math.toRadians(alpha));
+			double cos = Math.cos(Math.toRadians(alpha));
+			r = rA;
+			do {
+				try {
+					sum += board.getPhysics(new Point(position.x + cos * r,
+							position.y + sin * r), what);
+					num++;
+				} catch (NoPhysicsDataException e) {
+				} catch (IndexOutOfBoundsException e) {
+				}
+				r += dr;
+			} while (r <= rB);
+			alpha += dalpha;
+		} while (alpha <= alphaB);
+
+		return sum / num;
 	}
 
 	/**
@@ -239,6 +299,9 @@ public final class Agent {
 	 * Alt+Shift+R po najechaniu na nazwê, szalenie wygodne.
 	 */
 	private void lookAround() {
+		double tempInFrontOfMe5m = getMeanPhysics(0, 120, 5,
+				Physics.TEMPERATURE);
+		double tempOnMyLeft3m = getMeanPhysics(-90, 120, 3, Physics.TEMPERATURE);
 	}
 
 	private double angleVelocity = 0.0;
