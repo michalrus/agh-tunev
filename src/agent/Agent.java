@@ -1,5 +1,8 @@
 package agent;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import board.Board;
@@ -8,17 +11,6 @@ import board.Board.Physics;
 import board.Point;
 
 public final class Agent {
-
-	/**
-	 * Orientacja: k¹t miêdzy wektorem "wzroku" i osi¹ OX w [deg]. Kiedy wynosi
-	 * 0.0 deg, to Agent "patrzy" jak oœ OX (jak na geometrii analitycznej).
-	 * Wtedy te¿ sin() i cos() dzia³aj¹ ~intuicyjne, tak samo jak analityczne
-	 * wzory. :] -- m.
-	 */
-	private double phi;
-
-	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
-	private Point position;
 
 	/** Szerokoœæ elipsy Agenta w [m]. */
 	public static final double BROADNESS = 0.33;
@@ -32,17 +24,14 @@ public final class Agent {
 	 */
 	public static final double ORIENTATION_VECTOR = 1.0;
 
-	/** Flaga mówi¹ca o tym, czy Agentowi uda³o siê ju¿ ucieæ. */
-	boolean exited;
-
-	/** Referencja do planszy. */
-	private Board board;
-
-	/** Random number generator. */
-	private Random rng;
+	/** Kat miedzy promieniami wyznaczajacymi wycinek kola bedacy sasiedztwem */
+	private static final double CIRCLE_SECTOR = 45; // 360/8
+	
+	/** Wartosc podstawy wykorzystywana do obliczania promienia sasiedztwa za pomoca kata*/
+	private static final double BASE_RADIUS_CALC = 2;
 
 	/** Wspolczynnik wagowy obliczonego zagro¿enia */
-	// private static final double THREAT_COEFF = 10;
+	private static final double THREAT_COEFF = 10;
 
 	/** Wspolczynnik wagowy odleg³oœci od wyjœcia */
 	// private static final double EXIT_COEFF = 5;
@@ -63,17 +52,43 @@ public final class Agent {
 	private static final double CLEANSING_VELOCITY = 0.08;
 
 	/** Wspolczynnik wagowy dla kierunku przeciwnego do potencjalnego ruchu */
-	// private static double THREAT_COMP_BEHIND = 0.5;
+	private static double THREAT_COMP_BEHIND = 0.5;
 
 	/** Wspolczynnik wagowy dla potencjalnego kierunku ruchu */
-	// private static double THREAT_COMP_AHEAD = 1;
+	private static double THREAT_COMP_AHEAD = 1;
+
+	/**
+	 * Orientacja: k¹t miêdzy wektorem "wzroku" i osi¹ OX w [deg]. Kiedy wynosi
+	 * 0.0 deg, to Agent "patrzy" jak oœ OX (jak na geometrii analitycznej).
+	 * Wtedy te¿ sin() i cos() dzia³aj¹ ~intuicyjne, tak samo jak analityczne
+	 * wzory. :] -- m.
+	 */
+	private double phi;
+
+	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
+	private Point position;
+
+	/** Referencja do planszy. */
+	private Board board;
 
 	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
 
+	/** Flaga mówi¹ca o tym, czy Agentowi uda³o siê ju¿ ucieæ. */
+	boolean exited;
+
 	/** Aktualne stezenie karboksyhemoglobiny we krwii */
 	private double hbco;
 
+	/** Czas ruchu agenta */
+	private double dt; // zamienilem na pole, zeby bylo wygodniej uzywac, ale
+						// nie wiem,
+						// czy nie wywalic tego jeszcze gdzies indziej
+
+	/** Random number generator. */
+	private Random rng;
+	
+	
 	/**
 	 * Konstruktor agenta. Inicjuje wszystkie pola niezbêdne do jego egzystencji
 	 * na planszy. Pozycja jest z góry narzucona z poziomu Board. Orientacja
@@ -94,6 +109,7 @@ public final class Agent {
 		alive = true;
 		exited = false;
 		hbco = 0;
+		dt = 0;
 
 		// TODO: Tworzenie cech osobniczych.
 	}
@@ -198,15 +214,16 @@ public final class Agent {
 	 *            zadan¹ wartoœci¹ prêdkoœci:
 	 *            {@code dx = dt * v * cos(phi); dy = dt * v * sin(phi);}
 	 */
-	public void update(double dt) {
+	public void update(double _dt) {
 		if (!alive || exited)
 			return;
 
+		this.dt = _dt;
 		checkIfIWillLive();
 
 		if (alive) { // ten sam koszt, a czytelniej, przemieni³em -- m.
-			lookAround();
-			move(dt);
+			makeDecision();
+			move();
 		}
 
 		// jak wyszliœmy poza planszê, to wyszliœmy z tunelu? exited = true
@@ -271,16 +288,14 @@ public final class Agent {
 	 * zdolnosci organizmu do usuwania toksyn
 	 */
 	private void evaluateHbCO() {
-		// TODO: Trzeba tê prêdkoœæ teraz uzale¿niæ od dt; jeœli to by³o
-		// 0.08/500 ms, to jakby ustawiæ to w³aœnie na 0.08/500 i zawsze tutaj
-		// mno¿yæ przez dt tê sta³¹ prêdkoœæ, bêdzie dzia³a³o tak samo.
-
-		if (hbco > CLEANSING_VELOCITY)
-			hbco -= CLEANSING_VELOCITY;
+		// TODO: Dobrac odpowiednie parametry
+		if (hbco > dt * CLEANSING_VELOCITY)
+			hbco -= dt * CLEANSING_VELOCITY;
 
 		try {
 			// TODO: Zastanowiæ siê, czy to faktycznie jest funkcja liniowa.
-			hbco += LETHAL_HbCO_CONCN
+			hbco += dt
+					* LETHAL_HbCO_CONCN
 					* (board.getPhysics(position, Physics.CO) / LETHAL_CO_CONCN);
 		} catch (NoPhysicsDataException e) {
 			// TODO: Mo¿e po prostu nic nie rób z hbco, jeœli nie mamy danych o
@@ -291,17 +306,32 @@ public final class Agent {
 	}
 
 	/**
-	 * Rozejrzenie siê, wstêpna(?) decyzja dok¹d chcia³oby siê iœæ. (Darujmy
-	 * sobie na razie te œcie¿ki).
-	 * 
-	 * Nazwa³em to bardziej po ludzku, a mniej komputerowo (w por. do
-	 * createMoveOptions). ^_^ Ofc. jeœli Ci siê nie podoba, to zmieñ,
-	 * Alt+Shift+R po najechaniu na nazwê, szalenie wygodne.
+	 * 1. Oblicza wspolczynnik atrakcyjnosci dla aktualnej pozycji
+	 * 2. Sprawdza wszystkie sasiedstwa wokol co CIRCLE_SECTOR [deg]
+	 * 3. Jesli aktualny wybor jest najlepszy to robi podmiane
+	 * 4. Zmienia pole phi agenta zgodnie z podjeta decyzja
 	 */
-	private void lookAround() {
-		double tempInFrontOfMe5m = getMeanPhysics(0, 120, 5,
-				Physics.TEMPERATURE);
-		double tempOnMyLeft3m = getMeanPhysics(-90, 120, 3, Physics.TEMPERATURE);
+	private void makeDecision() {
+		double new_phi = phi;
+		double attractivness = 0;
+		try {
+			attractivness = -THREAT_COEFF
+					* board.getPhysics(position, Physics.TEMPERATURE);
+		} catch (NoPhysicsDataException e) {
+			// brak odczytu temp. z aktualnej pozycji agenta
+		}
+
+		for (double angle = -180; angle < 180; angle += CIRCLE_SECTOR) {
+			double curr_attractivness = 0;
+			curr_attractivness += THREAT_COEFF * computeAttractivnessComponentByThreat(angle);
+			
+			if(curr_attractivness > attractivness){
+				attractivness = curr_attractivness;
+				new_phi = angle;
+			}	
+		}
+		
+		phi = new_phi;
 	}
 
 	private double angleVelocity = 0.0;
@@ -314,20 +344,60 @@ public final class Agent {
 	 * 
 	 * @param dt
 	 */
-	private void move(double dt) {
+	private void move() {
 		// change velocities
 		// randomowe zmiany prêdkoœci do +-0.1 [m/s^2]
-		velocity += .1 / 1000.0 * (rng.nextDouble() * 2 - 1.0);
+		velocity = 0.1 / 100;//.1 / 1000.0 * (rng.nextDouble() * 2 - 1.0);
 		// randomowe zmiany prêdkoœci k¹towej do +-5.0 [deg/s]
-		angleVelocity += 5.0 / 1000.0 * (rng.nextDouble() * 2 - 1.0);
+		/*angleVelocity += 5.0 / 1000.0 * (rng.nextDouble() * 2 - 1.0);
 
 		// rotate
-		phi += angleVelocity * dt;
+		phi += angleVelocity * dt;*/
+		
 
 		// move
 		position.x += velocity * dt * Math.cos(Math.toRadians(phi));
 		position.y += velocity * dt * Math.sin(Math.toRadians(phi));
 	}
+
+	/**
+	 * Oblicza chec wyboru danego kierunku, biorac pod uwage zarowno chec ruchu
+	 * w dana strone, jak i chec ucieczki od zrodla zagrozenia.
+	 * 
+	 * @param angle
+	 *            potencjalnie obrany kierunek
+	 * @return wspolczynnik atrakcyjnosci dla zadanego kierunku, im wyzszy tym
+	 *         LEPIEJ
+	 */
+
+	private double computeAttractivnessComponentByThreat(double angle) {
+		double attractivness_comp = 0.0;
+		double r_ahead = computeRadiusByAngle(BASE_RADIUS_CALC, angle);
+		double r_behind = computeRadiusByAngle(BASE_RADIUS_CALC, angle + 180);
+		
+		attractivness_comp -= THREAT_COMP_AHEAD
+				* getMeanPhysics(angle, CIRCLE_SECTOR, r_ahead,
+						Physics.TEMPERATURE);
+		attractivness_comp += THREAT_COMP_BEHIND
+				* getMeanPhysics(angle + 180, CIRCLE_SECTOR, r_behind,
+						Physics.TEMPERATURE);
+		return attractivness_comp;
+	}
+	
+	/** Dzieki tej funkcji mozemy latwo otrzymac odpowiednia dlugosc promienia sasiedztwa,
+	 * zaleznie od tego, pod jakim katem jest ono obrocone
+	 * @param base
+	 * 				podstawa potegowania, ma duzy wplyw na zroznicowanie dlugosci promienia, jako ze
+	 * 				zmienia sie ona wykladniczo
+	 * @param angle
+	 * @return dlugosc promienia
+	 */
+	//TODO: Dobrac odpowiednie wspolczynniki
+	private double computeRadiusByAngle(double base, double angle){
+		return Math.pow(base, (180 - Math.abs(angle)) / CIRCLE_SECTOR);
+	}
+
+	
 	/**
 	 * Sprawdza jakie s¹ dostêpne opcje ruchu, a nastêpnie szacuje, na ile sa
 	 * atrakcyjne dla agenta Najpierw przeszukuje s¹siednie komórki w
@@ -337,31 +407,30 @@ public final class Agent {
 	 * 
 	 * @return HashMapa kierunków wraz ze wspó³czynnikami atrakcyjnoœci
 	 * */
-	/*
-	 * HashMap<Direction, Double> createMoveOptions() { HashMap<Direction,
-	 * Double> move_options = new HashMap<Direction, Double>();
-	 * 
-	 * for (Map.Entry<Direction, Neighborhood> entry : neighborhood.entrySet())
-	 * { Cell first = entry.getValue().getFirstCell(); if (first != null &&
-	 * !first.isOccupied()) move_options.put(entry.getKey(), 0.0); }
-	 * 
-	 * for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
-	 * Direction key = entry.getKey(); Double attractivness = 0.0; attractivness
-	 * += THREAT_COEFF computeAttractivnessComponentByThreat(key);
-	 * move_options.put(key, attractivness); }
-	 * 
-	 * // prowizorka for (Map.Entry<Direction, Double> entry :
-	 * move_options.entrySet()) { Direction key = entry.getKey(); double val =
-	 * entry.getValue(); switch (orientation) { case NORTH: if (key ==
-	 * Neighborhood.Direction.LEFT) val += RIGHT_EXIT_COEFF; break; case SOUTH:
-	 * if (key == Neighborhood.Direction.RIGHT) val += RIGHT_EXIT_COEFF; break;
-	 * case EAST: if (key == Neighborhood.Direction.BOTTOM) val +=
-	 * RIGHT_EXIT_COEFF; break; case WEST: if (key ==
-	 * Neighborhood.Direction.TOP) val += RIGHT_EXIT_COEFF; break; }
-	 * move_options.put(key, val); }
-	 * 
-	 * return move_options; }
-	 */
+
+	/*HashMap<Direction, Double> createMoveOptions() { HashMap<Direction,
+	 Double> move_options = new HashMap<Direction, Double>();
+	 
+	 for (Map.Entry<Direction, Neighborhood> entry : neighborhood.entrySet())
+	 { Cell first = entry.getValue().getFirstCell(); if (first != null &&
+	  !first.isOccupied()) move_options.put(entry.getKey(), 0.0); }
+	  
+	  for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
+	  Direction key = entry.getKey(); Double attractivness = 0.0; attractivness
+	  += THREAT_COEFF computeAttractivnessComponentByThreat(key);
+	  move_options.put(key, attractivness); }
+	  
+	  // prowizorka for (Map.Entry<Direction, Double> entry :
+	  move_options.entrySet()) { Direction key = entry.getKey(); double val =
+	  entry.getValue(); switch (orientation) { case NORTH: if (key ==
+	  Neighborhood.Direction.LEFT) val += RIGHT_EXIT_COEFF; break; case SOUTH:
+	  if (key == Neighborhood.Direction.RIGHT) val += RIGHT_EXIT_COEFF; break;
+	  case EAST: if (key == Neighborhood.Direction.BOTTOM) val +=
+	  RIGHT_EXIT_COEFF; break; case WEST: if (key ==
+	  Neighborhood.Direction.TOP) val += RIGHT_EXIT_COEFF; break; }
+	  move_options.put(key, val); }
+	  
+	  return move_options; }*/
 
 	/**
 	 * 1. Analizuje wszystkie dostepne opcje ruchu pod katem atrakcyjnosci i
@@ -388,25 +457,6 @@ public final class Agent {
 	 * if (top_attractivness > -THREAT_COEFF * position.getTemperature()) {
 	 * rotate(dir); setPosition(neighborhood.get(dir).getFirstCell());
 	 * neighborhood = board.getNeighborhoods(this); } }
-	 */
-
-	/**
-	 * Oblicza chec wyboru danego kierunku, biorac pod uwage zarowno chec ruchu
-	 * w dana strone, jak i chec ucieczki od zrodla zagrozenia.
-	 * 
-	 * @param dir
-	 *            potencjalnie obrany kierunek
-	 * @return wspolczynnik atrakcyjnosci dla zadanego kierunku, im wyzszy tym
-	 *         LEPIEJ
-	 */
-	/*
-	 * private double computeAttractivnessComponentByThreat(Direction dir) {
-	 * double attractivness_comp = 0.0; attractivness_comp -= THREAT_COMP_AHEAD
-	 * neighborhood.get(dir).getTemperature(); attractivness_comp +=
-	 * THREAT_COMP_BEHIND neighborhood.get(Direction.getOppositeDir(dir))
-	 * .getTemperature();
-	 * 
-	 * return attractivness_comp; TODO: Rozwin¹æ. }
 	 */
 
 	// private void computeAttractivnessComponentByExit() {
