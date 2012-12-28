@@ -1,16 +1,15 @@
 package agent;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-
 import board.Board;
 import board.Board.NoPhysicsDataException;
 import board.Board.Physics;
 import board.Point;
 
 public final class Agent {
+	
+	enum Stance {
+		STAND, CROUCH, CRAWL
+	}
 
 	/** Szerokoœæ elipsy Agenta w [m]. */
 	public static final double BROADNESS = 0.33;
@@ -52,11 +51,15 @@ public final class Agent {
 	private static final double CLEANSING_VELOCITY = 0.08;
 
 	/** Wspolczynnik wagowy dla kierunku przeciwnego do potencjalnego ruchu */
-	private static double THREAT_COMP_BEHIND = 0.5;
+	private static double THREAT_COMP_BEHIND = 1.5;
 
 	/** Wspolczynnik wagowy dla potencjalnego kierunku ruchu */
 	private static double THREAT_COMP_AHEAD = 1;
 
+	/** Standardowa, poczatkowa predkosc ruchu*/
+	private static double AVG_MOVING_SPEED = 1.6 / 1000;
+	
+	
 	/**
 	 * Orientacja: k¹t miêdzy wektorem "wzroku" i osi¹ OX w [deg]. Kiedy wynosi
 	 * 0.0 deg, to Agent "patrzy" jak oœ OX (jak na geometrii analitycznej).
@@ -64,6 +67,9 @@ public final class Agent {
 	 * wzory. :] -- m.
 	 */
 	private double phi;
+	
+	/** Aktualna predkosc ruchu*/
+	double velocity;
 
 	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
 	private Point position;
@@ -82,12 +88,8 @@ public final class Agent {
 
 	/** Czas ruchu agenta */
 	private double dt; // zamienilem na pole, zeby bylo wygodniej uzywac, ale
-						// nie wiem,
-						// czy nie wywalic tego jeszcze gdzies indziej
+						// nie wiem, czy nie wywalic tego jeszcze gdzies indziej
 
-	/** Random number generator. */
-	private Random rng;
-	
 	
 	/**
 	 * Konstruktor agenta. Inicjuje wszystkie pola niezbêdne do jego egzystencji
@@ -103,13 +105,13 @@ public final class Agent {
 		this.board = board;
 		this.position = position;
 
-		rng = new Random();
-		phi = 0;// rng.nextDouble() * 360;
+		phi = Math.random() * 360;
 
 		alive = true;
 		exited = false;
 		hbco = 0;
 		dt = 0;
+		velocity = AVG_MOVING_SPEED;
 
 		// TODO: Tworzenie cech osobniczych.
 	}
@@ -272,12 +274,8 @@ public final class Agent {
 
 		try {
 			if (hbco > LETHAL_HbCO_CONCN
-					|| board.getPhysics(position, Physics.TEMPERATURE) > LETHAL_TEMP)
+					|| getMeanPhysics(0, 360, BROADNESS, Physics.TEMPERATURE) > LETHAL_TEMP)
 				alive = false;
-		} catch (NoPhysicsDataException e) {
-			// nie zmieniaj flagi ¿ycia, jeœli nie mamy danych o temperaturze w
-			// aktualnym punkcie przestrzeni i czasu (ale ofc. tylko gdy
-			// stê¿enie CO pozwala prze¿yæ)
 		} catch (IndexOutOfBoundsException e) {
 			// proœba o dane spoza planszy
 		}
@@ -334,8 +332,6 @@ public final class Agent {
 		phi = new_phi;
 	}
 
-	private double angleVelocity = 0.0;
-	double velocity = 0.0;
 
 	/**
 	 * Ruszanie na podstawie podjêtej decyzji.
@@ -344,18 +340,7 @@ public final class Agent {
 	 * 
 	 * @param dt
 	 */
-	private void move() {
-		// change velocities
-		// randomowe zmiany prêdkoœci do +-0.1 [m/s^2]
-		velocity = 0.1 / 100;//.1 / 1000.0 * (rng.nextDouble() * 2 - 1.0);
-		// randomowe zmiany prêdkoœci k¹towej do +-5.0 [deg/s]
-		/*angleVelocity += 5.0 / 1000.0 * (rng.nextDouble() * 2 - 1.0);
-
-		// rotate
-		phi += angleVelocity * dt;*/
-		
-
-		// move
+	private void move() {	
 		position.x += velocity * dt * Math.cos(Math.toRadians(phi));
 		position.y += velocity * dt * Math.sin(Math.toRadians(phi));
 	}
@@ -385,7 +370,7 @@ public final class Agent {
 	}
 	
 	/** Dzieki tej funkcji mozemy latwo otrzymac odpowiednia dlugosc promienia sasiedztwa,
-	 * zaleznie od tego, pod jakim katem jest ono obrocone
+	 * zaleznie od tego, pod jakim katem jest ono obrocone.
 	 * @param base
 	 * 				podstawa potegowania, ma duzy wplyw na zroznicowanie dlugosci promienia, jako ze
 	 * 				zmienia sie ona wykladniczo
@@ -398,66 +383,6 @@ public final class Agent {
 	}
 
 	
-	/**
-	 * Sprawdza jakie s¹ dostêpne opcje ruchu, a nastêpnie szacuje, na ile sa
-	 * atrakcyjne dla agenta Najpierw przeszukuje s¹siednie komórki w
-	 * poszukiwaniu przeszkód i wybieram tylko te, które s¹ puste. Nastêpnie
-	 * szacuje wspó³czynnik atrakcyjnoœci dla ka¿dej z mo¿liwych opcji ruchu na
-	 * podstawie zagro¿enia, odleg³oœci od wyjœcia, itd.
-	 * 
-	 * @return HashMapa kierunków wraz ze wspó³czynnikami atrakcyjnoœci
-	 * */
-
-	/*HashMap<Direction, Double> createMoveOptions() { HashMap<Direction,
-	 Double> move_options = new HashMap<Direction, Double>();
-	 
-	 for (Map.Entry<Direction, Neighborhood> entry : neighborhood.entrySet())
-	 { Cell first = entry.getValue().getFirstCell(); if (first != null &&
-	  !first.isOccupied()) move_options.put(entry.getKey(), 0.0); }
-	  
-	  for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
-	  Direction key = entry.getKey(); Double attractivness = 0.0; attractivness
-	  += THREAT_COEFF computeAttractivnessComponentByThreat(key);
-	  move_options.put(key, attractivness); }
-	  
-	  // prowizorka for (Map.Entry<Direction, Double> entry :
-	  move_options.entrySet()) { Direction key = entry.getKey(); double val =
-	  entry.getValue(); switch (orientation) { case NORTH: if (key ==
-	  Neighborhood.Direction.LEFT) val += RIGHT_EXIT_COEFF; break; case SOUTH:
-	  if (key == Neighborhood.Direction.RIGHT) val += RIGHT_EXIT_COEFF; break;
-	  case EAST: if (key == Neighborhood.Direction.BOTTOM) val +=
-	  RIGHT_EXIT_COEFF; break; case WEST: if (key ==
-	  Neighborhood.Direction.TOP) val += RIGHT_EXIT_COEFF; break; }
-	  move_options.put(key, val); }
-	  
-	  return move_options; }*/
-
-	/**
-	 * 1. Analizuje wszystkie dostepne opcje ruchu pod katem atrakcyjnosci i
-	 * dokonuje wyboru.
-	 * 
-	 * 2. Sprawdza, czy op³aca jej sie ruch, jesli nie to pomija kolejne
-	 * instrukcje.
-	 * 
-	 * 2. Obraca sie w kierunku ruchu.
-	 * 
-	 * 3. Wykonuje ruch.
-	 * 
-	 * 4. Aktualizuje sasiedztwo.
-	 */
-	/*
-	 * private void move(HashMap<Direction, Double> move_options) { Direction
-	 * dir = null; Double top_attractivness = null;
-	 * 
-	 * for (Map.Entry<Direction, Double> entry : move_options.entrySet()) {
-	 * Double curr_attractivness = entry.getValue(); if (top_attractivness ==
-	 * null || curr_attractivness > top_attractivness) { top_attractivness =
-	 * curr_attractivness; dir = entry.getKey(); } }
-	 * 
-	 * if (top_attractivness > -THREAT_COEFF * position.getTemperature()) {
-	 * rotate(dir); setPosition(neighborhood.get(dir).getFirstCell());
-	 * neighborhood = board.getNeighborhoods(this); } }
-	 */
 
 	// private void computeAttractivnessComponentByExit() {
 	// sk³adowa potencja³u od ew. wyjœcia (jeœli widoczne)
