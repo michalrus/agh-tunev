@@ -25,7 +25,12 @@ public class Board {
 	 */
 	public double getPhysics(Point where, Physics what)
 			throws NoPhysicsDataException {
-		return getDataCell(where).getPhysics(what);
+		try {
+			return getDataCell(where).getPhysics(what);
+		} catch (IndexOutOfBoundsException e) {
+			// jeœli nie ma ¿adnej komórki na pozycji {@code where}
+			throw new NoPhysicsDataException();
+		}
 	}
 
 	public void setPhysics(Point where, Physics what, double value) {

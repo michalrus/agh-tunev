@@ -6,7 +6,7 @@ import board.Board.Physics;
 import board.Point;
 
 public final class Agent {
-	
+
 	enum Stance {
 		STAND, CROUCH, CRAWL
 	}
@@ -25,8 +25,11 @@ public final class Agent {
 
 	/** Kat miedzy promieniami wyznaczajacymi wycinek kola bedacy sasiedztwem */
 	private static final double CIRCLE_SECTOR = 45; // 360/8
-	
-	/** Wartosc podstawy wykorzystywana do obliczania promienia sasiedztwa za pomoca kata*/
+
+	/**
+	 * Wartosc podstawy wykorzystywana do obliczania promienia sasiedztwa za
+	 * pomoca kata
+	 */
 	private static final double BASE_RADIUS_CALC = 2;
 
 	/** Wspolczynnik wagowy obliczonego zagro¿enia */
@@ -56,10 +59,9 @@ public final class Agent {
 	/** Wspolczynnik wagowy dla potencjalnego kierunku ruchu */
 	private static double THREAT_COMP_AHEAD = 1;
 
-	/** Standardowa, poczatkowa predkosc ruchu*/
+	/** Standardowa, poczatkowa predkosc ruchu */
 	private static double AVG_MOVING_SPEED = 1.6 / 1000;
-	
-	
+
 	/**
 	 * Orientacja: k¹t miêdzy wektorem "wzroku" i osi¹ OX w [deg]. Kiedy wynosi
 	 * 0.0 deg, to Agent "patrzy" jak oœ OX (jak na geometrii analitycznej).
@@ -67,8 +69,8 @@ public final class Agent {
 	 * wzory. :] -- m.
 	 */
 	private double phi;
-	
-	/** Aktualna predkosc ruchu*/
+
+	/** Aktualna predkosc ruchu */
 	double velocity;
 
 	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
@@ -80,7 +82,7 @@ public final class Agent {
 	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
 
-	/** Flaga mówi¹ca o tym, czy Agentowi uda³o siê ju¿ ucieæ. */
+	/** Flaga mówi¹ca o tym, czy Agentowi uda³o siê ju¿ uciec. */
 	boolean exited;
 
 	/** Aktualne stezenie karboksyhemoglobiny we krwii */
@@ -90,7 +92,6 @@ public final class Agent {
 	private double dt; // zamienilem na pole, zeby bylo wygodniej uzywac, ale
 						// nie wiem, czy nie wywalic tego jeszcze gdzies indziej
 
-	
 	/**
 	 * Konstruktor agenta. Inicjuje wszystkie pola niezbêdne do jego egzystencji
 	 * na planszy. Pozycja jest z góry narzucona z poziomu Board. Orientacja
@@ -174,7 +175,7 @@ public final class Agent {
 		long num = 0;
 
 		alpha = alphaA;
-		// dlatego jest porzebna konstrukcja do-while, ¿eby to wykona³o siê
+		// dlatego jest potrzebna konstrukcja do-while, ¿eby to wykona³o siê
 		// przynajmniej raz (nie jestem pewien czy przy k¹cie zerowym by
 		// zadzia³a³o z u¿yciem for-a -- b³êdy numeryczne: nie mo¿na porównywaæ
 		// zmiennoprzecinkowych)
@@ -188,7 +189,8 @@ public final class Agent {
 							position.y + sin * r), what);
 					num++;
 				} catch (NoPhysicsDataException e) {
-				} catch (IndexOutOfBoundsException e) {
+					// nie ma danych tego typu w tym punkcie -- nie uwzglêniaj
+					// go do œredniej
 				}
 				r += dr;
 			} while (r <= rB);
@@ -231,6 +233,7 @@ public final class Agent {
 		// jak wyszliœmy poza planszê, to wyszliœmy z tunelu? exited = true
 		// spowoduje zaprzestanie wyœwietlania agenta i podbicie statystyk
 		// uratowanych w ka¿dym razie :]
+		// TODO: zmieniaæ na true dopiero gdy doszliœmy do wyjœcia
 		exited = (position.x < 0 || position.y < 0
 				|| position.x > board.getDimension().x || position.y > board
 				.getDimension().y);
@@ -272,13 +275,9 @@ public final class Agent {
 	private void checkIfIWillLive() {
 		evaluateHbCO();
 
-		try {
-			if (hbco > LETHAL_HbCO_CONCN
-					|| getMeanPhysics(0, 360, BROADNESS, Physics.TEMPERATURE) > LETHAL_TEMP)
-				alive = false;
-		} catch (IndexOutOfBoundsException e) {
-			// proœba o dane spoza planszy
-		}
+		if (hbco > LETHAL_HbCO_CONCN
+				|| getMeanPhysics(0, 360, BROADNESS, Physics.TEMPERATURE) > LETHAL_TEMP)
+			alive = false;
 	}
 
 	/**
@@ -298,16 +297,14 @@ public final class Agent {
 		} catch (NoPhysicsDataException e) {
 			// TODO: Mo¿e po prostu nic nie rób z hbco, jeœli nie mamy danych o
 			// tlenku wêgla (II)? KASIU?!...
-		} catch (IndexOutOfBoundsException e) {
-			// proœba o dane spoza planszy
 		}
 	}
 
 	/**
-	 * 1. Oblicza wspolczynnik atrakcyjnosci dla aktualnej pozycji
-	 * 2. Sprawdza wszystkie sasiedstwa wokol co CIRCLE_SECTOR [deg]
-	 * 3. Jesli aktualny wybor jest najlepszy to robi podmiane
-	 * 4. Zmienia pole phi agenta zgodnie z podjeta decyzja
+	 * 1. Oblicza wspolczynnik atrakcyjnosci dla aktualnej pozycji 2. Sprawdza
+	 * wszystkie sasiedstwa wokol co CIRCLE_SECTOR [deg] 3. Jesli aktualny wybor
+	 * jest najlepszy to robi podmiane 4. Zmienia pole phi agenta zgodnie z
+	 * podjeta decyzja
 	 */
 	private void makeDecision() {
 		double new_phi = phi;
@@ -321,17 +318,17 @@ public final class Agent {
 
 		for (double angle = -180; angle < 180; angle += CIRCLE_SECTOR) {
 			double curr_attractivness = 0;
-			curr_attractivness += THREAT_COEFF * computeAttractivnessComponentByThreat(angle);
-			
-			if(curr_attractivness > attractivness){
+			curr_attractivness += THREAT_COEFF
+					* computeAttractivnessComponentByThreat(angle);
+
+			if (curr_attractivness > attractivness) {
 				attractivness = curr_attractivness;
 				new_phi = angle;
-			}	
+			}
 		}
-		
+
 		phi = new_phi;
 	}
-
 
 	/**
 	 * Ruszanie na podstawie podjêtej decyzji.
@@ -340,7 +337,7 @@ public final class Agent {
 	 * 
 	 * @param dt
 	 */
-	private void move() {	
+	private void move() {
 		position.x += velocity * dt * Math.cos(Math.toRadians(phi));
 		position.y += velocity * dt * Math.sin(Math.toRadians(phi));
 	}
@@ -359,7 +356,7 @@ public final class Agent {
 		double attractivness_comp = 0.0;
 		double r_ahead = computeRadiusByAngle(BASE_RADIUS_CALC, angle);
 		double r_behind = computeRadiusByAngle(BASE_RADIUS_CALC, angle + 180);
-		
+
 		attractivness_comp -= THREAT_COMP_AHEAD
 				* getMeanPhysics(angle, CIRCLE_SECTOR, r_ahead,
 						Physics.TEMPERATURE);
@@ -368,21 +365,21 @@ public final class Agent {
 						Physics.TEMPERATURE);
 		return attractivness_comp;
 	}
-	
-	/** Dzieki tej funkcji mozemy latwo otrzymac odpowiednia dlugosc promienia sasiedztwa,
-	 * zaleznie od tego, pod jakim katem jest ono obrocone.
+
+	/**
+	 * Dzieki tej funkcji mozemy latwo otrzymac odpowiednia dlugosc promienia
+	 * sasiedztwa, zaleznie od tego, pod jakim katem jest ono obrocone.
+	 * 
 	 * @param base
-	 * 				podstawa potegowania, ma duzy wplyw na zroznicowanie dlugosci promienia, jako ze
-	 * 				zmienia sie ona wykladniczo
+	 *            podstawa potegowania, ma duzy wplyw na zroznicowanie dlugosci
+	 *            promienia, jako ze zmienia sie ona wykladniczo
 	 * @param angle
 	 * @return dlugosc promienia
 	 */
-	//TODO: Dobrac odpowiednie wspolczynniki
-	private double computeRadiusByAngle(double base, double angle){
+	// TODO: Dobrac odpowiednie wspolczynniki
+	private double computeRadiusByAngle(double base, double angle) {
 		return Math.pow(base, (180 - Math.abs(angle)) / CIRCLE_SECTOR);
 	}
-
-	
 
 	// private void computeAttractivnessComponentByExit() {
 	// sk³adowa potencja³u od ew. wyjœcia (jeœli widoczne)
