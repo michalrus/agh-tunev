@@ -9,6 +9,9 @@ import java.awt.Stroke;
 
 import javax.swing.JComponent;
 
+import board.Board.NoPhysicsDataException;
+import board.Board.Physics;
+
 import agent.Agent;
 import agent.AgentView;
 
@@ -73,16 +76,38 @@ public final class BoardView extends JComponent {
 		return (int) Math.round((board.getDimension().y - p.y) * SCALE);
 	}
 
+	private Color colorFromTemperature(double t) {
+		float blueC = 0.67f;
+		float blueT = 10.0f; // [*C]
+
+		float redC = 0.00f;
+		float redT = 100.0f; // [*C]
+
+		if (t > redT)
+			t = redT;
+		else if (t < blueT)
+			t = blueT;
+
+		float a = (blueC - redC) / (blueT - redT);
+		float b = blueC - blueT * a;
+
+		float c = a * (float) t + b;
+
+		return Color.getHSBColor(c, 1.0f, 2.0f);
+	}
+
 	private void paintBackground(Graphics g) {
 		Point p = new Point();
 		Color lightGray = new Color(0xEEEEEE);
 
 		for (p.x = 0.0; p.x < board.getDimension().x; p.x += board.dataCellDimension.x)
 			for (p.y = 0.0; p.y < board.getDimension().y; p.y += board.dataCellDimension.y) {
-				// Board.DataCell cell = board.getDataCell(p);
-
-				// TODO: Kolorki t³a: temperatura, dym?
 				Color c = Color.WHITE;
+				try {
+					c = colorFromTemperature(board.getPhysics(p,
+							Physics.TEMPERATURE));
+				} catch (NoPhysicsDataException e) {
+				}
 
 				// cells are painted top-down, so... push(p.y)
 				double tmp = p.y;
