@@ -98,6 +98,9 @@ public final class FDSParser {
 		Pattern patternObstacle = Pattern.compile("^&OBST\\s+XB=(" + d + "),("
 				+ d + "),(" + d + "),(" + d + ")," + d + "," + d);
 
+		Pattern patternExit = Pattern.compile("^&HOLE\\s+XB=(" + d + "),("
+				+ d + "),(" + d + "),(" + d + ")," + d + "," + d);
+
 		boolean gotDuration = false;
 		Pattern patternDuration = Pattern
 				.compile("^&TIME\\s+T_END=(" + d + ")");
@@ -138,13 +141,32 @@ public final class FDSParser {
 					}
 				}
 
-				// obstacles
+				// obstacle
 				matcher = patternObstacle.matcher(line);
 				if (matcher.find()) {
 					if (!gotDimensions)
 						throw new RuntimeException("&OBST before &MESH!");
+					
+					if (line.contains("PERMIT_HOLE=.TRUE."))
+						continue;
 
 					board.addObstacle(
+							new Point(Double.parseDouble(matcher.group(1))
+									- offsetX, Double.parseDouble(matcher
+									.group(3)) - offsetY),
+							new Point(Double.parseDouble(matcher.group(2))
+									- offsetX, Double.parseDouble(matcher
+									.group(4)) - offsetY));
+					continue;
+				}
+
+				// exit
+				matcher = patternExit.matcher(line);
+				if (matcher.find()) {
+					if (!gotDimensions)
+						throw new RuntimeException("&HOLE before &MESH!");
+					
+					board.addExit(
 							new Point(Double.parseDouble(matcher.group(1))
 									- offsetX, Double.parseDouble(matcher
 									.group(3)) - offsetY),

@@ -1,9 +1,11 @@
 package board;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Stroke;
 
 import javax.swing.JComponent;
 
@@ -57,6 +59,7 @@ public final class BoardView extends JComponent {
 
 		paintBackground(g);
 		paintObstacles(g);
+		paintExits(g);
 		paintAgents(g);
 	}
 
@@ -115,6 +118,25 @@ public final class BoardView extends JComponent {
 			g.setColor(Color.BLACK);
 			g.fillRect(x, y, w, h);
 		}
+	}
+
+	private void paintExits(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setColor(Color.BLACK);
+		Stroke s = g2.getStroke();
+		g2.setStroke(new BasicStroke(5));
+		for (Board.Exit exit : board.exits) {
+			Point p1 = exit.getStartPoint();
+			Point p2 = exit.getEndPoint();
+
+			int x1 = translateX(p1);
+			int y1 = translateY(p1);
+			int x2 = translateX(p2);
+			int y2 = translateY(p2);
+
+			g2.drawLine(x1, y1, x2, y2);
+		}
+		g2.setStroke(s);
 	}
 
 	private void paintAgents(Graphics g) {

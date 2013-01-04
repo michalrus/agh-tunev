@@ -59,6 +59,7 @@ public class Board {
 
 	List<Agent> agents;
 	List<Obstacle> obstacles;
+	List<Exit> exits;
 	List<List<DataCell>> dataCells;
 
 	private static final long MAX_RANDOM_FAILURES = 10;
@@ -67,6 +68,7 @@ public class Board {
 	public Board() {
 		agents = new ArrayList<Agent>();
 		obstacles = new ArrayList<Obstacle>();
+		exits = new ArrayList<Exit>();
 		rng = new Random();
 	}
 
@@ -107,6 +109,10 @@ public class Board {
 
 	public void addObstacle(Point start, Point end) {
 		obstacles.add(new Obstacle(start, end));
+	}
+
+	public void addExit(Point start, Point end) {
+		exits.add(new Exit(start, end));
 	}
 
 	public void initAgentsRandomly(long num) {
@@ -166,10 +172,10 @@ public class Board {
 		}
 	}
 
-	public final class Obstacle {
+	public class TwoPointStructure {
 		private Point start, end;
 
-		public Obstacle(Point start, Point end) {
+		public TwoPointStructure(Point start, Point end) {
 			this.start = start;
 			this.end = end;
 		}
@@ -180,6 +186,18 @@ public class Board {
 
 		public Point getEndPoint() {
 			return end;
+		}
+	}
+
+	public final class Exit extends TwoPointStructure {
+		public Exit(Point start, Point end) {
+			super(start, end);
+		}
+	}
+
+	public final class Obstacle extends TwoPointStructure {
+		public Obstacle(Point start, Point end) {
+			super(start, end);
 		}
 	}
 }
