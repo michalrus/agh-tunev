@@ -135,10 +135,17 @@ public final class BoardView extends JComponent {
 			Point p1 = obstacle.getStartPoint();
 			Point p2 = obstacle.getEndPoint();
 
-			int x = translateX(p1);
-			int y = translateY(p1);
-			int w = translateX(p2) - x;
-			int h = y - translateY(p2);
+			int x1 = translateX(p1);
+			int y1 = translateY(p1);
+			int x2 = translateX(p2);
+			int y2 = translateY(p2);
+			
+			System.out.println("x1=" + x1 + " x2=" + x2 + " y1=" + y1 + " y2=" + y2);
+			
+			int x = Math.min(x1, x2);
+			int y = Math.min(y1, y2);
+			int w = Math.abs(x1 - x2);
+			int h = Math.abs(y1 - y2);
 
 			g.setColor(Color.BLACK);
 			g.fillRect(x, y, w, h);

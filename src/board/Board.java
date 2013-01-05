@@ -108,7 +108,10 @@ public class Board {
 	}
 
 	public void addObstacle(Point start, Point end) {
-		obstacles.add(new Obstacle(start, end));
+		Point newStart = new Point(Math.min(start.x, end.x), Math.min(start.y, end.y));
+		Point newEnd   = new Point(Math.max(start.x, end.x), Math.max(start.y, end.y));
+		
+		obstacles.add(new Obstacle(newStart, newEnd));
 	}
 
 	public void addExit(Point start, Point end) {
