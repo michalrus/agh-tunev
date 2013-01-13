@@ -26,7 +26,7 @@ public final class Main {
 
 		FDSParser parser = new FDSParser(board, "data/");
 
-		// board.initAgents(60);
+		board.initAgents(60);
 		board.initAgentsRandomly(300);
 
 		for (Exit x : board.getExits())
