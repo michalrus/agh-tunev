@@ -3,6 +3,8 @@ import java.text.ParseException;
 import java.util.Date;
 
 import board.Board;
+import board.Board.Exit;
+import board.Board.NoPhysicsDataException;
 
 public final class Main {
 
@@ -18,12 +20,18 @@ public final class Main {
 	 */
 	public static void main(String[] args) throws FileNotFoundException,
 			ParseException {
+
 		Board board;
 		board = new Board();
 
 		FDSParser parser = new FDSParser(board, "data/");
 
-		board.initAgentsRandomly(100);
+		// board.initAgents(60);
+		board.initAgentsRandomly(300);
+
+		for (Exit x : board.getExits())
+			System.out.println("Wyjscie X: " + x.getExitX() + "Wyjscie Y: "
+					+ x.getExitY());
 
 		UI ui = new UI();
 
@@ -49,7 +57,13 @@ public final class Main {
 			dt = (currentCPUTime - previousCPUTime) * SIMULATION_SPEEDUP;
 			simulationTime += dt;
 
-			board.update(dt);
+			try {
+				board.update(dt);
+
+			} catch (NoPhysicsDataException e1) {
+				// Brak danych na planszy
+				e1.printStackTrace();
+			}
 			ui.draw(board);
 
 			// sztuczne opóŸnienie, tylko na razie -- m.

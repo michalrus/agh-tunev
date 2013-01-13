@@ -192,6 +192,9 @@ public final class FDSParser {
 				throw new ParseException(inputFile.getPath()
 						+ ": no simulation duration declared", 0);
 		}
+		
+		//TODO: to powinno byc w konstruktorze boarda, tymczasowo zostaje tu
+		//board.sortExits();
 	}
 
 	private static final class DataFile implements Comparable<DataFile> {

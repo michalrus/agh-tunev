@@ -20,6 +20,13 @@ public final class Point {
 		init(x, y);
 	}
 
+	public double evalDist(Point p) {
+		double deltaY = p.y - this.y;
+		double deltaX = p.x - this.x;
+
+		return Math.sqrt(deltaY * deltaY + deltaX * deltaX);
+	}
+
 	private void init(double x, double y) {
 		this.x = x;
 		this.y = y;
