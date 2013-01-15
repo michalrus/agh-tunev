@@ -3,7 +3,6 @@ import java.text.ParseException;
 import java.util.Date;
 
 import board.Board;
-import board.Board.Exit;
 import board.Board.NoPhysicsDataException;
 
 public final class Main {
