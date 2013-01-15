@@ -162,6 +162,9 @@ public class Motion {
 	 * liscie.
 	 */
 	void updateCheckpoints() {
+		if (agent.exit == null) // doda³em, bo wywala³o NullPointerException --
+								// m.
+			return;
 		Point exit_pos = agent.exit.getCentrePoint();
 		if (!checkpoints.isEmpty())
 			checkpoints.set(0, exit_pos);

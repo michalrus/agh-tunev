@@ -293,6 +293,12 @@ public final class Agent {
 	 * @return k¹t zawart w przedziale [-180, 180)
 	 */
 	private double calculateNewPhi() {
+		if (motion.checkpoints.isEmpty()) // TODO: chyba tak ma byæ, nie by³o
+											// tego sprawdzenia i wywala³o
+											// ArrayIndexOutOfBoundsException --
+											// m.
+			return phi;
+
 		Point checkpoint = motion.checkpoints
 				.get(motion.checkpoints.size() - 1);
 		double deltaY = checkpoint.y - position.y;
@@ -315,7 +321,9 @@ public final class Agent {
 		Exit chosen_exit1 = getNearestExit(-1);
 		Exit chosen_exit2 = getNearestExit(distToExit(chosen_exit1));
 
-		if (checkForBlockage(chosen_exit1) > 0 && chosen_exit2 != null)
+		// doda³em jeszcze check na null, wywala³o NullPointerException
+		if ((chosen_exit1 != null && checkForBlockage(chosen_exit1) > 0)
+				&& chosen_exit2 != null)
 			exit = chosen_exit2;
 		else
 			exit = chosen_exit1;
@@ -408,7 +416,7 @@ public final class Agent {
 				}
 			}
 			// jeœli nie ma przejœcia zwracamy wsp. Y blokady
-			if (!viable_route) 
+			if (!viable_route)
 				return y_coord;
 
 			y_coord += ds;
@@ -424,6 +432,9 @@ public final class Agent {
 	 * @return odleglosc
 	 */
 	private double distToExit(Exit _exit) {
+		if (_exit == null) // TODO: logiczne? -- m. :] (Wywala³o mi
+							// NullPointerException, nie wiem ocb!)
+			return Double.POSITIVE_INFINITY;
 		return position.evalDist(_exit.getCentrePoint());
 	}
 

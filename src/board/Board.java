@@ -13,7 +13,7 @@ public class Board {
 	public enum Physics {
 		TEMPERATURE, CO
 	}
-
+	
 	/**
 	 * Zwraca dane fizyczne zadanego typu. Jak nie ma dla tego punktu takich
 	 * danych, rzuca wyj¹tek.
@@ -23,10 +23,6 @@ public class Board {
 	 * @return
 	 * @throws NoPhysicsDataException
 	 */
-	public List<Agent> getAgents() {
-		return agents;
-	}
-
 	public double getPhysics(Point where, Physics what)
 			throws NoPhysicsDataException {
 		try {
@@ -47,6 +43,10 @@ public class Board {
 
 	public double getDataCellDimension() {
 		return dataCellDimension.y;
+	}
+
+	public List<Agent> getAgents() {
+		return agents;
 	}
 
 	public List<Exit> getExits() {

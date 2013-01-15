@@ -43,7 +43,7 @@ public final class FDSParser {
 		patterns.put(Physics.TEMPERATURE, Pattern.compile(
 				"^temp_(\\d+)-(\\d+)\\.csv$", Pattern.CASE_INSENSITIVE));
 
-		patterns.put(Physics.CO, Pattern.compile("^co_(\\d+)-(\\d+)s\\.csv$",
+		patterns.put(Physics.CO, Pattern.compile("^co_(\\d+)-(\\d+)\\.csv$",
 				Pattern.CASE_INSENSITIVE));
 
 		Pattern patternInput = Pattern.compile("^tunnel\\.fds$",
@@ -213,8 +213,12 @@ public final class FDSParser {
 		@Override
 		public int compareTo(DataFile o) {
 			if (start == o.start)
-				return (int) (end - o.end);
-			return (int) (start - o.start);
+				if (end == o.end)
+					return file.compareTo(o.file);
+				else
+					return (int) (end - o.end);
+			else
+				return (int) (start - o.start);
 		}
 	}
 
@@ -230,11 +234,11 @@ public final class FDSParser {
 	 */
 	public void readData(double simulationTime) throws FileNotFoundException,
 			ParseException {
-		for (DataFile f : dataFiles)
+		for (DataFile f : dataFiles) {
 			if (simulationTime >= f.start && simulationTime < f.end) {
 				if (f.alreadyRead)
 					continue;
-
+				
 				String line;
 				long lineNum = 0;
 				BufferedReader br = new BufferedReader(new FileReader(f.file));
@@ -275,6 +279,7 @@ public final class FDSParser {
 
 				f.alreadyRead = true;
 			}
+		}
 	}
 
 	public double getDuration() {

@@ -29,10 +29,6 @@ public final class Main {
 		board.initAgents(60);
 		board.initAgentsRandomly(300);
 
-		for (Exit x : board.getExits())
-			System.out.println("Wyjscie X: " + x.getExitX() + "Wyjscie Y: "
-					+ x.getExitY());
-
 		UI ui = new UI();
 
 		// all time values in [ms]
