@@ -98,8 +98,8 @@ public final class FDSParser {
 		Pattern patternObstacle = Pattern.compile("^&OBST\\s+XB=(" + d + "),("
 				+ d + "),(" + d + "),(" + d + ")," + d + "," + d);
 
-		Pattern patternExit = Pattern.compile("^&HOLE\\s+XB=(" + d + "),("
-				+ d + "),(" + d + "),(" + d + ")," + d + "," + d);
+		Pattern patternExit = Pattern.compile("^&HOLE\\s+XB=(" + d + "),(" + d
+				+ "),(" + d + "),(" + d + ")," + d + "," + d);
 
 		boolean gotDuration = false;
 		Pattern patternDuration = Pattern
@@ -146,7 +146,7 @@ public final class FDSParser {
 				if (matcher.find()) {
 					if (!gotDimensions)
 						throw new RuntimeException("&OBST before &MESH!");
-					
+
 					if (line.contains("PERMIT_HOLE=.TRUE."))
 						continue;
 
@@ -165,7 +165,7 @@ public final class FDSParser {
 				if (matcher.find()) {
 					if (!gotDimensions)
 						throw new RuntimeException("&HOLE before &MESH!");
-					
+
 					board.addExit(
 							new Point(Double.parseDouble(matcher.group(1))
 									- offsetX, Double.parseDouble(matcher
@@ -192,9 +192,19 @@ public final class FDSParser {
 				throw new ParseException(inputFile.getPath()
 						+ ": no simulation duration declared", 0);
 		}
-		
-		//TODO: to powinno byc w konstruktorze boarda, tymczasowo zostaje tu
-		//board.sortExits();
+
+		// TODO: Kasiu, jakoœ oznaczamy g³ówne wyjœcia w .fds?
+		Point bd = board.getDimension();
+		if (bd.x > bd.y) { // poziomy tunel
+			board.addExit(new Point(0, 0), new Point(0, bd.y));
+			board.addExit(new Point(bd.x, 0), new Point(bd.x, bd.y));
+		} else { // pionowy tunel
+			board.addExit(new Point(0, 0), new Point(bd.x, 0));
+			board.addExit(new Point(0, bd.y), new Point(bd.x, bd.y));
+		}
+
+		// TODO: to powinno byc w konstruktorze boarda, tymczasowo zostaje tu
+		// board.sortExits();
 	}
 
 	private static final class DataFile implements Comparable<DataFile> {
@@ -238,7 +248,7 @@ public final class FDSParser {
 			if (simulationTime >= f.start && simulationTime < f.end) {
 				if (f.alreadyRead)
 					continue;
-				
+
 				String line;
 				long lineNum = 0;
 				BufferedReader br = new BufferedReader(new FileReader(f.file));

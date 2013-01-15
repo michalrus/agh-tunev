@@ -13,7 +13,7 @@ public class Board {
 	public enum Physics {
 		TEMPERATURE, CO
 	}
-	
+
 	/**
 	 * Zwraca dane fizyczne zadanego typu. Jak nie ma dla tego punktu takich
 	 * danych, rzuca wyj¹tek.

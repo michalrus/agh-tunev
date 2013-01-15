@@ -139,7 +139,7 @@ public final class BoardView extends JComponent {
 			int y1 = translateY(p1);
 			int x2 = translateX(p2);
 			int y2 = translateY(p2);
-			
+
 			int x = Math.min(x1, x2);
 			int y = Math.min(y1, y2);
 			int w = Math.abs(x1 - x2);

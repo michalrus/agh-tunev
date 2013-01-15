@@ -48,9 +48,9 @@ public class AgentView {
 		g2.drawOval(-w / 2, -h / 2, w, h);
 
 		/*
-		BoardView.drawVector(g2, 0, 0,
-				(int) Math.round(Agent.ORIENTATION_VECTOR * scale),
-				agent.velocity > 0.0);*/
+		 * BoardView.drawVector(g2, 0, 0, (int)
+		 * Math.round(Agent.ORIENTATION_VECTOR * scale), agent.velocity > 0.0);
+		 */
 
 		// pop()
 		g2.setTransform(at);
