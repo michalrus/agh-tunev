@@ -92,14 +92,6 @@ public final class Agent {
 	/** Prêdkoœæ z jak¹ usuwane s¹ karboksyhemoglobiny z organizmu */
 	private static final double CLEANSING_VELOCITY = 0.08;
 
-	/**
-	 * Orientacja: k¹t miêdzy wektorem "wzroku" i osi¹ OX w [deg]. Kiedy wynosi
-	 * 0.0 deg, to Agent "patrzy" jak oœ OX (jak na geometrii analitycznej).
-	 * Wtedy te¿ sin() i cos() dzia³aj¹ ~intuicyjne, tak samo jak analityczne
-	 * wzory. :] -- m.
-	 */
-	double phi;
-
 	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
 	Point position;
 
@@ -108,12 +100,23 @@ public final class Agent {
 
 	/** Referencja do planszy. */
 	Board board;
+	
+	/**
+	 * Orientacja: k¹t miêdzy wektorem "wzroku" i osi¹ OX w [deg]. Kiedy wynosi
+	 * 0.0 deg, to Agent "patrzy" jak oœ OX (jak na geometrii analitycznej).
+	 * Wtedy te¿ sin() i cos() dzia³aj¹ ~intuicyjne, tak samo jak analityczne
+	 * wzory. :] -- m.
+	 */
+	double phi;
 
 	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
 
 	/** Flaga mówi¹ca o tym, czy Agentowi uda³o siê ju¿ uciec. */
 	boolean exited;
+	
+	/**Czas, który up³ynie, nim agent podejmie decyzje o ruchu*/
+	private double pre_movement_t;
 
 	/** Aktualne stezenie karboksyhemoglobiny we krwii */
 	private double hbco;
@@ -122,7 +125,7 @@ public final class Agent {
 	double dt; // TODO: do boarda
 
 	/** 'Modul' ruchu agenta */
-	Motion motion;
+	private Motion motion;
 
 	/**
 	 * Konstruktor agenta. Inicjuje wszystkie pola niezbêdne do jego egzystencji
@@ -321,7 +324,7 @@ public final class Agent {
 		Exit chosen_exit1 = getNearestExit(-1);
 		Exit chosen_exit2 = getNearestExit(distToExit(chosen_exit1));
 
-		// doda³em jeszcze check na null, wywala³o NullPointerException
+		//TODO: doda³em jeszcze check na null, wywala³o NullPointerException
 		if ((chosen_exit1 != null && checkForBlockage(chosen_exit1) > 0)
 				&& chosen_exit2 != null)
 			exit = chosen_exit2;

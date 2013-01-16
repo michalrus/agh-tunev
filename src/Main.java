@@ -4,6 +4,7 @@ import java.util.Date;
 
 import board.Board;
 import board.Board.NoPhysicsDataException;
+import board.Board.Obstacle;
 
 public final class Main {
 
@@ -24,6 +25,11 @@ public final class Main {
 		board = new Board();
 
 		FDSParser parser = new FDSParser(board, "data/");
+		
+		System.out.println("Fire src " + board.getFireSrc().x+ " " + board.getFireSrc().y);
+		for(Obstacle ob : board.getObstacles())
+			System.out.println("Obstacle x: " + ob.getCentrePoint().x + "y: " + ob.getCentrePoint().y );
+		
 
 		board.initAgents(60);
 		board.initAgentsRandomly(300);

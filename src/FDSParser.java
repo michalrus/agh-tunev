@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -13,6 +14,7 @@ import java.util.regex.Pattern;
 
 import board.Board;
 import board.Board.Physics;
+import board.Board.Obstacle;
 import board.Point;
 
 public final class FDSParser {
@@ -41,7 +43,7 @@ public final class FDSParser {
 		Map<Physics, Pattern> patterns = new HashMap<Physics, Pattern>();
 
 		patterns.put(Physics.TEMPERATURE, Pattern.compile(
-				"^temp_(\\d+)-(\\d+)\\.csv$", Pattern.CASE_INSENSITIVE));
+				"^temp_(\\d+)-(\\d+)s\\.csv$", Pattern.CASE_INSENSITIVE));
 
 		patterns.put(Physics.CO, Pattern.compile("^co_(\\d+)-(\\d+)\\.csv$",
 				Pattern.CASE_INSENSITIVE));
@@ -100,6 +102,7 @@ public final class FDSParser {
 
 		Pattern patternExit = Pattern.compile("^&HOLE\\s+XB=(" + d + "),(" + d
 				+ "),(" + d + "),(" + d + ")," + d + "," + d);
+		
 
 		boolean gotDuration = false;
 		Pattern patternDuration = Pattern
@@ -150,13 +153,18 @@ public final class FDSParser {
 					if (line.contains("PERMIT_HOLE=.TRUE."))
 						continue;
 
-					board.addObstacle(
-							new Point(Double.parseDouble(matcher.group(1))
+					Obstacle ob = board.new Obstacle(new Point(Double.parseDouble(matcher.group(1))
 									- offsetX, Double.parseDouble(matcher
 									.group(3)) - offsetY),
 							new Point(Double.parseDouble(matcher.group(2))
 									- offsetX, Double.parseDouble(matcher
 									.group(4)) - offsetY));
+					
+					board.addObstacle(ob);
+					
+					if(line.contains("SURF ID='fire'"))
+						board.setFireSrc(ob.getCentrePoint());
+						
 					continue;
 				}
 

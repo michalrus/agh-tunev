@@ -69,6 +69,14 @@ public class Board {
 		return p.x < 0 || p.x > getDimension().x || p.y < 0
 				|| p.y > getDimension().y;
 	}
+	
+	public Point getFireSrc(){
+		return fire_src;
+	}
+	
+	public void setFireSrc(Point _src){
+		this.fire_src = _src;
+	}
 
 	public class NoPhysicsDataException extends Exception {
 		private static final long serialVersionUID = 1L;
@@ -79,8 +87,9 @@ public class Board {
 	}
 
 	// ------------- internals start here, an Agent should not use those
-
 	private Point dimension;
+	
+	private Point fire_src; 
 
 	// leave these package-private (without access modifier) -- BoardView
 	// has to be able to read them
@@ -137,13 +146,8 @@ public class Board {
 		}
 	}
 
-	public void addObstacle(Point start, Point end) {
-		Point newStart = new Point(Math.min(start.x, end.x), Math.min(start.y,
-				end.y));
-		Point newEnd = new Point(Math.max(start.x, end.x), Math.max(start.y,
-				end.y));
-
-		obstacles.add(new Obstacle(newStart, newEnd));
+	public void addObstacle(Obstacle ob) {
+		obstacles.add(ob);
 	}
 
 	public void addExit(Point start, Point end) {
@@ -228,9 +232,11 @@ public class Board {
 	public class TwoPointStructure {
 		private Point start, end;
 
-		public TwoPointStructure(Point start, Point end) {
-			this.start = start;
-			this.end = end;
+		public TwoPointStructure(Point _start, Point _end) {
+			this.start = new Point(Math.min(_start.x, _end.x), Math.min(_start.y,
+					_end.y));
+			this.end = new Point(Math.max(_start.x, _end.x), Math.max(_start.y,
+					_end.y));
 		}
 
 		public Point getStartPoint() {

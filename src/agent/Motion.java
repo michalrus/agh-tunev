@@ -8,7 +8,7 @@ import board.Board.Barrier;
 import board.Board.Obstacle;
 import board.Point;
 
-public class Motion {
+class Motion {
 	/** TODO:Bedzie okreslac predkosc */
 	enum Stance {
 		STAND, CROUCH, CRAWL
@@ -29,7 +29,7 @@ public class Motion {
 	/** Aktualna predkosc */
 	double velocity;
 
-	public Motion(Agent _agent) {
+	Motion(Agent _agent) {
 		this.agent = _agent;
 		checkpoints = new ArrayList<Point>();
 		velocity = AVG_MOVING_SPEED;
@@ -162,7 +162,7 @@ public class Motion {
 	 * liscie.
 	 */
 	void updateCheckpoints() {
-		if (agent.exit == null) // doda³em, bo wywala³o NullPointerException --
+		if (agent.exit == null) // TODO:doda³em, bo wywala³o NullPointerException --
 								// m.
 			return;
 		Point exit_pos = agent.exit.getCentrePoint();

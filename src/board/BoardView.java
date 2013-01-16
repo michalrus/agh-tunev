@@ -24,7 +24,7 @@ public final class BoardView extends JComponent {
 	private Board board = null;
 
 	/** [px/m] -- screen pixels for every real meter */
-	private static final double SCALE = 40;
+	private static final double SCALE = 30;
 
 	private Dimension dimension = new Dimension(0, 0);
 
@@ -125,7 +125,7 @@ public final class BoardView extends JComponent {
 
 				g.setColor(c);
 				g.fillRect(x, y, w, h);
-				g.setColor(lightGray);
+				g.setColor(c); //lightGray
 				g.drawRect(x, y, w, h);
 			}
 	}
