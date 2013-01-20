@@ -1,3 +1,5 @@
+package sim;
+
 import java.io.BufferedReader;
 
 import java.io.File;
@@ -162,6 +164,7 @@ public final class FDSParser {
 					
 					board.addObstacle(ob);
 					
+					//jeœli przeszkoda jest Ÿród³em ognia to ustawiamy je w board
 					if(line.contains("SURF ID='fire'"))
 						board.setFireSrc(ob.getCentrePoint());
 						

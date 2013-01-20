@@ -91,6 +91,9 @@ public final class Agent {
 
 	/** Prêdkoœæ z jak¹ usuwane s¹ karboksyhemoglobiny z organizmu */
 	private static final double CLEANSING_VELOCITY = 0.08;
+	
+	/** Wspó³czynnik funkcji przekszta³caj¹cej odleg³oœæ na czas reakcji*/
+	private static final double REACTION_COEFF = 0.3;
 
 	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
 	Point position;
@@ -126,6 +129,9 @@ public final class Agent {
 
 	/** 'Modul' ruchu agenta */
 	private Motion motion;
+	
+	/** Charakterystyka psychiki agenta*/
+	private Psyche psyche;
 
 	/**
 	 * Konstruktor agenta. Inicjuje wszystkie pola niezbêdne do jego egzystencji
@@ -148,6 +154,8 @@ public final class Agent {
 		exited = false;
 		hbco = 0;
 		dt = 0;
+		
+		pre_movement_t = REACTION_COEFF * position.evalDist(board.getFireSrc()) + psyche.reaction_t;
 
 		// TODO: Tworzenie cech osobniczych.
 	}

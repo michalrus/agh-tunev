@@ -1,6 +1,9 @@
+package sim;
+
 import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.util.Date;
+
 
 import board.Board;
 import board.Board.NoPhysicsDataException;
@@ -57,7 +60,7 @@ public final class Main {
 			currentCPUTime = new Date().getTime();
 			dt = (currentCPUTime - previousCPUTime) * SIMULATION_SPEEDUP;
 			simulationTime += dt;
-
+			
 			try {
 				board.update(dt);
 
