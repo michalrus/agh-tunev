@@ -9,7 +9,7 @@ import board.Board;
 import board.Board.NoPhysicsDataException;
 import board.Board.Obstacle;
 
-public final class Main {
+public final class Simulation {
 
 	private static final double SIMULATION_SPEEDUP = 1.0f; // ... times
 
