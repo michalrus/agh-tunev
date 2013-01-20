@@ -91,9 +91,10 @@ public final class Agent {
 
 	/** Prêdkoœæ z jak¹ usuwane s¹ karboksyhemoglobiny z organizmu */
 	private static final double CLEANSING_VELOCITY = 0.08;
-	
-	/** Wspó³czynnik funkcji przekszta³caj¹cej odleg³oœæ na czas reakcji*/
-	private static final double REACTION_COEFF = 0.3;
+
+	/** Wspó³czynnik funkcji przekszta³caj¹cej odleg³oœæ na czas reakcji */
+	private static final double REACTION_COEFF = 0.3 * 1000; // wspolczynnik *
+																// [s/ms]
 
 	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
 	Point position;
@@ -103,7 +104,7 @@ public final class Agent {
 
 	/** Referencja do planszy. */
 	Board board;
-	
+
 	/**
 	 * Orientacja: k¹t miêdzy wektorem "wzroku" i osi¹ OX w [deg]. Kiedy wynosi
 	 * 0.0 deg, to Agent "patrzy" jak oœ OX (jak na geometrii analitycznej).
@@ -117,8 +118,8 @@ public final class Agent {
 
 	/** Flaga mówi¹ca o tym, czy Agentowi uda³o siê ju¿ uciec. */
 	boolean exited;
-	
-	/**Czas, który up³ynie, nim agent podejmie decyzje o ruchu*/
+
+	/** Czas, który up³ynie, nim agent podejmie decyzje o ruchu */
 	private double pre_movement_t;
 
 	/** Aktualne stezenie karboksyhemoglobiny we krwii */
@@ -129,8 +130,8 @@ public final class Agent {
 
 	/** 'Modul' ruchu agenta */
 	private Motion motion;
-	
-	/** Charakterystyka psychiki agenta*/
+
+	/** Charakterystyka psychiki agenta */
 	private Psyche psyche;
 
 	/**
@@ -155,8 +156,9 @@ public final class Agent {
 		exited = false;
 		hbco = 0;
 		dt = 0;
-		
-		pre_movement_t = REACTION_COEFF * position.evalDist(board.getFireSrc()) + psyche.reaction_t;
+
+		pre_movement_t = (REACTION_COEFF
+				* position.evalDist(board.getFireSrc()) + psyche.reaction_t);
 
 		// TODO: Tworzenie cech osobniczych.
 	}
@@ -183,9 +185,6 @@ public final class Agent {
 	 * @throws NoPhysicsDataException
 	 */
 	public void update(double _dt) throws NoPhysicsDataException {
-		if (!alive || exited)
-			return;
-
 		this.dt = _dt;
 		checkIfIWillLive();
 
@@ -225,8 +224,16 @@ public final class Agent {
 	 * 
 	 * @return stan zdrowia
 	 */
-	public boolean isAlive() {
-		return alive;
+	public boolean isActive() {
+		return (alive && !exited);
+	}
+
+	/**
+	 * 
+	 * @return czas ktory uplynie przed podjeciem ruchu
+	 */
+	public double getPreMoveTime() {
+		return pre_movement_t;
 	}
 
 	/**
@@ -333,7 +340,7 @@ public final class Agent {
 		Exit chosen_exit1 = getNearestExit(-1);
 		Exit chosen_exit2 = getNearestExit(distToExit(chosen_exit1));
 
-		//TODO: doda³em jeszcze check na null, wywala³o NullPointerException
+		// TODO: doda³em jeszcze check na null, wywala³o NullPointerException
 		if ((chosen_exit1 != null && checkForBlockage(chosen_exit1) > 0)
 				&& chosen_exit2 != null)
 			exit = chosen_exit2;

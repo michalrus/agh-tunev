@@ -1,10 +1,15 @@
 package board;
 
+import java.io.FileNotFoundException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import sim.FDSParser;
+import sim.Simulation;
 
 import agent.Agent;
 
@@ -53,15 +58,21 @@ public class Board {
 		return exits;
 	}
 
-	// TODO: Tymczasowo, zmienie na private, kiedy przeniose parsowanie do
-	// konstruktora
-	/**
-	 * Sortuje wyjœcia w kolejnoœci rosn¹cej, bior¹c pod uwagê wspó³rzêdn¹ Y*
-	 * public void sortExits(){ Collections.sort(exits); }
-	 */
-
 	public List<Obstacle> getObstacles() {
 		return obstacles;
+	}
+
+	public double getDuration() {
+		return data_duration;
+	}
+
+	public void setDuration(double _duration) {
+		this.data_duration = _duration;
+	}
+
+	public void updateData(double simTime) throws FileNotFoundException,
+			ParseException {
+		parser.readData(simTime);
 	}
 
 	/** sprawdza, czy punkty znajduje siê na planszy */
@@ -69,12 +80,12 @@ public class Board {
 		return p.x < 0 || p.x > getDimension().x || p.y < 0
 				|| p.y > getDimension().y;
 	}
-	
-	public Point getFireSrc(){
+
+	public Point getFireSrc() {
 		return fire_src;
 	}
-	
-	public void setFireSrc(Point _src){
+
+	public void setFireSrc(Point _src) {
 		this.fire_src = _src;
 	}
 
@@ -86,10 +97,20 @@ public class Board {
 		private static final long serialVersionUID = 1L;
 	}
 
+	/** Referencja do symulacji */
+	private Simulation sim;
+
+	/** Parser dla danej planszy */
+	private FDSParser parser;
+
 	// ------------- internals start here, an Agent should not use those
 	private Point dimension;
-	
-	private Point fire_src; 
+
+	/** Œrodkowy punkt Ÿród³a ognia */
+	private Point fire_src;
+
+	/** Czas dla jakiego mamy okreœlone dane dla planszy */
+	private double data_duration;
 
 	// leave these package-private (without access modifier) -- BoardView
 	// has to be able to read them
@@ -103,23 +124,29 @@ public class Board {
 	private static final long MAX_RANDOM_FAILURES = 10;
 	private Random rng;
 
-	public Board() {
+	public Board(String dataFolder, Simulation _sim)
+			throws FileNotFoundException, ParseException {
 		agents = new ArrayList<Agent>();
 		obstacles = new ArrayList<Obstacle>();
 		exits = new ArrayList<Exit>();
 		rng = new Random();
+		parser = new FDSParser(this, dataFolder);
+		this.sim = _sim;
 	}
 
 	/**
-	 * Jedna iteracja symulacji.
+	 * Jedna iteracja symulacji. Agent uaktualnia swoj stan, tylko jesli zyje,
+	 * jest na planszy i uplynal juz jego pre movement time
 	 * 
 	 * @param dt
 	 *            czas w [ms] który up³yn¹³ od poprzedniej iteracji
 	 * @throws NoPhysicsDataException
 	 */
 	public void update(double dt) throws NoPhysicsDataException {
-		for (Agent agent : agents)
+		for (Agent agent : agents) {
+			if (agent.isActive() && sim.getSimTime() > agent.getPreMoveTime())
 			agent.update(dt);
+		}
 	}
 
 	/**
@@ -233,8 +260,8 @@ public class Board {
 		private Point start, end;
 
 		public TwoPointStructure(Point _start, Point _end) {
-			this.start = new Point(Math.min(_start.x, _end.x), Math.min(_start.y,
-					_end.y));
+			this.start = new Point(Math.min(_start.x, _end.x), Math.min(
+					_start.y, _end.y));
 			this.end = new Point(Math.max(_start.x, _end.x), Math.max(_start.y,
 					_end.y));
 		}

@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.util.Date;
 
-
 import board.Board;
 import board.Board.NoPhysicsDataException;
 import board.Board.Obstacle;
@@ -13,46 +12,72 @@ public final class Simulation {
 
 	private static final double SIMULATION_SPEEDUP = 1.0f; // ... times
 
-	public Simulation(){
-		
-	}
-	
+	/** Referencja do planszy */
+	private Board board;
+
+	/** Referencja do klasy obs³uguj¹cej mierzenie czasu symulacji */
+	private Timer timer;
+
+	/** Referencja do UI, w którym wyœwietli siê symulacja */
+	private UI ui;
+
 	/**
-	 * Tymczasowo wyrzuca FileNotFoundException, póki nie bêdzie (o ile bêdzie!)
-	 * kiedyœ wybierania pliku wejœciowego FDS-a z poziomu UI.
+	 * TODO: Dalej tymczasowo wyrzuca FileNoutFound. dataFile powinno byæ
+	 * pobierane z pola tekstowego UI, a nie podawane w konstruktorze.
 	 * 
-	 * @param args
+	 * @param dataFile
+	 *            tymczasowo
+	 * @param _agents_num
+	 *            liczba losowo wygenerowanych agentów
+	 * @param _ui
+	 *            referencja do GUI
 	 * @throws FileNotFoundException
 	 * @throws ParseException
 	 */
-	public static void main(String[] args) throws FileNotFoundException,
+	public Simulation(String dataFile, UI _ui) throws FileNotFoundException,
 			ParseException {
+		board = new Board(dataFile, this);
+		timer = new Timer();
+		this.ui = _ui;
+	}
 
-		Board board;
-		board = new Board();
+	/**
+	 * Start symulacji - inicjalizuje agentów, uruchamia timer, odpala
+	 * simulate()
+	 * 
+	 * @param _agents_num
+	 * 				liczba losowo wygenerowanych agentów
+	 * @throws InterruptedException
+	 * @throws NoPhysicsDataException
+	 */
+	public void start(long _agents_num) throws NoPhysicsDataException,
+			InterruptedException {
+		board.initAgentsRandomly(_agents_num);
+		timer.init();
+		// TODO: tutaj trzeba ogarnac jakies lepsze generowanie agentow
+		simulate();
 
-		FDSParser parser = new FDSParser(board, "data/");
-		
-		System.out.println("Fire src " + board.getFireSrc().x+ " " + board.getFireSrc().y);
-		for(Obstacle ob : board.getObstacles())
-			System.out.println("Obstacle x: " + ob.getCentrePoint().x + "y: " + ob.getCentrePoint().y );
-		
+	}
+	
+	public long getSimTime(){
+		return timer.getCurrentTime();
+	}
 
-		board.initAgents(60);
-		board.initAgentsRandomly(300);
-
-		UI ui = new UI();
-
-		// all time values in [ms]
-		double simulationDuration = parser.getDuration();
-		double simulationTime = 0;
+	/**
+	 * Odpowiada za uaktualnianie stanu symulacji zgodznie z danymi z pliku i
+	 * up³ywaj¹cym czasem.
+	 * 
+	 * @throws NoPhysicsDataException
+	 * @throws InterruptedException
+	 */
+	private void simulate() throws NoPhysicsDataException, InterruptedException {
+		double simulation_duration = board.getDuration();
+		long curr_time;
 		double dt;
-		long currentCPUTime = new Date().getTime();
-		long previousCPUTime;
 
-		while (simulationTime < simulationDuration) {
+		while ((curr_time = timer.getCurrentTime()) < simulation_duration) {
 			try {
-				parser.readData(simulationTime);
+				board.updateData(curr_time);
 			} catch (FileNotFoundException | ParseException e) {
 				/*
 				 * if user deleted a needed data file *during* simulation, then
@@ -60,26 +85,15 @@ public final class Simulation {
 				 */
 			}
 
-			previousCPUTime = currentCPUTime;
-			currentCPUTime = new Date().getTime();
-			dt = (currentCPUTime - previousCPUTime) * SIMULATION_SPEEDUP;
-			simulationTime += dt;
-			
-			try {
-				board.update(dt);
+			dt = timer.getCurrentDt();
+			board.update(dt);
 
-			} catch (NoPhysicsDataException e1) {
-				// Brak danych na planszy
-				e1.printStackTrace();
-			}
 			ui.draw(board);
 
 			// sztuczne opóŸnienie, tylko na razie -- m.
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-			}
+			Thread.sleep(50);
+
+			timer.updateTime();
 		}
 	}
-
 }

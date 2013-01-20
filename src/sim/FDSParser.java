@@ -25,7 +25,6 @@ public final class FDSParser {
 	private double offsetX, offsetY; // [m]
 	private File dataFolder, inputFile;
 	private SortedSet<DataFile> dataFiles;
-	private double duration;
 
 	public FDSParser(Board board, String dataFolder)
 			throws FileNotFoundException, ParseException {
@@ -140,7 +139,7 @@ public final class FDSParser {
 				if (!gotDuration) {
 					matcher = patternDuration.matcher(line);
 					if (matcher.find()) {
-						duration = 1000 * Double.parseDouble(matcher.group(1));
+						board.setDuration(1000 * Double.parseDouble(matcher.group(1)));
 						gotDuration = true;
 						continue;
 					}
@@ -303,7 +302,5 @@ public final class FDSParser {
 		}
 	}
 
-	public double getDuration() {
-		return duration;
-	}
+
 }
