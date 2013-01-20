@@ -2,15 +2,11 @@ package sim;
 
 import java.io.FileNotFoundException;
 import java.text.ParseException;
-import java.util.Date;
 
 import board.Board;
 import board.Board.NoPhysicsDataException;
-import board.Board.Obstacle;
 
 public final class Simulation {
-
-	private static final double SIMULATION_SPEEDUP = 1.0f; // ... times
 
 	/** Referencja do planszy */
 	private Board board;
@@ -46,7 +42,7 @@ public final class Simulation {
 	 * simulate()
 	 * 
 	 * @param _agents_num
-	 * 				liczba losowo wygenerowanych agentów
+	 *            liczba losowo wygenerowanych agentów
 	 * @throws InterruptedException
 	 * @throws NoPhysicsDataException
 	 */
@@ -58,8 +54,8 @@ public final class Simulation {
 		simulate();
 
 	}
-	
-	public long getSimTime(){
+
+	public long getSimTime() {
 		return timer.getCurrentTime();
 	}
 

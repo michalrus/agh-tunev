@@ -98,7 +98,7 @@ public final class BoardView extends JComponent {
 
 	private void paintBackground(Graphics g) {
 		Point p = new Point();
-		Color lightGray = new Color(0xEEEEEE);
+		// Color lightGray = new Color(0xEEEEEE);
 
 		for (p.x = 0.0; p.x < board.getDimension().x; p.x += board.dataCellDimension.x)
 			for (p.y = 0.0; p.y < board.getDimension().y; p.y += board.dataCellDimension.y) {
@@ -125,7 +125,7 @@ public final class BoardView extends JComponent {
 
 				g.setColor(c);
 				g.fillRect(x, y, w, h);
-				g.setColor(c); //lightGray
+				g.setColor(c); // lightGray
 				g.drawRect(x, y, w, h);
 			}
 	}

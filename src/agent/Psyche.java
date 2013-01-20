@@ -4,8 +4,8 @@ import java.util.Random;
 
 class Psyche {
 
-	private final static double MIN_REACTION_T = 0.1 * 1000; //[ms]
-	private final static double MAX_REACTION_T = 1 * 1000;	//[ms]
+	private final static double MIN_REACTION_T = 0.1 * 1000; // [ms]
+	private final static double MAX_REACTION_T = 1 * 1000; // [ms]
 
 	/** Czas reakcji na zagro¿enie = detekcja + decyzja */
 	double reaction_t;

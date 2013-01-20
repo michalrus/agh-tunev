@@ -1,4 +1,5 @@
 package sim;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Insets;
@@ -11,7 +12,6 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 
 import board.Board;
@@ -46,15 +46,15 @@ public final class UI extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
 		/* real elements */
-		
+
 		// board
 		boardView = new BoardView();
 		boardScrollPane = new JScrollPane(boardView);
-		
+
 		// control panel
 		JLabel control = new JLabel("(kontrola)");
 		control.setHorizontalAlignment(JLabel.CENTER);
-		
+
 		// stats console
 		JLabel stats = new JLabel("(statystyki)");
 		stats.setHorizontalAlignment(JLabel.CENTER);
@@ -62,7 +62,7 @@ public final class UI extends JFrame {
 		// chart
 		JLabel chart = new JLabel("(wykres)");
 		chart.setHorizontalAlignment(JLabel.CENTER);
-		
+
 		/* layout */
 
 		// south
@@ -70,12 +70,14 @@ public final class UI extends JFrame {
 		southPanel.add(control, BorderLayout.WEST);
 
 		// stats
-		JSplitPane statsSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, stats, chart);
+		JSplitPane statsSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+				stats, chart);
 		statsSplitPane.setResizeWeight(0.5);
 		southPanel.add(statsSplitPane, BorderLayout.CENTER);
 
 		// main panel
-		JSplitPane mainSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, boardScrollPane, southPanel);
+		JSplitPane mainSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				boardScrollPane, southPanel);
 		mainSplitPane.setResizeWeight(0.5);
 		mainSplitPane.setBorder(new EmptyBorder(new Insets(20, 20, 20, 20)));
 		add(mainSplitPane);

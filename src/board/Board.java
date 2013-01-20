@@ -145,7 +145,7 @@ public class Board {
 	public void update(double dt) throws NoPhysicsDataException {
 		for (Agent agent : agents) {
 			if (agent.isActive() && sim.getSimTime() > agent.getPreMoveTime())
-			agent.update(dt);
+				agent.update(dt);
 		}
 	}
 
