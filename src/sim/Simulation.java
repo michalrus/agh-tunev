@@ -13,6 +13,10 @@ public final class Simulation {
 
 	private static final double SIMULATION_SPEEDUP = 1.0f; // ... times
 
+	public Simulation(){
+		
+	}
+	
 	/**
 	 * Tymczasowo wyrzuca FileNotFoundException, póki nie bêdzie (o ile bêdzie!)
 	 * kiedyœ wybierania pliku wejœciowego FDS-a z poziomu UI.

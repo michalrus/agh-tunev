@@ -147,6 +147,7 @@ public final class Agent {
 		this.board = board;
 		this.position = position;
 		motion = new Motion(this);
+		psyche = new Psyche(this);
 
 		phi = Math.random() * 360 - 180;
 

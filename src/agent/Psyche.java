@@ -17,7 +17,9 @@ class Psyche {
 	private Random rand;
 	
 	
-	Psyche(){
+	Psyche(Agent _agent){
+		rand = new Random();
+		this.agent = _agent;
 		reaction_t = (MAX_REACTION_T - MIN_REACTION_T) * rand.nextDouble() + MIN_REACTION_T;
 	}
 
