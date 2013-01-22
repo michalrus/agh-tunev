@@ -53,12 +53,24 @@ class Motion {
 
 	/** Ruch w danym kierunki z aktualna predkoscia */
 	void move() {
-		agent.position.x += velocity * agent.dt
+		double x = agent.position.x + velocity * agent.dt
 				* Math.cos(Math.toRadians(agent.phi));
-		agent.position.y += velocity * agent.dt
+		double y = agent.position.y + velocity * agent.dt
 				* Math.sin(Math.toRadians(agent.phi));
+		
+		Point dest = new Point(x, y);
+		
+		if(!isDynamicCollision(dest))
+			agent.position = dest;
 	}
 
+	/** Dostosowuje predkosc agenta do warunkow srodowiskowych i uwzglednia poziom jego przerazenia
+	 * 
+	 * @param smoke_density
+	 * 				gêstoœæ dymu na aktualnej pozycji
+	 * @param anxiety
+	 * 				poziom przera¿enia
+	 */
 	void adjustVelocity(double smoke_density, double anxiety){
 		changeStance(smoke_density);
 		velocity = anxiety * AVG_MOVING_SPEED;
@@ -79,7 +91,7 @@ class Motion {
 	 * @return przeszkoda(Obstacle lub Wall) albo null, jesli jest miejsce do
 	 *         ruchu
 	 */
-	Barrier isCollision(double angle) {
+	Barrier isStaticCollision(double angle) {
 		double path_length = velocity * agent.dt + Agent.BROADNESS;
 		double alpha = angle + agent.phi;
 		double sin = Math.sin(Math.toRadians(alpha));
@@ -159,7 +171,7 @@ class Motion {
 			selected_points[1] = right_bot;
 		}
 
-		Point exit_pos = agent.exit.getCentrePoint();
+		Point exit_pos = agent.exit.getClosestPoint(agent.position);
 		double[] p_dists = new double[2];
 		p_dists[0] = exit_pos.evalDist(selected_points[0]);
 		p_dists[1] = exit_pos.evalDist(selected_points[1]);
@@ -193,7 +205,7 @@ class Motion {
 								// NullPointerException --
 								// m.
 			return;
-		Point exit_pos = agent.exit.getCentrePoint();
+		Point exit_pos = agent.exit.getClosestPoint(agent.position);
 		if (!checkpoints.isEmpty())
 			checkpoints.set(0, exit_pos);
 		else
@@ -208,7 +220,7 @@ class Motion {
 	 */
 	private void trimCheckpoints(Point p) {
 		if (!checkpoints.isEmpty()) {
-			Point exit_pos = agent.exit.getCentrePoint();
+			Point exit_pos = agent.exit.getClosestPoint(agent.position);
 			double new_dist = exit_pos.evalDist(p);
 
 			int index = 0;
@@ -233,6 +245,22 @@ class Motion {
 			stance = Stance.BENT;
 		else
 			stance = Stance.CRAWL;
+	}
+	
+	private boolean isDynamicCollision(Point dest){	
+		double dist_my_exit = agent.distToExit(agent.exit);
+
+		for(Agent a : agent.board.getAgents()){
+			if(!a.isAlive() || a.isExited() || a.exit == null)
+				continue;
+			
+			double dist_oth_exit = a.distToExit(a.exit);
+			double dist = a.getPosition().evalDist(agent.position);			//TODO: ladniej!
+			if(dist < 2*Agent.BROADNESS && dist_my_exit > dist_oth_exit)
+				return true;
+		}
+			
+		return false;
 	}
 
 }

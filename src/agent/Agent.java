@@ -47,7 +47,7 @@ public final class Agent {
 	 * Wspó³czynnik do skalowania funkcji wyk³adniczej wykorzystywanej do
 	 * obliczania promienia s¹siedztwa
 	 */
-	private static final double POW_RADIUS_COEFF = 2;
+	private static final double POW_RADIUS_COEFF = 10;
 
 	/**
 	 * Wspó³czynnik do skalowania funkcji wyk³adniczej wykorzystywanej do
@@ -63,7 +63,7 @@ public final class Agent {
 	 * Agent zawsze kierujê siê w stronê wyjœcia, chyba ¿e czynniki œrodowiskowe
 	 * mu na to nie pozwalaj¹. Z regu³y bêdzie to wartoœæ ujemna.
 	 */
-	private static final double MIN_THREAT_VAL = 50;
+	private static final double MIN_THREAT_VAL = 80;
 
 	/**
 	 * Odleglosc od wyjscia, dla ktorej agent przestaje zwracac uwage na
@@ -72,7 +72,7 @@ public final class Agent {
 	private static final double EXIT_RUSH_DIST = 3;
 
 	/** Minimalna temp. przy której agent widzi ogieñ */
-	private static final double MIN_FLAME_TEMP = 100;
+	private static final double MIN_FLAME_TEMP = 70;
 
 	/** Smiertelna wartosc temp. na wysokosci 1,5m */
 	private static final double LETHAL_TEMP = 80;
@@ -98,7 +98,8 @@ public final class Agent {
 	Point position;
 
 	/** Aktualnie wybrane wyjœcie ewakuacyjne */
-	Exit exit;
+	//TODO: priv
+	public Exit exit;
 
 	/** Referencja do planszy. */
 	Board board;
@@ -185,16 +186,17 @@ public final class Agent {
 	public void update(double _dt) throws NoPhysicsDataException {
 		this.dt = _dt;
 		double curr_temp = getMeanPhysics(0, 360, BROADNESS, Physics.TEMPERATURE);
-		double curr_co = board.getPhysics(position, Physics.CO);
+		double curr_co = getMeanPhysics(0, 360, BROADNESS, Physics.CO);
 		checkIfIWillLive(curr_co, curr_temp);
 
-		if (alive) { // ten sam koszt, a czytelniej, przemieni³em -- m.
+		if (alive) { 
 			double smoke_density = curr_co * CO_SMOKE_COEFF;
 
+			chooseExit();
+			System.out.println(exit.getExitX() + " " + exit.getExitY());
+			motion.updateCheckpoints();
 			psyche.expAnxiety(TEMP_THREAT_COEFF * curr_temp);
 			motion.adjustVelocity(smoke_density, psyche.anxiety);
-			chooseExit();
-			motion.updateCheckpoints();
 			makeDecision();
 			motion.move();
 		}
@@ -203,9 +205,10 @@ public final class Agent {
 		// spowoduje zaprzestanie wyœwietlania agenta i podbicie statystyk
 		// uratowanych w ka¿dym razie :]
 		// TODO: zmieniaæ na true dopiero gdy doszliœmy do wyjœcia
-		exited = (position.x < 0 || position.y < 0
+		/*exited = (position.x < 0 || position.y < 0
 				|| position.x > board.getDimension().x || position.y > board
-				.getDimension().y);
+				.getDimension().y);*/
+		exited = (distToExit(exit) < THICKNESS);
 	}
 
 	/**
@@ -228,8 +231,17 @@ public final class Agent {
 	 * 
 	 * @return stan zdrowia
 	 */
-	public boolean isActive() {
-		return (alive && !exited);
+	public boolean isAlive() {
+		return alive;
+	}
+	
+	/**
+	 * Sprawdza czy agent jest na planszy
+	 * 
+	 * @return 
+	 */
+	public boolean isExited(){
+		return exited;
 	}
 
 	/**
@@ -269,7 +281,7 @@ public final class Agent {
 	private void makeDecision() {
 		phi = calculateNewPhi();
 		double attractivness_ahead = computeThreatComponent(0);
-		Barrier barrier = motion.isCollision(0);
+		Barrier barrier = motion.isStaticCollision(0);
 
 		if (distToExit(exit) > EXIT_RUSH_DIST
 				&& attractivness_ahead > MIN_THREAT_VAL && barrier == null) {
@@ -285,7 +297,7 @@ public final class Agent {
 						* computeThreatComponent(angle);
 
 				if (curr_attractivness < attractivness
-						&& motion.isCollision(angle) == null) {
+						&& motion.isStaticCollision(angle) == null) {
 
 					attractivness = curr_attractivness;
 					phi += angle;
@@ -333,14 +345,15 @@ public final class Agent {
 	 */
 	private void chooseExit() throws NoPhysicsDataException {
 		Exit chosen_exit1 = getNearestExit(-1);
-		Exit chosen_exit2 = getNearestExit(distToExit(chosen_exit1));
-
-		// TODO: doda³em jeszcze check na null, wywala³o NullPointerException
-		if ((chosen_exit1 != null && checkForBlockage(chosen_exit1) > 0)
-				&& chosen_exit2 != null)
-			exit = chosen_exit2;
-		else
-			exit = chosen_exit1;
+		Exit chosen_exit2 = chosen_exit1;
+		
+		do{
+			chosen_exit1 = chosen_exit2;
+			double dist_exit = distToExit(chosen_exit1);
+			chosen_exit2 = getNearestExit(dist_exit);
+		}while(checkForBlockage(chosen_exit1) > 0 && chosen_exit2 != null);
+		
+		exit = chosen_exit1;
 
 	}
 
@@ -392,48 +405,48 @@ public final class Agent {
 	// TODO: rework, uwaga na (....XXX__XX...)
 	private double checkForBlockage(Exit _exit) {
 		boolean viable_route = true;
-		double exit_y = _exit.getExitY();
-		double dist = Math.abs(position.y - exit_y);
-		double ds = board.getDataCellDimension();
+		double exit_x = _exit.getExitX();				
+		double dist = Math.abs(position.x - exit_x);	
+		double ds = board.getDataCellDimension().x;		
 
-		if (position.y > exit_y)
-			ds = -ds;
+		if (position.x > exit_x)						
+			ds = -ds;	
 
 		// poruszamy siê po osi Y w kierunku wyjœcia
-		double y_coord = position.y + ds;
-		while (Math.abs(y_coord - position.y) < dist) {
-			double x_coord = 0 + BROADNESS;
-			double checkpoint_y_temp = 0;
+		double x_coord = position.x + ds;				
+		while (Math.abs(x_coord - position.x) < dist) {	
+			double y_coord = 0 + BROADNESS;				
+			double checkpoint_x_temp = 0;				
 			try {
-				checkpoint_y_temp = board.getPhysics(
+				checkpoint_x_temp = board.getPhysics(
 						new Point(x_coord, y_coord), Physics.TEMPERATURE);
 			} catch (NoPhysicsDataException ex) {
 				// nic sie nie dzieje
 			}
 
-			// poruszamy siê po osi X, jeœli natrafiliœmy na blokadê
-			if (checkpoint_y_temp > MIN_FLAME_TEMP) {
+			// poruszamy siê po osi Y, jeœli natrafiliœmy na blokadê
+			if (checkpoint_x_temp > MIN_FLAME_TEMP) {
 				viable_route = false;
-				while (x_coord < board.getDimension().x) {
-					double checkpoint_x_temp = MIN_FLAME_TEMP;
+				while (y_coord < board.getDimension().y) {					
+					double checkpoint_y_temp = MIN_FLAME_TEMP;			
 					try {
-						checkpoint_x_temp = board.getPhysics(new Point(x_coord,
+						checkpoint_y_temp = board.getPhysics(new Point(x_coord,			
 								y_coord), Physics.TEMPERATURE);
 					} catch (NoPhysicsDataException ex) {
 						// nic sie nie dzieje
 					}
 
-					if (checkpoint_x_temp < MIN_FLAME_TEMP)
+					if (checkpoint_y_temp < MIN_FLAME_TEMP)	
 						viable_route = true;
 
-					x_coord += BROADNESS;
+					y_coord += BROADNESS;		
 				}
 			}
-			// jeœli nie ma przejœcia zwracamy wsp. Y blokady
+			// jeœli nie ma przejœcia zwracamy wsp. X blokady
 			if (!viable_route)
-				return y_coord;
+				return x_coord;					
 
-			y_coord += ds;
+			x_coord += ds;						
 		}
 		return -1;
 	}
@@ -445,11 +458,11 @@ public final class Agent {
 	 *            wybrane wyjscie
 	 * @return odleglosc
 	 */
-	private double distToExit(Exit _exit) {
-		if (_exit == null) // TODO: logiczne? -- m. :] (Wywala³o mi
-							// NullPointerException, nie wiem ocb!)
+	double distToExit(Exit _exit) {
+		if (_exit == null) 
 			return Double.POSITIVE_INFINITY;
-		return position.evalDist(_exit.getCentrePoint());
+		Point exit_closest_p = _exit.getClosestPoint(position);
+		return position.evalDist(exit_closest_p);
 	}
 
 	/**

@@ -46,8 +46,8 @@ public class Board {
 		return dimension;
 	}
 
-	public double getDataCellDimension() {
-		return dataCellDimension.y;
+	public Point getDataCellDimension() {
+		return dataCellDimension;
 	}
 
 	public List<Agent> getAgents() {
@@ -144,7 +144,7 @@ public class Board {
 	 */
 	public void update(double dt) throws NoPhysicsDataException {
 		for (Agent agent : agents) {
-			if (agent.isActive() && sim.getSimTime() > agent.getPreMoveTime())
+			if (agent.isAlive() && !agent.isExited() && sim.getSimTime() > agent.getPreMoveTime())
 				agent.update(dt);
 		}
 	}
@@ -257,7 +257,7 @@ public class Board {
 	}
 
 	public class TwoPointStructure {
-		private Point start, end;
+		protected Point start, end;
 
 		public TwoPointStructure(Point _start, Point _end) {
 			this.start = new Point(Math.min(_start.x, _end.x), Math.min(
@@ -277,6 +277,7 @@ public class Board {
 		public Point getCentrePoint() {
 			return new Point((start.x + end.x) / 2, (start.y + end.y) / 2);
 		}
+
 	}
 
 	public final class Exit extends TwoPointStructure /*
@@ -295,12 +296,37 @@ public class Board {
 			return getCentrePoint().x;
 		}
 
-		/*
-		 * @Override public int compareTo(Exit anotherExit) throws
-		 * ClassCastException { if(!(anotherExit instanceof Exit)) throw new
-		 * ClassCastException(); return (int) (this.getCentrePoint().y -
-		 * anotherExit.getCentrePoint().y); }
+		/** Znajduje punkt le¿¹cy na odcinku reprezentuj¹cym wyjœcie, bêd¹cy w najmniejszej odleg³oœci do zadanego punktu
+		 * 
+		 * @param p
+		 * 			zadany punkt
+		 * @return	najbli¿ej le¿¹cy punkt		
 		 */
+		public Point getClosestPoint(Point p) {
+			Point closestPoint;
+
+			double delta_x = end.x - start.x;
+			double delta_y = end.y - start.y;
+
+			if ((delta_x == 0) && (delta_y == 0)) {
+				// throw sth
+			}
+
+			double u = ((p.x - start.x) * delta_x + (p.y - start.y) * delta_y)
+					/ (delta_x * delta_x + delta_y * delta_y);
+
+			if (u < 0) {
+				closestPoint = new Point(start.x, start.y);
+			} else if (u > 1) {
+				closestPoint = new Point(end.x, end.y);
+			} else {
+				closestPoint = new Point(
+						(int) Math.round(start.x + u * delta_x),
+						(int) Math.round(start.y + u * delta_y));
+			}
+
+			return closestPoint;
+		}
 	}
 
 	public final class Obstacle extends TwoPointStructure implements Barrier {
