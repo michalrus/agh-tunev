@@ -7,8 +7,8 @@ class Psyche {
 	private final static double MIN_REACTION_T = 0.1 * 1000; // [ms]
 	private final static double MAX_REACTION_T = 1 * 1000; // [ms]
 	
-	private final static double ANXIETY_COEFF_SIGNIF = 0.1;
-	private final static double MIN_THREAT_COMP = 1.4;
+	private final static double ANXIETY_COEFF_SIGNIF = 0.2;
+	private final static double MIN_THREAT_COMP = 35 * Agent.TEMP_THREAT_COEFF;
 	
 	/** Czas reakcji na zagro¿enie = detekcja + decyzja */
 	double reaction_t;
@@ -37,6 +37,8 @@ class Psyche {
 	void expAnxiety(double threat_comp){
 		if(threat_comp > MIN_THREAT_COMP)
 			anxiety = anxiety_coeff * threat_comp;
+		else
+			anxiety = 1;
 	}
 	
 	

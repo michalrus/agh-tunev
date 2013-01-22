@@ -29,9 +29,6 @@ class Motion {
 	/** Standardowa, poczatkowa predkosc ruchu */
 	private final static double AVG_MOVING_SPEED = 1.6 / 1000;
 
-	/** Referencja do szefa */
-	private Agent agent;
-
 	/** Aktualna postawa agenta */
 	Stance stance;
 
@@ -43,11 +40,18 @@ class Motion {
 
 	/** Aktualna predkosc */
 	double velocity;
+	
+	/** Referencja do szefa */
+	private Agent agent;
+	
+	/** Wsp. predkosci, cecha osobnicza agenta*/
+	private double velocity_coeff;
 
 	Motion(Agent _agent) {
 		this.agent = _agent;
 		checkpoints = new ArrayList<Point>();
-		velocity = AVG_MOVING_SPEED;
+		velocity_coeff = (Math.random() / 2) + 0.75;    //range [0.75, 1.25]
+		velocity = velocity_coeff * AVG_MOVING_SPEED;
 		stance = Stance.ERECT;
 	}
 
@@ -73,7 +77,7 @@ class Motion {
 	 */
 	void adjustVelocity(double smoke_density, double anxiety){
 		changeStance(smoke_density);
-		velocity = anxiety * AVG_MOVING_SPEED;
+		velocity = velocity_coeff * anxiety * AVG_MOVING_SPEED;
 		
 		if(stance == Stance.BENT)
 			velocity *= BENT_COEFF;
@@ -248,15 +252,12 @@ class Motion {
 	}
 	
 	private boolean isDynamicCollision(Point dest){	
-		double dist_my_exit = agent.distToExit(agent.exit);
-
 		for(Agent a : agent.board.getAgents()){
-			if(!a.isAlive() || a.isExited() || a.exit == null)
+			if(!a.isAlive() || a.isExited() || a.equals(agent))
 				continue;
 			
-			double dist_oth_exit = a.distToExit(a.exit);
-			double dist = a.getPosition().evalDist(agent.position);			//TODO: ladniej!
-			if(dist < 2*Agent.BROADNESS && dist_my_exit > dist_oth_exit)
+			double dist = a.getPosition().evalDist(dest);			
+			if(dist < Agent.BROADNESS)
 				return true;
 		}
 			

@@ -47,7 +47,7 @@ public final class Agent {
 	 * Wspó³czynnik do skalowania funkcji wyk³adniczej wykorzystywanej do
 	 * obliczania promienia s¹siedztwa
 	 */
-	private static final double POW_RADIUS_COEFF = 10;
+	private static final double POW_RADIUS_COEFF = 2;
 
 	/**
 	 * Wspó³czynnik do skalowania funkcji wyk³adniczej wykorzystywanej do
@@ -56,14 +56,14 @@ public final class Agent {
 	private static final double POW_ATTR_COEFF = 1;
 
 	/** Wspolczynnik przeskalowujacy temperature na zagro¿enie */
-	private static final double TEMP_THREAT_COEFF = 0.04;
+	static final double TEMP_THREAT_COEFF = 0.06;
 
 	/**
 	 * Minimalna wartoœæ wspó³czynnika zagro¿enia powoduj¹ca zmianê kierunku.
 	 * Agent zawsze kierujê siê w stronê wyjœcia, chyba ¿e czynniki œrodowiskowe
-	 * mu na to nie pozwalaj¹. Z regu³y bêdzie to wartoœæ ujemna.
+	 * mu na to nie pozwalaj¹.
 	 */
-	private static final double MIN_THREAT_VAL = 80;
+	private static final double MIN_THREAT_VAL = 60;
 
 	/**
 	 * Odleglosc od wyjscia, dla ktorej agent przestaje zwracac uwage na
@@ -193,7 +193,6 @@ public final class Agent {
 			double smoke_density = curr_co * CO_SMOKE_COEFF;
 
 			chooseExit();
-			System.out.println(exit.getExitX() + " " + exit.getExitY());
 			motion.updateCheckpoints();
 			psyche.expAnxiety(TEMP_THREAT_COEFF * curr_temp);
 			motion.adjustVelocity(smoke_density, psyche.anxiety);
@@ -205,10 +204,9 @@ public final class Agent {
 		// spowoduje zaprzestanie wyœwietlania agenta i podbicie statystyk
 		// uratowanych w ka¿dym razie :]
 		// TODO: zmieniaæ na true dopiero gdy doszliœmy do wyjœcia
-		/*exited = (position.x < 0 || position.y < 0
+		exited = (distToExit(exit) < THICKNESS) || (position.x < 0 || position.y < 0
 				|| position.x > board.getDimension().x || position.y > board
-				.getDimension().y);*/
-		exited = (distToExit(exit) < THICKNESS);
+				.getDimension().y);
 	}
 
 	/**

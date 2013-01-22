@@ -22,7 +22,7 @@ public class MainPane {
 		}
 
 		try {
-			sim.start(150);
+			sim.start(100);
 		} catch (NoPhysicsDataException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
