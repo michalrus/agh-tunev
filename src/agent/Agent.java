@@ -50,7 +50,7 @@ public final class Agent {
 	 * Wspó³czynnik do skalowania funkcji wyk³adniczej wykorzystywanej do
 	 * obliczania promienia s¹siedztwa
 	 */
-	private static final double POW_RADIUS_COEFF = 2;
+	private static final double POW_RADIUS_COEFF = 8;
 
 	/**
 	 * Wspó³czynnik do skalowania funkcji wyk³adniczej wykorzystywanej do

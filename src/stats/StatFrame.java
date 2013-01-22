@@ -6,24 +6,24 @@ import sim.Simulation;
 
 /** Klasa reprezentuje porcjê danych dotycz¹cych symulacji w danej sekundzie */
 class StatFrame {
-	/** Czas w ktorym zosta³y zebrane dane*/
-	private double time;			//[ms]
-	
+	/** Czas w ktorym zosta³y zebrane dane */
+	private double time; // [ms]
+
 	private long agents_exited;
 	private long agents_alive;
 	private long agents_dead;
-	
-	/** Œrednia stê¿enia karboksyhemoglobiny we krwi agentów*/
+
+	/** Œrednia stê¿enia karboksyhemoglobiny we krwi agentów */
 	private double hbco_avg;
-	
-	/** Œrednia prêdkoœæ agentów*/
+
+	/** Œrednia prêdkoœæ agentów */
 	private double velo_avg;
 
 	/**
 	 * W momencie utworzenia zbiera dane z symulacji i zapisuje do pól
 	 * 
 	 * @param sim
-	 * 			referencja do symulacji
+	 *            referencja do symulacji
 	 */
 	public StatFrame(Simulation sim) {
 		time = sim.getSimTime();

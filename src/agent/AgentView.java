@@ -43,7 +43,7 @@ public class AgentView {
 
 		// oval
 		g2.setColor(agent.isAlive() ? Color.CYAN : Color.PINK);
-		g2.fillOval(-w / 2, -h / 2, w, h);
+		g2.fillOval(-w / 2, -h / 2, w, h); 
 		g2.setColor(agent.isAlive() ? Color.BLUE : Color.RED);
 		g2.drawOval(-w / 2, -h / 2, w, h);
 

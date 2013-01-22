@@ -264,11 +264,13 @@ class Motion {
 			stance = Stance.CRAWL;
 	}
 
-	/** Sprawdza, czy w punkcie, do ktorego agent sie chce przemiescic, nie znajduje siê inny ewakuowany
+	/**
+	 * Sprawdza, czy w punkcie, do ktorego agent sie chce przemiescic, nie
+	 * znajduje siê inny ewakuowany
 	 * 
 	 * @param dest
-	 * 			punkt do ktorego agent chce sie przemiescic
-	 * @return	
+	 *            punkt do ktorego agent chce sie przemiescic
+	 * @return
 	 */
 	private boolean isDynamicCollision(Point dest) {
 		for (Agent a : agent.board.getAgents()) {
@@ -276,7 +278,7 @@ class Motion {
 				continue;
 
 			double dist = a.getPosition().evalDist(dest);
-			if (dist < Agent.BROADNESS)
+			if (dist < Agent.THICKNESS)
 				return true;
 		}
 

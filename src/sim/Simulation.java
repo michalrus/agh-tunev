@@ -18,8 +18,8 @@ public final class Simulation {
 
 	/** Referencja do UI, w którym wyœwietli siê symulacja */
 	private UI ui;
-	
-	/** Referencja do klasy klasy przechowujacej staty*/
+
+	/** Referencja do klasy klasy przechowujacej staty */
 	private Statistics stats;
 
 	/**
@@ -91,19 +91,15 @@ public final class Simulation {
 			board.update(dt);
 			stats.update();
 			ui.draw(board);
-
-			// sztuczne opóŸnienie, tylko na razie -- m.
-			Thread.sleep(50);
-
 			timer.updateTime();
 		}
 	}
-	
-	public Board getBoard(){
+
+	public Board getBoard() {
 		return board;
 	}
-	
-	public Timer getTimer(){
+
+	public Timer getTimer() {
 		return timer;
 	}
 }
