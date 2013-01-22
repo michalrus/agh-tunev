@@ -144,7 +144,8 @@ public class Board {
 	 */
 	public void update(double dt) throws NoPhysicsDataException {
 		for (Agent agent : agents) {
-			if (agent.isAlive() && !agent.isExited() && sim.getSimTime() > agent.getPreMoveTime())
+			if (agent.isAlive() && !agent.isExited()
+					&& sim.getSimTime() > agent.getPreMoveTime())
 				agent.update(dt);
 		}
 	}
@@ -296,11 +297,13 @@ public class Board {
 			return getCentrePoint().x;
 		}
 
-		/** Znajduje punkt le¿¹cy na odcinku reprezentuj¹cym wyjœcie, bêd¹cy w najmniejszej odleg³oœci do zadanego punktu
+		/**
+		 * Znajduje punkt le¿¹cy na odcinku reprezentuj¹cym wyjœcie, bêd¹cy w
+		 * najmniejszej odleg³oœci do zadanego punktu
 		 * 
 		 * @param p
-		 * 			zadany punkt
-		 * @return	najbli¿ej le¿¹cy punkt		
+		 *            zadany punkt
+		 * @return najbli¿ej le¿¹cy punkt
 		 */
 		public Point getClosestPoint(Point p) {
 			Point closestPoint;

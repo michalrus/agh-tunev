@@ -3,6 +3,8 @@ package sim;
 import java.io.FileNotFoundException;
 import java.text.ParseException;
 
+import stats.Statistics;
+
 import board.Board;
 import board.Board.NoPhysicsDataException;
 
@@ -16,6 +18,9 @@ public final class Simulation {
 
 	/** Referencja do UI, w którym wyœwietli siê symulacja */
 	private UI ui;
+	
+	/** Referencja do klasy klasy przechowujacej staty*/
+	private Statistics stats;
 
 	/**
 	 * TODO: Dalej tymczasowo wyrzuca FileNoutFound. dataFile powinno byæ
@@ -34,6 +39,7 @@ public final class Simulation {
 			ParseException {
 		board = new Board(dataFile, this);
 		timer = new Timer();
+		stats = new Statistics(this);
 		this.ui = _ui;
 	}
 
@@ -83,7 +89,7 @@ public final class Simulation {
 
 			dt = timer.getCurrentDt();
 			board.update(dt);
-
+			stats.update();
 			ui.draw(board);
 
 			// sztuczne opóŸnienie, tylko na razie -- m.
@@ -91,5 +97,13 @@ public final class Simulation {
 
 			timer.updateTime();
 		}
+	}
+	
+	public Board getBoard(){
+		return board;
+	}
+	
+	public Timer getTimer(){
+		return timer;
 	}
 }

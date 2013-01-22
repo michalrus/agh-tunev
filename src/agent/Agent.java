@@ -14,6 +14,9 @@ public final class Agent {
 		STAND, CROUCH, CRAWL
 	}
 
+	/** Wspolczynnik przeskalowujacy temperature na zagro¿enie */
+	static final double TEMP_THREAT_COEFF = 0.06;
+
 	/** Szerokoœæ elipsy Agenta w [m]. */
 	public static final double BROADNESS = 0.33;
 
@@ -55,9 +58,6 @@ public final class Agent {
 	 */
 	private static final double POW_ATTR_COEFF = 1;
 
-	/** Wspolczynnik przeskalowujacy temperature na zagro¿enie */
-	static final double TEMP_THREAT_COEFF = 0.06;
-
 	/**
 	 * Minimalna wartoœæ wspó³czynnika zagro¿enia powoduj¹ca zmianê kierunku.
 	 * Agent zawsze kierujê siê w stronê wyjœcia, chyba ¿e czynniki œrodowiskowe
@@ -86,10 +86,10 @@ public final class Agent {
 	/** Prêdkoœæ z jak¹ usuwane s¹ karboksyhemoglobiny z organizmu */
 	private static final double CLEANSING_VELOCITY = 0.08;
 
-	/**Wsp. do obliczania gêstoœci dymu na podstawie stê¿enia CO*/
-	//TODO: bardzo naci¹gane, ale to jest zbyt zmienne i nie ma danych
+	/** Wsp. do obliczania gêstoœci dymu na podstawie stê¿enia CO */
+	// TODO: bardzo naci¹gane, ale to jest zbyt zmienne i nie ma danych
 	private static final double CO_SMOKE_COEFF = 6.5;
-	
+
 	/** Wspó³czynnik funkcji przekszta³caj¹cej odleg³oœæ na czas reakcji */
 	private static final double REACTION_COEFF = 0.3 * 1000; // wspolczynnik *
 																// [s/ms]
@@ -98,8 +98,7 @@ public final class Agent {
 	Point position;
 
 	/** Aktualnie wybrane wyjœcie ewakuacyjne */
-	//TODO: priv
-	public Exit exit;
+	Exit exit;
 
 	/** Referencja do planszy. */
 	Board board;
@@ -125,7 +124,7 @@ public final class Agent {
 	private double hbco;
 
 	/** Czas ruchu agenta */
-	double dt; // TODO: do boarda
+	double dt;
 
 	/** 'Modul' ruchu agenta */
 	private Motion motion;
@@ -158,23 +157,25 @@ public final class Agent {
 
 		pre_movement_t = (REACTION_COEFF
 				* position.evalDist(board.getFireSrc()) + psyche.reaction_t);
-
-		// TODO: Tworzenie cech osobniczych.
 	}
 
 	/**
 	 * Akcje agenta w danej iteracji.
 	 * 
-	 * 1. Sprawdza, czy agent zyje - jesli nie, to wychodzi z funkcji.
+	 * 1. Sprawdza, czy agent nie powinien zginac w tej turze.
 	 * 
-	 * 2. Sprawdza, czy agent nie powinien zginac w tej turze.
+	 * 2. Wybiera wyjœcie.
 	 * 
-	 * 3. Wybiera wyjœcie.
+	 * 3. Aktualizuje liste checkpointow.
 	 * 
-	 * 4. Aktualizuje liste checkpointow.
+	 * 4. Aktualizuje stopieñ poddenerwowania agenta.
 	 * 
-	 * 5. Na podstawie danych otrzymanych w poprzednim punkcie podejmuje decyzje
-	 * i wykonuje ruch
+	 * 5. Dostosowuje prêdkoœæ do warunków z uwzglêdnieniem poddenerwowania.
+	 * 
+	 * 6. Na podstawie danych otrzymanych w poprzednim punkcie podejmuje
+	 * decyzje.
+	 * 
+	 * 7. Wykonuje ruch.
 	 * 
 	 * @param dt
 	 *            Czas w [ms] jaki up³yn¹³ od ostatniego update()'u. Mo¿na
@@ -185,11 +186,12 @@ public final class Agent {
 	 */
 	public void update(double _dt) throws NoPhysicsDataException {
 		this.dt = _dt;
-		double curr_temp = getMeanPhysics(0, 360, BROADNESS, Physics.TEMPERATURE);
+		double curr_temp = getMeanPhysics(0, 360, BROADNESS,
+				Physics.TEMPERATURE);
 		double curr_co = getMeanPhysics(0, 360, BROADNESS, Physics.CO);
 		checkIfIWillLive(curr_co, curr_temp);
 
-		if (alive) { 
+		if (alive) {
 			double smoke_density = curr_co * CO_SMOKE_COEFF;
 
 			chooseExit();
@@ -204,15 +206,12 @@ public final class Agent {
 		// spowoduje zaprzestanie wyœwietlania agenta i podbicie statystyk
 		// uratowanych w ka¿dym razie :]
 		// TODO: zmieniaæ na true dopiero gdy doszliœmy do wyjœcia
-		exited = (distToExit(exit) < THICKNESS) || (position.x < 0 || position.y < 0
-				|| position.x > board.getDimension().x || position.y > board
-				.getDimension().y);
+		exited = (distToExit(exit) < THICKNESS)
+				|| (position.x < 0 || position.y < 0
+						|| position.x > board.getDimension().x || position.y > board
+						.getDimension().y);
 	}
 
-	/**
-	 * 
-	 * @return aktualna pozycja
-	 */
 	public Point getPosition() {
 		return position;
 	}
@@ -226,19 +225,20 @@ public final class Agent {
 	}
 
 	/**
+	 * Zwraca wartoœæ niezale¿nie od tego, czy jest na planszy, czy nie.
 	 * 
 	 * @return stan zdrowia
 	 */
 	public boolean isAlive() {
 		return alive;
 	}
-	
+
 	/**
 	 * Sprawdza czy agent jest na planszy
 	 * 
-	 * @return 
+	 * @return
 	 */
-	public boolean isExited(){
+	public boolean isExited() {
 		return exited;
 	}
 
@@ -251,8 +251,31 @@ public final class Agent {
 	}
 
 	/**
+	 * Zwraca stê¿enie karboksyhemoglobiny we krwi
+	 * 
+	 * @return hbco
+	 */
+	public double getHBCO() {
+		return hbco;
+	}
+
+	/**
+	 * Zwraca aktualna prêdkoœæ agenta
+	 * 
+	 * @return velocity
+	 */
+	public double getVelocity() {
+		return motion.velocity;
+	}
+
+	/**
 	 * Okresla, czy agent przezyje, sprawdzajac temperature otoczenia i stezenie
 	 * toksyn we krwii
+	 * 
+	 * @param curr_co
+	 *            stê¿enie co w bliskim otoczeniu agenta
+	 * @param curr_temp
+	 *            œrednia temp. w bliskim otoczeniu agenta
 	 */
 	private void checkIfIWillLive(double curr_co, double curr_temp) {
 		evaluateHbCO(curr_co);
@@ -309,7 +332,7 @@ public final class Agent {
 
 	/**
 	 * Metoda obliczaj¹ca k¹t, który agent musi obraæ, by skierowaæ siê do
-	 * wybranego checkpoint. K¹t jest wyznaczony przez oœ X i odcinek ³¹cz¹cy
+	 * wybranego checkpointa. K¹t jest wyznaczony przez oœ X i odcinek ³¹cz¹cy
 	 * najblizszy checkpoint z aktualn¹ pozycj¹ agenta. Korzysta z funkcji
 	 * atan2(), która w przeciwieñstwie do atan() uwzglêdnia orientacjê na
 	 * p³aszczyŸnie.
@@ -327,31 +350,27 @@ public final class Agent {
 				.get(motion.checkpoints.size() - 1);
 		double deltaY = checkpoint.y - position.y;
 		double deltaX = checkpoint.x - position.x;
-
 		double angle = Math.atan2(deltaY, deltaX);
-		if (angle < -Math.PI) // TODO: to chyba mozna usunac
-			angle = (angle % Math.PI) + Math.PI;
 
 		return Math.toDegrees(angle);
 	}
 
 	/**
-	 * Wybór jednego z dwóch najbli¿szych wyjœæ w zale¿noœci od odleg³oœci i
-	 * mo¿liwoœci przejœcia
+	 * Wybór najbli¿szego wyjœcia do którego mo¿liwe jest przejœcie
 	 * 
 	 * @throws NoPhysicsDataException
 	 */
 	private void chooseExit() throws NoPhysicsDataException {
-		Exit chosen_exit1 = getNearestExit(-1);
-		Exit chosen_exit2 = chosen_exit1;
-		
-		do{
-			chosen_exit1 = chosen_exit2;
-			double dist_exit = distToExit(chosen_exit1);
-			chosen_exit2 = getNearestExit(dist_exit);
-		}while(checkForBlockage(chosen_exit1) > 0 && chosen_exit2 != null);
-		
-		exit = chosen_exit1;
+		Exit chosen_exit = null;
+		Exit curr_exit = getNearestExit(-1);
+
+		do {
+			chosen_exit = curr_exit;
+			double dist_exit = distToExit(chosen_exit);
+			curr_exit = getNearestExit(dist_exit);
+		} while (checkForBlockage(chosen_exit) > 0 && curr_exit != null);
+
+		exit = chosen_exit;
 
 	}
 
@@ -365,8 +384,7 @@ public final class Agent {
 	 *            zadana minimalna odleg³oœæ
 	 * @return najbli¿sze wyjœcie spe³niaj¹ce warunki
 	 */
-	// TODO: priv
-	public Exit getNearestExit(double min_dist) {
+	private Exit getNearestExit(double min_dist) {
 		double shortest_dist = board.getDimension().x + board.getDimension().y;
 		Exit nearest_exit = null;
 
@@ -381,7 +399,7 @@ public final class Agent {
 	}
 
 	/**
-	 * Algorytm dzia³a, poruszaj¹c sie po dwóch osiach: Y - zawsze, X - jeœli
+	 * Algorytm dzia³a, poruszaj¹c sie po dwóch osiach: X - zawsze, Y - jeœli
 	 * znajdzie blokadê. Zaczyna od wspolrzêdnej Y agenta i porszuamy siê po tej
 	 * osi w stronê potencjalnego wyjœcia. Jeœli natrafi na przeszkodê, to
 	 * sprawdza, czy ca³a szerokoœæ tunelu dla tej wartoœci Y jest zablokowana.
@@ -403,18 +421,18 @@ public final class Agent {
 	// TODO: rework, uwaga na (....XXX__XX...)
 	private double checkForBlockage(Exit _exit) {
 		boolean viable_route = true;
-		double exit_x = _exit.getExitX();				
-		double dist = Math.abs(position.x - exit_x);	
-		double ds = board.getDataCellDimension().x;		
+		double exit_x = _exit.getExitX();
+		double dist = Math.abs(position.x - exit_x);
+		double ds = board.getDataCellDimension().x;
 
-		if (position.x > exit_x)						
-			ds = -ds;	
+		if (position.x > exit_x)
+			ds = -ds;
 
 		// poruszamy siê po osi Y w kierunku wyjœcia
-		double x_coord = position.x + ds;				
-		while (Math.abs(x_coord - position.x) < dist) {	
-			double y_coord = 0 + BROADNESS;				
-			double checkpoint_x_temp = 0;				
+		double x_coord = position.x + ds;
+		while (Math.abs(x_coord - position.x) < dist) {
+			double y_coord = 0 + BROADNESS;
+			double checkpoint_x_temp = 0;
 			try {
 				checkpoint_x_temp = board.getPhysics(
 						new Point(x_coord, y_coord), Physics.TEMPERATURE);
@@ -425,26 +443,28 @@ public final class Agent {
 			// poruszamy siê po osi Y, jeœli natrafiliœmy na blokadê
 			if (checkpoint_x_temp > MIN_FLAME_TEMP) {
 				viable_route = false;
-				while (y_coord < board.getDimension().y) {					
-					double checkpoint_y_temp = MIN_FLAME_TEMP;			
+				while (y_coord < board.getDimension().y) {
+					double checkpoint_y_temp = MIN_FLAME_TEMP;
+					Point checkpoint_x = new Point(x_coord, y_coord);
 					try {
-						checkpoint_y_temp = board.getPhysics(new Point(x_coord,			
-								y_coord), Physics.TEMPERATURE);
+						checkpoint_y_temp = board.getPhysics(checkpoint_x,
+								Physics.TEMPERATURE);
 					} catch (NoPhysicsDataException ex) {
 						// nic sie nie dzieje
 					}
 
-					if (checkpoint_y_temp < MIN_FLAME_TEMP)	
+					if (checkpoint_y_temp < MIN_FLAME_TEMP
+							|| motion.isObstacleInPos(checkpoint_x) == null)
 						viable_route = true;
 
-					y_coord += BROADNESS;		
+					y_coord += BROADNESS;
 				}
 			}
 			// jeœli nie ma przejœcia zwracamy wsp. X blokady
 			if (!viable_route)
-				return x_coord;					
+				return x_coord;
 
-			x_coord += ds;						
+			x_coord += ds;
 		}
 		return -1;
 	}
@@ -457,7 +477,7 @@ public final class Agent {
 	 * @return odleglosc
 	 */
 	double distToExit(Exit _exit) {
-		if (_exit == null) 
+		if (_exit == null)
 			return Double.POSITIVE_INFINITY;
 		Point exit_closest_p = _exit.getClosestPoint(position);
 		return position.evalDist(exit_closest_p);
@@ -559,8 +579,7 @@ public final class Agent {
 		double r_ahead = computeMagnitudeByAngle(POW_RADIUS_COEFF,
 				BASE_RADIUS_CALC, angle);
 
-		attractivness_comp += getMeanPhysics(angle, CIRCLE_SECTOR, r_ahead, // TODO:
-																			// -=
+		attractivness_comp += getMeanPhysics(angle, CIRCLE_SECTOR, r_ahead,
 				Physics.TEMPERATURE);
 		return attractivness_comp;
 	}
@@ -575,23 +594,9 @@ public final class Agent {
 	 * @param angle
 	 * @return dlugosc promienia
 	 */
-	// TODO: Dobrac odpowiednie wspolczynniki
 	private double computeMagnitudeByAngle(double pow_coeff, double base,
 			double angle) {
 		return pow_coeff
 				* Math.pow(base, (180 - Math.abs(angle)) / CIRCLE_SECTOR);
 	}
-
-	// private void computeAttractivnessComponentByExit() {
-	// sk³adowa potencja³u od ew. wyjœcia (jeœli widoczne)
-	// }
-
-	// private void computeAttractivnessComponentBySocialDistances() {
-	// sk³adowa potencja³u od Social Distances
-	// }
-
-	// private void updateMotorSkills() {
-	// ograniczenie zdolnoœci poruszania siê w wyniku zatrucia?
-	// }
-
 }

@@ -13,7 +13,7 @@ class Motion {
 	enum Stance {
 		ERECT, BENT, CRAWL
 	}
-	
+
 	/** Wspolczynnik predkosci dla pozycji zgiêtej */
 	private final static double BENT_COEFF = 0.75;
 
@@ -40,17 +40,17 @@ class Motion {
 
 	/** Aktualna predkosc */
 	double velocity;
-	
+
 	/** Referencja do szefa */
 	private Agent agent;
-	
-	/** Wsp. predkosci, cecha osobnicza agenta*/
+
+	/** Wsp. predkosci, cecha osobnicza agenta */
 	private double velocity_coeff;
 
 	Motion(Agent _agent) {
 		this.agent = _agent;
 		checkpoints = new ArrayList<Point>();
-		velocity_coeff = (Math.random() / 2) + 0.75;    //range [0.75, 1.25]
+		velocity_coeff = (Math.random() / 2) + 0.75; // range [0.75, 1.25]
 		velocity = velocity_coeff * AVG_MOVING_SPEED;
 		stance = Stance.ERECT;
 	}
@@ -61,29 +61,31 @@ class Motion {
 				* Math.cos(Math.toRadians(agent.phi));
 		double y = agent.position.y + velocity * agent.dt
 				* Math.sin(Math.toRadians(agent.phi));
-		
+
 		Point dest = new Point(x, y);
-		
-		if(!isDynamicCollision(dest))
+
+		if (!isDynamicCollision(dest))
 			agent.position = dest;
 	}
 
-	/** Dostosowuje predkosc agenta do warunkow srodowiskowych i uwzglednia poziom jego przerazenia
+	/**
+	 * Dostosowuje predkosc agenta do warunkow srodowiskowych i uwzglednia
+	 * poziom jego przerazenia
 	 * 
 	 * @param smoke_density
-	 * 				gêstoœæ dymu na aktualnej pozycji
+	 *            gêstoœæ dymu na aktualnej pozycji
 	 * @param anxiety
-	 * 				poziom przera¿enia
+	 *            poziom przera¿enia
 	 */
-	void adjustVelocity(double smoke_density, double anxiety){
+	void adjustVelocity(double smoke_density, double anxiety) {
 		changeStance(smoke_density);
 		velocity = velocity_coeff * anxiety * AVG_MOVING_SPEED;
-		
-		if(stance == Stance.BENT)
+
+		if (stance == Stance.BENT)
 			velocity *= BENT_COEFF;
-		else if(stance == Stance.CRAWL)
+		else if (stance == Stance.CRAWL)
 			velocity *= CRAWL_COEFF;
-			
+
 	}
 
 	/**
@@ -107,6 +109,17 @@ class Motion {
 		if (agent.board.isOutOfBounds(p))
 			return agent.board.new Wall();
 
+		return isObstacleInPos(p);
+	}
+
+	/**
+	 * Sprawdza czy w danym punkcie znajduje siê przeszkoda.
+	 * 
+	 * @param p
+	 *            punkt
+	 * @return referencja do przeszkody
+	 */
+	Obstacle isObstacleInPos(Point p) {
 		for (Obstacle ob : agent.board.getObstacles()) {
 			if (ob.isInside(p, 2 * Agent.BROADNESS))
 				return ob;
@@ -235,7 +248,7 @@ class Motion {
 			checkpoints.subList(index, checkpoints.size()).clear();
 		}
 	}
-	
+
 	/**
 	 * Okreœla postawê agenta w zale¿nosci od gêstoœci dymu.
 	 * 
@@ -250,18 +263,23 @@ class Motion {
 		else
 			stance = Stance.CRAWL;
 	}
-	
-	private boolean isDynamicCollision(Point dest){	
-		for(Agent a : agent.board.getAgents()){
-			if(!a.isAlive() || a.isExited() || a.equals(agent))
+
+	/** Sprawdza, czy w punkcie, do ktorego agent sie chce przemiescic, nie znajduje siê inny ewakuowany
+	 * 
+	 * @param dest
+	 * 			punkt do ktorego agent chce sie przemiescic
+	 * @return	
+	 */
+	private boolean isDynamicCollision(Point dest) {
+		for (Agent a : agent.board.getAgents()) {
+			if (!a.isAlive() || a.isExited() || a.equals(agent))
 				continue;
-			
-			double dist = a.getPosition().evalDist(dest);			
-			if(dist < Agent.BROADNESS)
+
+			double dist = a.getPosition().evalDist(dest);
+			if (dist < Agent.BROADNESS)
 				return true;
 		}
-			
+
 		return false;
 	}
-
 }
