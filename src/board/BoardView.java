@@ -5,8 +5,17 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.awt.TexturePaint;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.net.URL;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
 import board.Board.NoPhysicsDataException;
@@ -145,8 +154,8 @@ public final class BoardView extends JComponent {
 			int w = Math.abs(x1 - x2);
 			int h = Math.abs(y1 - y2);
 
-			g.setColor(Color.BLACK);
-			g.fillRect(x, y, w, h);
+			 g.setColor(Color.BLACK);
+			 g.fillRect(x, y, w, h);
 		}
 	}
 
@@ -187,6 +196,30 @@ public final class BoardView extends JComponent {
 		// prawdziwym
 		g.drawLine(x, y - length, x - 2, y - length + (forward ? 4 : -4));
 		g.drawLine(x, y - length, x + 2, y - length + (forward ? 4 : -4));
+	}
+
+	public BufferedImage scaleImage(BufferedImage img, int width, int height,
+			Color background) {
+		int imgWidth = img.getWidth();
+		int imgHeight = img.getHeight();
+		if (imgWidth * height < imgHeight * width) {
+			width = imgWidth * height / imgHeight;
+		} else {
+			height = imgHeight * width / imgWidth;
+		}
+		BufferedImage newImage = new BufferedImage(width, height,
+				BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = newImage.createGraphics();
+		try {
+			g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+					RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+			g.setBackground(background);
+			g.clearRect(0, 0, width, height);
+			g.drawImage(img, 0, 0, width, height, null);
+		} finally {
+			g.dispose();
+		}
+		return newImage;
 	}
 
 }

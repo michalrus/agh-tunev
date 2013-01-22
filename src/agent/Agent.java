@@ -55,27 +55,21 @@ public final class Agent {
 	 */
 	private static final double POW_ATTR_COEFF = 1;
 
-	/** Wspolczynnik wagowy obliczonego zagro¿enia */
-	private static final double THREAT_COEFF = 10;
+	/** Wspolczynnik przeskalowujacy temperature na zagro¿enie */
+	private static final double TEMP_THREAT_COEFF = 0.04;
 
 	/**
 	 * Minimalna wartoœæ wspó³czynnika zagro¿enia powoduj¹ca zmianê kierunku.
 	 * Agent zawsze kierujê siê w stronê wyjœcia, chyba ¿e czynniki œrodowiskowe
 	 * mu na to nie pozwalaj¹. Z regu³y bêdzie to wartoœæ ujemna.
 	 */
-	private static final double MIN_THREAT_VAL = THREAT_COEFF * 50;
+	private static final double MIN_THREAT_VAL = 50;
 
 	/**
 	 * Odleglosc od wyjscia, dla ktorej agent przestaje zwracac uwage na
 	 * czynniki zewnetrzne i rzuca sie do drzwi/portalu
 	 */
 	private static final double EXIT_RUSH_DIST = 3;
-
-	/** Wspolczynnik wagowy odleg³oœci od wyjœcia */
-	// private static final double EXIT_COEFF = 5;
-
-	/** Wspolczynnik wagowy dla czynników spo³ecznych */
-	// private static final double SOCIAL_COEFF = 0.01;
 
 	/** Minimalna temp. przy której agent widzi ogieñ */
 	private static final double MIN_FLAME_TEMP = 100;
@@ -92,6 +86,10 @@ public final class Agent {
 	/** Prêdkoœæ z jak¹ usuwane s¹ karboksyhemoglobiny z organizmu */
 	private static final double CLEANSING_VELOCITY = 0.08;
 
+	/**Wsp. do obliczania gêstoœci dymu na podstawie stê¿enia CO*/
+	//TODO: bardzo naci¹gane, ale to jest zbyt zmienne i nie ma danych
+	private static final double CO_SMOKE_COEFF = 6.5;
+	
 	/** Wspó³czynnik funkcji przekszta³caj¹cej odleg³oœæ na czas reakcji */
 	private static final double REACTION_COEFF = 0.3 * 1000; // wspolczynnik *
 																// [s/ms]
@@ -186,9 +184,15 @@ public final class Agent {
 	 */
 	public void update(double _dt) throws NoPhysicsDataException {
 		this.dt = _dt;
-		checkIfIWillLive();
+		double curr_temp = getMeanPhysics(0, 360, BROADNESS, Physics.TEMPERATURE);
+		double curr_co = board.getPhysics(position, Physics.CO);
+		checkIfIWillLive(curr_co, curr_temp);
 
 		if (alive) { // ten sam koszt, a czytelniej, przemieni³em -- m.
+			double smoke_density = curr_co * CO_SMOKE_COEFF;
+
+			psyche.expAnxiety(TEMP_THREAT_COEFF * curr_temp);
+			motion.adjustVelocity(smoke_density, psyche.anxiety);
 			chooseExit();
 			motion.updateCheckpoints();
 			makeDecision();
@@ -240,11 +244,10 @@ public final class Agent {
 	 * Okresla, czy agent przezyje, sprawdzajac temperature otoczenia i stezenie
 	 * toksyn we krwii
 	 */
-	private void checkIfIWillLive() {
-		evaluateHbCO();
+	private void checkIfIWillLive(double curr_co, double curr_temp) {
+		evaluateHbCO(curr_co);
 
-		if (hbco > LETHAL_HbCO_CONCN
-				|| getMeanPhysics(0, 360, BROADNESS, Physics.TEMPERATURE) > LETHAL_TEMP)
+		if (hbco > LETHAL_HbCO_CONCN || curr_temp > LETHAL_TEMP)
 			alive = false;
 	}
 
@@ -252,20 +255,12 @@ public final class Agent {
 	 * Funkcja oblicza aktualne stezenie karboksyhemoglobiny, uwzgledniajac
 	 * zdolnosci organizmu do usuwania toksyn
 	 */
-	private void evaluateHbCO() {
+	private void evaluateHbCO(double curr_co) {
 		// TODO: Dobrac odpowiednie parametry
 		if (hbco > dt * CLEANSING_VELOCITY)
 			hbco -= dt * CLEANSING_VELOCITY;
 
-		try {
-			// TODO: Zastanowiæ siê, czy to faktycznie jest funkcja liniowa.
-			hbco += dt
-					* LETHAL_HbCO_CONCN
-					* (board.getPhysics(position, Physics.CO) / LETHAL_CO_CONCN);
-		} catch (NoPhysicsDataException e) {
-			// TODO: Mo¿e po prostu nic nie rób z hbco, jeœli nie mamy danych o
-			// tlenku wêgla (II)? KASIU?!...
-		}
+		hbco += dt * LETHAL_HbCO_CONCN * (curr_co / LETHAL_CO_CONCN);
 	}
 
 	/**
@@ -273,7 +268,7 @@ public final class Agent {
 	 */
 	private void makeDecision() {
 		phi = calculateNewPhi();
-		double attractivness_ahead = THREAT_COEFF * computeThreatComponent(0);
+		double attractivness_ahead = computeThreatComponent(0);
 		Barrier barrier = motion.isCollision(0);
 
 		if (distToExit(exit) > EXIT_RUSH_DIST
@@ -286,7 +281,7 @@ public final class Agent {
 
 				double attr_coeff = 1 / computeMagnitudeByAngle(POW_ATTR_COEFF,
 						BASE_ATTR_CALC, angle);
-				double curr_attractivness = THREAT_COEFF * attr_coeff
+				double curr_attractivness = attr_coeff
 						* computeThreatComponent(angle);
 
 				if (curr_attractivness < attractivness

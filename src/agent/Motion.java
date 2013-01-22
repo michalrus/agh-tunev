@@ -11,14 +11,29 @@ import board.Point;
 class Motion {
 	/** TODO:Bedzie okreslac predkosc */
 	enum Stance {
-		STAND, CROUCH, CRAWL
+		ERECT, BENT, CRAWL
 	}
+	
+	/** Wspolczynnik predkosci dla pozycji zgiêtej */
+	private final static double BENT_COEFF = 0.75;
+
+	/** Wspolczynnik predkosci dla czo³gania */
+	private final static double CRAWL_COEFF = 0.1;
+
+	/** Gêstoœæ dymu przy której agent musi siê zgi¹æ */
+	private final static double SMOKE_BENT_DENSITY = 5200;
+
+	/** Gêstoœæ dymu, przy której agent musi siê czo³gaæ */
+	private final static double SMOKE_CRAWL_DENSITY = 20800;
 
 	/** Standardowa, poczatkowa predkosc ruchu */
-	private static double AVG_MOVING_SPEED = 1.6 / 1000;
+	private final static double AVG_MOVING_SPEED = 1.6 / 1000;
 
 	/** Referencja do szefa */
 	private Agent agent;
+
+	/** Aktualna postawa agenta */
+	Stance stance;
 
 	/**
 	 * Lista punktow, ktore zamierzamy odwiedzic. Wybrane wyjscie jest
@@ -33,6 +48,7 @@ class Motion {
 		this.agent = _agent;
 		checkpoints = new ArrayList<Point>();
 		velocity = AVG_MOVING_SPEED;
+		stance = Stance.ERECT;
 	}
 
 	/** Ruch w danym kierunki z aktualna predkoscia */
@@ -41,6 +57,17 @@ class Motion {
 				* Math.cos(Math.toRadians(agent.phi));
 		agent.position.y += velocity * agent.dt
 				* Math.sin(Math.toRadians(agent.phi));
+	}
+
+	void adjustVelocity(double smoke_density, double anxiety){
+		changeStance(smoke_density);
+		velocity = anxiety * AVG_MOVING_SPEED;
+		
+		if(stance == Stance.BENT)
+			velocity *= BENT_COEFF;
+		else if(stance == Stance.CRAWL)
+			velocity *= CRAWL_COEFF;
+			
 	}
 
 	/**
@@ -162,7 +189,8 @@ class Motion {
 	 * liscie.
 	 */
 	void updateCheckpoints() {
-		if (agent.exit == null) // TODO:doda³em, bo wywala³o NullPointerException --
+		if (agent.exit == null) // TODO:doda³em, bo wywala³o
+								// NullPointerException --
 								// m.
 			return;
 		Point exit_pos = agent.exit.getCentrePoint();
@@ -190,6 +218,21 @@ class Motion {
 
 			checkpoints.subList(index, checkpoints.size()).clear();
 		}
+	}
+	
+	/**
+	 * Okreœla postawê agenta w zale¿nosci od gêstoœci dymu.
+	 * 
+	 * @param smoke_density
+	 */
+	private void changeStance(double smoke_density) {
+		if (smoke_density < SMOKE_BENT_DENSITY)
+			stance = Stance.ERECT;
+		else if (smoke_density >= SMOKE_BENT_DENSITY
+				&& smoke_density < SMOKE_CRAWL_DENSITY)
+			stance = Stance.BENT;
+		else
+			stance = Stance.CRAWL;
 	}
 
 }
