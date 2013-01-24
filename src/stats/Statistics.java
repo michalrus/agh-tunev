@@ -20,7 +20,13 @@ public class Statistics {
 
 	/** Dodaje nowa porcje danych do listy */
 	public void update() {
-		stat_frames.add(new StatFrame(sim));
+		synchronized (this) {
+			stat_frames.add(new StatFrame(sim));
+		}
+	}
+
+	public List<StatFrame> getFrames() {
+		return stat_frames;
 	}
 
 }

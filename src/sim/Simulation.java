@@ -23,7 +23,7 @@ public final class Simulation {
 	private Statistics stats;
 
 	/**
-	 * TODO: Dalej tymczasowo wyrzuca FileNoutFound. dataFile powinno byæ
+	 * TODO: Dalej tymczasowo wyrzuca FileNotFound. dataFile powinno byæ
 	 * pobierane z pola tekstowego UI, a nie podawane w konstruktorze.
 	 * 
 	 * @param dataFile
@@ -91,6 +91,7 @@ public final class Simulation {
 			board.update(dt);
 			stats.update();
 			ui.draw(board);
+			ui.draw(stats);
 			timer.updateTime();
 		}
 	}
