@@ -44,7 +44,7 @@ public final class FDSParser {
 		Map<Physics, Pattern> patterns = new HashMap<Physics, Pattern>();
 
 		patterns.put(Physics.TEMPERATURE, Pattern.compile(
-				"^temp_(\\d+)-(\\d+)s\\.csv$", Pattern.CASE_INSENSITIVE));
+				"^temp_(\\d+)-(\\d+)\\.csv$", Pattern.CASE_INSENSITIVE));
 
 		patterns.put(Physics.CO, Pattern.compile("^co_(\\d+)-(\\d+)\\.csv$",
 				Pattern.CASE_INSENSITIVE));
