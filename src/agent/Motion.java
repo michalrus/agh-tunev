@@ -276,9 +276,9 @@ class Motion {
 		for (Agent a : agent.board.getAgents()) {
 			if (!a.isAlive() || a.isExited() || a.equals(agent))
 				continue;
-
-			double dist = a.getPosition().evalDist(dest);
-			if (dist < Agent.THICKNESS)
+			
+			double dest_dist = a.getPosition().evalDist(dest);
+			if (dest_dist < Agent.THICKNESS)
 				return true;
 		}
 
