@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JDesktopPane;
@@ -18,6 +21,14 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+import stats.StatFrame;
 import stats.Statistics;
 
 import board.Board;
@@ -28,6 +39,7 @@ public final class UI extends JFrame {
 
 	private JScrollPane boardScrollPane;
 	private BoardView boardView;
+	private ChartFrame chartFrameAgents, chartFrameHcbo, chartFrameVelocity;
 
 	public UI() {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -47,7 +59,7 @@ public final class UI extends JFrame {
 		}
 
 		setTitle("TunEv");
-		setMinimumSize(new Dimension(640, 480));
+		setSize(new Dimension(950, 700));
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -62,14 +74,39 @@ public final class UI extends JFrame {
 		desktopPane.add(new BoardFrame(boardScrollPane));
 
 		// control
-		desktopPane.add(new ControlFrame());
+		desktopPane.add(new ControlFrame(new Point(600, 0), new Dimension(300,
+				300)));
 
-		// chart
-		desktopPane.add(new ChartFrame());
+		List<String> tmp;
+
+		// chart: agents
+		tmp = new ArrayList<String>();
+		tmp.add("Uratowani");
+		tmp.add("¯ywi");
+		tmp.add("Martwi");
+		chartFrameAgents = new ChartFrame("Statystyki agentów",
+				"Liczba agentów", tmp, new Point(0, 300), new Dimension(300,
+						300));
+		desktopPane.add(chartFrameAgents);
+
+		// chart: hcbo
+		tmp = new ArrayList<String>();
+		tmp.add("Wszyscy agenci");
+		chartFrameHcbo = new ChartFrame("Statystyki hcbo", "Œrednie stê¿enie",
+				tmp, new Point(300, 300), new Dimension(300, 300));
+		desktopPane.add(chartFrameHcbo);
+
+		// chart: velocity
+		tmp = new ArrayList<String>();
+		tmp.add("Wszyscy agenci");
+		chartFrameVelocity = new ChartFrame("Statystyki prêdkoœci",
+				"Œrednia prêdkoœæ", tmp, new Point(600, 300), new Dimension(
+						300, 300));
+		desktopPane.add(chartFrameVelocity);
 
 		setVisible(true);
 	}
-	
+
 	public void draw(final Board board) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -83,9 +120,30 @@ public final class UI extends JFrame {
 	public void draw(final Statistics stats) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-//				boardView.setBoard(board);
-	//			boardView.repaint();
-		//		boardScrollPane.revalidate();
+				synchronized (stats) {
+					List<StatFrame> frames = stats.getFrames();
+					if (frames.isEmpty()) {
+						chartFrameAgents.clearSeries();
+						chartFrameHcbo.clearSeries();
+						chartFrameVelocity.clearSeries();
+					} else {
+						StatFrame last = frames.get(frames.size() - 1);
+
+						List<Double> tmp1 = new ArrayList<Double>();
+						tmp1.add((double) last.getAgentsExited());
+						tmp1.add((double) last.getAgentsAlive());
+						tmp1.add((double) last.getAgentsDead());
+						chartFrameAgents.addToSeries(last.getTime(), tmp1);
+
+						List<Double> tmp2 = new ArrayList<Double>();
+						tmp2.add(last.getHbcoAvg());
+						chartFrameHcbo.addToSeries(last.getTime(), tmp2);
+
+						List<Double> tmp3 = new ArrayList<Double>();
+						tmp3.add(last.getVeloAvg());
+						chartFrameVelocity.addToSeries(last.getTime(), tmp3);
+					}
+				}
 			}
 		});
 	}
@@ -93,21 +151,21 @@ public final class UI extends JFrame {
 	private class BoardFrame extends JInternalFrame {
 		public BoardFrame(JComponent inside) {
 			super("Board", true, false, true, true);
-			
+
 			setLocation(0, 0);
 			setSize(600, 300);
 			setVisible(true);
-			
+
 			add(inside);
 		}
 	}
 
 	private class ControlFrame extends JInternalFrame {
-		public ControlFrame() {
+		public ControlFrame(Point location, Dimension size) {
 			super("Control", true, false, true, true);
-			
-			setLocation(0, 300);
-			setSize(300, 300);
+
+			setLocation(location);
+			setSize(size);
 			setVisible(true);
 
 			JLabel control = new JLabel("(kontrola)");
@@ -117,16 +175,47 @@ public final class UI extends JFrame {
 	}
 
 	private class ChartFrame extends JInternalFrame {
-		public ChartFrame() {
-			super("Chart", true, false, true, true);
-			
-			setLocation(300, 300);
-			setSize(300, 300);
+		List<XYSeries> series;
+
+		public ChartFrame(String name, String nameOY, List<String> seriesNames,
+				Point location, Dimension size) {
+			super(name, true, false, true, true);
+
+			setLocation(location);
+			setSize(size);
 			setVisible(true);
 
-			JLabel control = new JLabel("(wykres)");
-			control.setHorizontalAlignment(JLabel.CENTER);
-			add(control);
+			series = new ArrayList<XYSeries>();
+			XYSeriesCollection dataset = new XYSeriesCollection();
+			for (String seriesName : seriesNames) {
+				XYSeries s = new XYSeries(seriesName);
+				dataset.addSeries(s);
+				series.add(s);
+			}
+
+			JFreeChart chart = ChartFactory.createXYLineChart(name,
+					"Czas [s]", nameOY, dataset, PlotOrientation.VERTICAL,
+					true, true, false);
+			add(new ChartPanel(chart));
+		}
+
+		public void addToSeries(double time, List<Double> values) {
+			if (values.size() != series.size()) {
+				System.out.println("?! " + series.size() + " != " + values.size());
+				return;
+			}
+			
+			int i = 0;
+			for (Double value : values) {
+				series.get(i).add(time / 1000.0, value);
+				i++;
+			}
+		}
+
+		public void clearSeries() {
+			for (XYSeries s : series) {
+				s.clear();
+			}
 		}
 	}
 

@@ -5,7 +5,7 @@ import board.Board;
 import sim.Simulation;
 
 /** Klasa reprezentuje porcjê danych dotycz¹cych symulacji w danej sekundzie */
-class StatFrame {
+public class StatFrame {
 	/** Czas w ktorym zosta³y zebrane dane */
 	private double time; // [ms]
 
