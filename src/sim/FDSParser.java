@@ -94,16 +94,18 @@ public final class FDSParser {
 		String d = "[^,\\s/]+";
 
 		boolean gotDimensions = false;
-		Pattern patternDimensions = Pattern.compile("^&MESH\\s+IJK=(" + d
-				+ "),(" + d + ")," + d + ",\\s*XB=(" + d + "),(" + d + "),("
-				+ d + "),(" + d + ")," + d + "," + d);
+		Pattern patternDimensions = Pattern.compile("^&MESH\\s+IJK\\s*=\\s*("
+				+ d + ")\\s*,\\s*(" + d + ")\\s*,\\s*" + d
+				+ ",\\s*XB\\s*=\\s*(" + d + ")\\s*,\\s*(" + d + ")\\s*,\\s*("
+				+ d + ")\\s*,\\s*(" + d + ")\\s*,\\s*" + d + "\\s*,\\s*" + d);
 
-		Pattern patternObstacle = Pattern.compile("^&OBST\\s+XB=(" + d + "),("
-				+ d + "),(" + d + "),(" + d + ")," + d + "," + d);
+		Pattern patternObstacle = Pattern.compile("^&OBST\\s+XB\\s*=\\s*(" + d
+				+ ")\\s*,\\s*(" + d + ")\\s*,\\s*(" + d + ")\\s*,\\s*(" + d
+				+ ")\\s*,\\s*" + d + "\\s*,\\s*" + d);
 
-		Pattern patternExit = Pattern.compile("^&HOLE\\s+XB=(" + d + "),(" + d
-				+ "),(" + d + "),(" + d + ")," + d + "," + d);
-		
+		Pattern patternExit = Pattern.compile("^&HOLE\\s+XB\\s*=\\s*(" + d
+				+ ")\\s*,\\s*(" + d + ")\\s*,\\s*(" + d + ")\\s*,\\s*(" + d
+				+ ")\\s*,\\s*" + d + "\\s*,\\s*" + d);
 
 		boolean gotDuration = false;
 		Pattern patternDuration = Pattern
@@ -139,7 +141,8 @@ public final class FDSParser {
 				if (!gotDuration) {
 					matcher = patternDuration.matcher(line);
 					if (matcher.find()) {
-						board.setDuration(1000 * Double.parseDouble(matcher.group(1)));
+						board.setDuration(1000 * Double.parseDouble(matcher
+								.group(1)));
 						gotDuration = true;
 						continue;
 					}
@@ -154,19 +157,20 @@ public final class FDSParser {
 					if (line.contains("PERMIT_HOLE=.TRUE."))
 						continue;
 
-					Obstacle ob = board.new Obstacle(new Point(Double.parseDouble(matcher.group(1))
-									- offsetX, Double.parseDouble(matcher
-									.group(3)) - offsetY),
+					Obstacle ob = board.new Obstacle(new Point(
+							Double.parseDouble(matcher.group(1)) - offsetX,
+							Double.parseDouble(matcher.group(3)) - offsetY),
 							new Point(Double.parseDouble(matcher.group(2))
 									- offsetX, Double.parseDouble(matcher
 									.group(4)) - offsetY));
-					
+
 					board.addObstacle(ob);
-					
-					//jeœli przeszkoda jest Ÿród³em ognia to ustawiamy je w board
-					if(line.contains("SURF ID='fire'"))
+
+					// jeœli przeszkoda jest Ÿród³em ognia to ustawiamy je w
+					// board
+					if (line.contains("SURF ID='fire'"))
 						board.setFireSrc(ob.getCentrePoint());
-						
+
 					continue;
 				}
 
@@ -301,6 +305,5 @@ public final class FDSParser {
 			}
 		}
 	}
-
 
 }
