@@ -165,7 +165,7 @@ public final class FDSParser {
 					
 					//jeœli przeszkoda jest Ÿród³em ognia to ustawiamy je w board
 					if(line.contains("SURF ID='fire'"))
-						board.setFireSrc(ob.getCentrePoint());
+						board.addFireSrc(ob.getCentrePoint());
 						
 					continue;
 				}

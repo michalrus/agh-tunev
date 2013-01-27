@@ -81,12 +81,23 @@ public class Board {
 				|| p.y > getDimension().y;
 	}
 
-	public Point getFireSrc() {
-		return fire_src;
+	public Point getNearestFireSrc(Point p) {
+		double min = Double.POSITIVE_INFINITY;
+		Point nearest_src = null;
+		
+		for(Point src : fire_srcs){
+			double dist = src.evalDist(p);
+			if(dist < min){
+				min = dist;
+				nearest_src = src;
+			}				
+		}
+		
+		return nearest_src;
 	}
 
-	public void setFireSrc(Point _src) {
-		this.fire_src = _src;
+	public void addFireSrc(Point _src) {
+		fire_srcs.add(_src);
 	}
 
 	public class NoPhysicsDataException extends Exception {
@@ -107,7 +118,7 @@ public class Board {
 	private Point dimension;
 
 	/** Œrodkowy punkt Ÿród³a ognia */
-	private Point fire_src;
+	private List<Point> fire_srcs;
 
 	/** Czas dla jakiego mamy okreœlone dane dla planszy */
 	private double data_duration;
@@ -129,6 +140,7 @@ public class Board {
 		agents = new ArrayList<Agent>();
 		obstacles = new ArrayList<Obstacle>();
 		exits = new ArrayList<Exit>();
+		fire_srcs = new ArrayList<Point>();
 		rng = new Random();
 		parser = new FDSParser(this, dataFolder);
 		this.sim = _sim;

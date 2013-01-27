@@ -156,7 +156,7 @@ public final class Agent {
 		dt = 0;
 
 		pre_movement_t = (REACTION_COEFF
-				* position.evalDist(board.getFireSrc()) + psyche.reaction_t);
+				* position.evalDist(board.getNearestFireSrc(position)) + psyche.reaction_t);
 	}
 
 	/**

@@ -93,6 +93,7 @@ public final class Simulation {
 			ui.draw(board);
 			ui.draw(stats);
 			timer.updateTime();
+			Thread.sleep(50);
 		}
 	}
 
