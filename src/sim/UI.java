@@ -74,8 +74,8 @@ public final class UI extends JFrame {
 		desktopPane.add(new BoardFrame(boardScrollPane));
 
 		// control
-		desktopPane.add(new ControlFrame(new Point(600, 0), new Dimension(300,
-				300)));
+		//desktopPane.add(new ControlFrame(new Point(600, 0), new Dimension(300,
+		//		300)));
 
 		List<String> tmp;
 
