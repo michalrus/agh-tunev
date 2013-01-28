@@ -89,6 +89,9 @@ public final class Agent {
 	/** Wsp. do obliczania gêstoœci dymu na podstawie stê¿enia CO */
 	// TODO: bardzo naci¹gane, ale to jest zbyt zmienne i nie ma danych
 	private static final double CO_SMOKE_COEFF = 6.5;
+	
+	/** Mol/mol do ppm*/
+	private static final double MOL_TO_PPM = 1E11;
 
 	/** Wspó³czynnik funkcji przekszta³caj¹cej odleg³oœæ na czas reakcji */
 	private static final double REACTION_COEFF = 0.3 * 1000; // wspolczynnik *
@@ -188,7 +191,7 @@ public final class Agent {
 		this.dt = _dt;
 		double curr_temp = getMeanPhysics(0, 360, BROADNESS,
 				Physics.TEMPERATURE);
-		double curr_co = getMeanPhysics(0, 360, BROADNESS, Physics.CO);
+		double curr_co = MOL_TO_PPM * getMeanPhysics(0, 360, BROADNESS, Physics.CO);
 		checkIfIWillLive(curr_co, curr_temp);
 
 		if (alive) {
@@ -268,6 +271,10 @@ public final class Agent {
 		return motion.velocity;
 	}
 
+	public Motion.Stance getStance(){
+		return motion.stance;
+	}
+	
 	/**
 	 * Okresla, czy agent przezyje, sprawdzajac temperature otoczenia i stezenie
 	 * toksyn we krwii
@@ -279,6 +286,7 @@ public final class Agent {
 	 */
 	private void checkIfIWillLive(double curr_co, double curr_temp) {
 		evaluateHbCO(curr_co);
+		System.out.println(curr_co + " " + hbco);
 
 		if (hbco > LETHAL_HbCO_CONCN || curr_temp > LETHAL_TEMP)
 			alive = false;
@@ -293,7 +301,7 @@ public final class Agent {
 		if (hbco > dt * CLEANSING_VELOCITY)
 			hbco -= dt * CLEANSING_VELOCITY;
 
-		hbco += dt * LETHAL_HbCO_CONCN * (curr_co / LETHAL_CO_CONCN);
+		hbco += (dt/1000) * LETHAL_HbCO_CONCN * (curr_co / LETHAL_CO_CONCN);
 	}
 
 	/**

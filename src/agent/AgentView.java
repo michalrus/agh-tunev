@@ -41,8 +41,18 @@ public class AgentView {
 		g2.translate(bv.translateX(p), bv.translateY(p));
 		g2.rotate(Math.toRadians(90 - agent.getOrientation()));
 
+		Color agent_color = Color.CYAN;
+		switch(agent.getStance()){
+			case BENT:
+				agent_color = agent_color.darker(); 
+				break;				
+			case CRAWL:
+				agent_color = agent_color.darker().darker();  
+				break;	
+		}
+		
 		// oval
-		g2.setColor(agent.isAlive() ? Color.CYAN : Color.PINK);
+		g2.setColor(agent.isAlive() ? agent_color : Color.PINK);
 		g2.fillOval(-w / 2, -h / 2, w, h); 
 		g2.setColor(agent.isAlive() ? Color.BLUE : Color.RED);
 		g2.drawOval(-w / 2, -h / 2, w, h);
