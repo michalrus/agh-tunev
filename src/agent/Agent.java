@@ -421,50 +421,50 @@ public final class Agent {
 	// TODO: rework, uwaga na (....XXX__XX...)
 	private double checkForBlockage(Exit _exit) {
 		boolean viable_route = true;
-		double exit_x = _exit.getExitX();
-		double dist = Math.abs(position.x - exit_x);
-		double ds = board.getDataCellDimension().x;
+		double exit_y = _exit.getExitY();
+		double dist = Math.abs(position.y - exit_y);
+		double ds = board.getDataCellDimension().y;
 
-		if (position.x > exit_x)
+		if (position.y > exit_y)
 			ds = -ds;
 
 		// poruszamy siê po osi Y w kierunku wyjœcia
-		double x_coord = position.x + ds;
-		while (Math.abs(x_coord - position.x) < dist) {
-			double y_coord = 0 + BROADNESS;
-			double checkpoint_x_temp = 0;
+		double y_coord = position.y + ds;
+		while (Math.abs(y_coord - position.y) < dist) {
+			double x_coord = 0 + BROADNESS;
+			double checkpoint_y_temp = 0;
 			try {
-				checkpoint_x_temp = board.getPhysics(
+				checkpoint_y_temp = board.getPhysics(
 						new Point(x_coord, y_coord), Physics.TEMPERATURE);
 			} catch (NoPhysicsDataException ex) {
 				// nic sie nie dzieje
 			}
 
-			// poruszamy siê po osi Y, jeœli natrafiliœmy na blokadê
-			if (checkpoint_x_temp > MIN_FLAME_TEMP) {
+			// poruszamy siê po osi X, jeœli natrafiliœmy na blokadê
+			if (checkpoint_y_temp > MIN_FLAME_TEMP) {
 				viable_route = false;
-				while (y_coord < board.getDimension().y) {
-					double checkpoint_y_temp = MIN_FLAME_TEMP;
+				while (x_coord < board.getDimension().x) {
+					double checkpoint_x_temp = MIN_FLAME_TEMP;
 					Point checkpoint_x = new Point(x_coord, y_coord);
 					try {
-						checkpoint_y_temp = board.getPhysics(checkpoint_x,
+						checkpoint_x_temp = board.getPhysics(checkpoint_x,
 								Physics.TEMPERATURE);
 					} catch (NoPhysicsDataException ex) {
 						// nic sie nie dzieje
 					}
 
-					if (checkpoint_y_temp < MIN_FLAME_TEMP
+					if (checkpoint_x_temp < MIN_FLAME_TEMP
 							|| motion.isObstacleInPos(checkpoint_x) == null)
 						viable_route = true;
 
-					y_coord += BROADNESS;
+					x_coord += BROADNESS;
 				}
 			}
-			// jeœli nie ma przejœcia zwracamy wsp. X blokady
+			// jeœli nie ma przejœcia zwracamy wsp. Y blokady
 			if (!viable_route)
-				return x_coord;
+				return y_coord;
 
-			x_coord += ds;
+			y_coord += ds;
 		}
 		return -1;
 	}

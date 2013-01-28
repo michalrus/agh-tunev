@@ -54,7 +54,7 @@ public final class Simulation {
 	 */
 	public void start(long _agents_num) throws NoPhysicsDataException,
 			InterruptedException {
-		board.initAgentsRandomly(_agents_num);
+		board.initAgents();
 		timer.init();
 		// TODO: tutaj trzeba ogarnac jakies lepsze generowanie agentow
 		simulate();

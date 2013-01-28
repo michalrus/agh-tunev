@@ -84,15 +84,15 @@ public class Board {
 	public Point getNearestFireSrc(Point p) {
 		double min = Double.POSITIVE_INFINITY;
 		Point nearest_src = null;
-		
-		for(Point src : fire_srcs){
+
+		for (Point src : fire_srcs) {
 			double dist = src.evalDist(p);
-			if(dist < min){
+			if (dist < min) {
 				min = dist;
 				nearest_src = src;
-			}				
+			}
 		}
-		
+
 		return nearest_src;
 	}
 
@@ -212,22 +212,37 @@ public class Board {
 		}
 	}
 
-	// TODO: hardcode do testow, nie chcia³o mi siê na razie robiæ parsowania
-	public void initAgents(long vehicles_num) {
-		for (long i = 0; i < vehicles_num; i += 2) {
-			obstacles.add(new Obstacle(new Point(5, 100 - 3 * i - 3),
-					new Point(6.5, 100 - 3 * i)));
-			agents.add(new Agent(this, new Point(7, 100 - 3 * i - 1)));
-			agents.add(new Agent(this, new Point(4.5, 100 - 3 * i - 1)));
-			agents.add(new Agent(this, new Point(4.5, 100 - 3 * i - 2)));
+	public void initAgents() {
+		for (Obstacle ob : obstacles) {
+			Point start = ob.getStartPoint();
+			Point end = ob.getEndPoint();
+			double veh_len = end.y - start.y;
+			int passengers = rng.nextInt(3) + 1;
 
-			obstacles.add(new Obstacle(new Point(1, 120 + 3 * i), new Point(
-					2.5, 120 + 3 * i + 3)));
-			agents.add(new Agent(this, new Point(3, 120 + 3 * i + 2)));
-			agents.add(new Agent(this, new Point(0.5, 120 + 3 * i + 1)));
-			agents.add(new Agent(this, new Point(3, 120 + 3 * i + 1)));
+			for (int i = 0; i < passengers; ++i) {
+				Point coord = (i % 2 == 0) ? new Point(start.x - 2
+						* Agent.BROADNESS, start.y + (i / 2) * (veh_len / 2) + 2*Agent.BROADNESS)
+						: new Point(end.x + 2 * Agent.BROADNESS, start.y
+								+ (i / 2) * (veh_len / 2) + 2*Agent.BROADNESS);
+				agents.add(new Agent(this, coord));
+			}
 		}
 	}
+
+	// TODO: hardcode do testow, nie chcia³o mi siê na razie robiæ parsowania
+	/*
+	 * public void initAgents(long vehicles_num) { for (long i = 0; i <
+	 * vehicles_num; i += 2) { obstacles.add(new Obstacle(new Point(5, 100 - 3 *
+	 * i - 3), new Point(6.5, 100 - 3 * i))); agents.add(new Agent(this, new
+	 * Point(7, 100 - 3 * i - 1))); agents.add(new Agent(this, new Point(4.5,
+	 * 100 - 3 * i - 1))); agents.add(new Agent(this, new Point(4.5, 100 - 3 * i
+	 * - 2)));
+	 * 
+	 * obstacles.add(new Obstacle(new Point(1, 120 + 3 * i), new Point( 2.5, 120
+	 * + 3 * i + 3))); agents.add(new Agent(this, new Point(3, 120 + 3 * i +
+	 * 2))); agents.add(new Agent(this, new Point(0.5, 120 + 3 * i + 1)));
+	 * agents.add(new Agent(this, new Point(3, 120 + 3 * i + 1))); } }
+	 */
 
 	DataCell getDataCell(Point where) {
 		if (where.x < 0 || where.y < 0 || where.x > dimension.x
