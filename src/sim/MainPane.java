@@ -8,7 +8,7 @@ import board.Board.NoPhysicsDataException;
 public class MainPane {
 	// TODO: na razie mamy tutaj lekki burdel z wyj¹tkami ;P
 	
-	// test-commit
+	// test-commit 2
 
 	public static void main(String[] args) {
 		UI ui = new UI();
