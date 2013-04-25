@@ -1,4 +1,4 @@
-package board;
+package edu.agh.tunev.model.kkm;
 
 public final class Point {
 	/**

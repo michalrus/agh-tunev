@@ -1,12 +1,10 @@
-package agent;
+package edu.agh.tunev.model.kkm;
 
-import board.Board;
-import board.Board.Barrier;
-import board.Board.Exit;
-import board.Board.NoPhysicsDataException;
-import board.Board.Obstacle;
-import board.Board.Physics;
-import board.Point;
+import edu.agh.tunev.model.kkm.Board.Barrier;
+import edu.agh.tunev.model.kkm.Board.Exit;
+import edu.agh.tunev.model.kkm.Board.NoPhysicsDataException;
+import edu.agh.tunev.model.kkm.Board.Obstacle;
+import edu.agh.tunev.model.kkm.Board.Physics;
 
 public final class Agent {
 

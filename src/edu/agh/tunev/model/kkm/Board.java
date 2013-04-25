@@ -1,4 +1,4 @@
-package board;
+package edu.agh.tunev.model.kkm;
 
 import java.io.FileNotFoundException;
 import java.text.ParseException;
@@ -8,10 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import sim.FDSParser;
-import sim.Simulation;
-
-import agent.Agent;
+import edu.agh.tunev.world.FDSParser;
 
 public class Board {
 
@@ -109,7 +106,8 @@ public class Board {
 	}
 
 	/** Referencja do symulacji */
-	private Simulation sim;
+	//private Object sim;
+	// commented-out (unused), see below (wyszukaj "sim.")
 
 	/** Parser dla danej planszy */
 	private FDSParser parser;
@@ -135,15 +133,16 @@ public class Board {
 	private static final long MAX_RANDOM_FAILURES = 10;
 	private Random rng;
 
-	public Board(String dataFolder, Simulation _sim)
-			throws FileNotFoundException, ParseException {
+	public Board(String dataFolder, Object _sim) throws FileNotFoundException,
+			ParseException {
 		agents = new ArrayList<Agent>();
 		obstacles = new ArrayList<Obstacle>();
 		exits = new ArrayList<Exit>();
 		fire_srcs = new ArrayList<Point>();
 		rng = new Random();
 		parser = new FDSParser(this, dataFolder);
-		this.sim = _sim;
+		//this.sim = _sim;
+		// commented-out (unused), see below (wyszukaj "sim.")
 	}
 
 	/**
@@ -157,7 +156,10 @@ public class Board {
 	public void update(double dt) throws NoPhysicsDataException {
 		for (Agent agent : agents) {
 			if (agent.isAlive() && !agent.isExited()
-					&& sim.getSimTime() > agent.getPreMoveTime())
+			// && sim.getSimTime() > agent.getPreMoveTime())
+					&& Double.NaN > agent.getPreMoveTime())
+				// sim.Simulation juz nie istnieje, mam nadzieje, ze ogarniesz
+				// -- m. =)~
 				agent.update(dt);
 		}
 	}
@@ -221,9 +223,10 @@ public class Board {
 
 			for (int i = 0; i < passengers; ++i) {
 				Point coord = (i % 2 == 0) ? new Point(start.x - 2
-						* Agent.BROADNESS, start.y + (i / 2) * (veh_len / 2) + 2*Agent.BROADNESS)
-						: new Point(end.x + 2 * Agent.BROADNESS, start.y
-								+ (i / 2) * (veh_len / 2) + 2*Agent.BROADNESS);
+						* Agent.BROADNESS, start.y + (i / 2) * (veh_len / 2)
+						+ 2 * Agent.BROADNESS) : new Point(end.x + 2
+						* Agent.BROADNESS, start.y + (i / 2) * (veh_len / 2)
+						+ 2 * Agent.BROADNESS);
 				agents.add(new Agent(this, coord));
 			}
 		}

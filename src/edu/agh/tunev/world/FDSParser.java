@@ -1,4 +1,4 @@
-package sim;
+package edu.agh.tunev.world;
 
 import java.io.BufferedReader;
 
@@ -14,10 +14,11 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import board.Board;
-import board.Board.Physics;
-import board.Board.Obstacle;
-import board.Point;
+import edu.agh.tunev.model.kkm.Board;
+import edu.agh.tunev.model.kkm.Point;
+import edu.agh.tunev.model.kkm.Board.Obstacle;
+import edu.agh.tunev.model.kkm.Board.Physics;
+
 
 public final class FDSParser {
 

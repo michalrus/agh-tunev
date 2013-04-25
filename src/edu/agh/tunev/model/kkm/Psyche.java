@@ -1,4 +1,4 @@
-package agent;
+package edu.agh.tunev.model.kkm;
 
 import java.util.Random;
 

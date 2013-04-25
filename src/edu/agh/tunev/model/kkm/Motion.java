@@ -1,12 +1,12 @@
-package agent;
+package edu.agh.tunev.model.kkm;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import board.Board.Barrier;
-import board.Board.Obstacle;
-import board.Point;
+import edu.agh.tunev.model.kkm.Board.Barrier;
+import edu.agh.tunev.model.kkm.Board.Obstacle;
+
 
 class Motion {
 	/** TODO:Bedzie okreslac predkosc */
