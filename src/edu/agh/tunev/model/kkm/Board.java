@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import edu.agh.tunev.world.FDSParser;
-
 public class Board {
 
 	public enum Physics {
@@ -69,7 +67,8 @@ public class Board {
 
 	public void updateData(double simTime) throws FileNotFoundException,
 			ParseException {
-		parser.readData(simTime);
+		// parser, ty nie czytaæ danych w tym miejscu! -- m.
+		//parser.readData(simTime);
 	}
 
 	/** sprawdza, czy punkty znajduje siê na planszy */
@@ -110,7 +109,8 @@ public class Board {
 	// commented-out (unused), see below (wyszukaj "sim.")
 
 	/** Parser dla danej planszy */
-	private FDSParser parser;
+	// parser, ty nie czytaæ danych w tym miejscu! -- m.
+	//private FDSParser parser;
 
 	// ------------- internals start here, an Agent should not use those
 	private Point dimension;
@@ -140,7 +140,8 @@ public class Board {
 		exits = new ArrayList<Exit>();
 		fire_srcs = new ArrayList<Point>();
 		rng = new Random();
-		parser = new FDSParser(this, dataFolder);
+		// parser, ty nie czytaæ danych w tym miejscu! -- m.
+		//parser = new FDSParser(this, dataFolder);
 		//this.sim = _sim;
 		// commented-out (unused), see below (wyszukaj "sim.")
 	}

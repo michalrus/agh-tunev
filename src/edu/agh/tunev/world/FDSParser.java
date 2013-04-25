@@ -19,8 +19,7 @@ import edu.agh.tunev.model.kkm.Point;
 import edu.agh.tunev.model.kkm.Board.Obstacle;
 import edu.agh.tunev.model.kkm.Board.Physics;
 
-
-public final class FDSParser {
+final class FDSParser {
 
 	private Board board;
 	private double offsetX, offsetY; // [m]

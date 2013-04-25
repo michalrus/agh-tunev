@@ -11,10 +11,15 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import edu.agh.tunev.world.World;
+
+interface Callback {}
+
 public class Main extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JFileChooser dirChooser;
+	private World world;
 
 	public static void main(String[] args) {
 		new Main();
@@ -58,9 +63,14 @@ public class Main extends JFrame {
 		
 		File dir = dirChooser.getSelectedFile();
 		
-		System.out.println(dir.getAbsolutePath());
+		world = new World();
+		world.readData(dir, new World.ProgressCallback(){
+			@Override
+			public void update(int done, int total, String msg) {
+				
+			}
+		});
 		
 		setVisible(true);
 	}
-
 }
