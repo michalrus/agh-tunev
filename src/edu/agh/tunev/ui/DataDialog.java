@@ -16,9 +16,9 @@ import edu.agh.tunev.world.World;
 class DataDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private JFileChooser dirChooser;
-	
+
 	public DataDialog(final MainFrame mainFrame) {
 		dirChooser = new JFileChooser();
 		dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -30,46 +30,53 @@ class DataDialog extends JDialog {
 			this.dispose();
 			return;
 		}
-		
+
 		final JProgressBar progress = new JProgressBar();
 		final JLabel label = new JLabel();
 		label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		
+
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(progress, BorderLayout.CENTER);
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 		add(label, BorderLayout.NORTH);
 		add(panel, BorderLayout.SOUTH);
-	    setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-	    setSize(300, 90);
-	    setResizable(false);
+		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		setSize(300, 90);
+		setResizable(false);
 		setVisible(true);
 		setLocationRelativeTo(mainFrame);
 
 		final File dir = dirChooser.getSelectedFile();
 
-		mainFrame.world.readData(dir, new World.ProgressCallback() {
-			public void update(final int done, final int total, final String msg) {
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						label.setText(msg);
-						if (total < 0 || done < 0) {
-							mainFrame.dispose();
-							DataDialog.this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-						}
-						else {
-							progress.setValue(done);
-							progress.setMaximum(total);
-							if (done >= total) {
-								DataDialog.this.dispose();
-								mainFrame.onDataLoaded(dir.getAbsolutePath());
+		// love java for that monstrosity below -,-
+		new Thread(new Runnable() {
+			public void run() {
+				mainFrame.world.readData(dir, new World.ProgressCallback() {
+					public void update(final int done, final int total,
+							final String msg) {
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								label.setText(msg);
+								if (total < 0 || done < 0) {
+									mainFrame.dispose();
+									DataDialog.this
+											.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+								} else {
+									progress.setValue(done);
+									progress.setMaximum(total);
+									if (done >= total) {
+										DataDialog.this.dispose();
+										mainFrame.onDataLoaded(dir
+												.getAbsolutePath());
+									}
+								}
 							}
-						}
+						});
 					}
 				});
 			}
-		});
+		}).start();
 	}
 
 }
