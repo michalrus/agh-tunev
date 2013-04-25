@@ -1,5 +1,11 @@
 package edu.agh.tunev.ui;
 
+import java.awt.Dimension;
+import java.io.File;
+import java.net.URL;
+
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -8,6 +14,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 public class Main extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	private JFileChooser dirChooser;
 
 	public static void main(String[] args) {
 		new Main();
@@ -30,7 +37,28 @@ public class Main extends JFrame {
 		} catch (IllegalAccessException e) {
 		}
 		
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setTitle("TunEv");
+        setSize(new Dimension(950, 700));
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        
+        URL icon = this.getClass().getResource("/icon/icon.png");
+        if (icon != null)
+        	setIconImage(new ImageIcon(icon).getImage());
+		
+		dirChooser = new JFileChooser();
+		dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		dirChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		dirChooser.setDialogTitle("Select FDS data directory...");
+		
+		if (dirChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+			this.dispose();
+			return;
+		}
+		
+		File dir = dirChooser.getSelectedFile();
+		
+		System.out.println(dir.getAbsolutePath());
 		
 		setVisible(true);
 	}
