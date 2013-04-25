@@ -27,6 +27,7 @@ class DataDialog extends JDialog {
 		dirChooser.setDialogTitle("Select FDS data directory...");
 
 		if (dirChooser.showOpenDialog(mainFrame) != JFileChooser.APPROVE_OPTION) {
+			mainFrame.dispose();
 			this.dispose();
 			return;
 		}
@@ -34,21 +35,22 @@ class DataDialog extends JDialog {
 		final JProgressBar progress = new JProgressBar();
 		final JLabel label = new JLabel();
 		label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		label.setVerticalAlignment(JLabel.TOP);
 
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.add(progress, BorderLayout.CENTER);
 		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-		add(label, BorderLayout.NORTH);
+		
+		add(label, BorderLayout.CENTER);
 		add(panel, BorderLayout.SOUTH);
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-		setSize(300, 90);
+		setSize(400, 120);
 		setResizable(false);
 		setVisible(true);
 		setLocationRelativeTo(mainFrame);
 
 		final File dir = dirChooser.getSelectedFile();
-
+		
 		// love java for that monstrosity below -,-
 		new Thread(new Runnable() {
 			public void run() {
@@ -57,14 +59,15 @@ class DataDialog extends JDialog {
 							final String msg) {
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
-								label.setText(msg);
+								label.setText("<html>" + msg + "</html>");
 								if (total < 0 || done < 0) {
 									mainFrame.dispose();
 									DataDialog.this
 											.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 								} else {
-									progress.setValue(done);
 									progress.setMaximum(total);
+									progress.setValue(done);
+									System.out.println("ok");
 									if (done >= total) {
 										DataDialog.this.dispose();
 										mainFrame.onDataLoaded(dir

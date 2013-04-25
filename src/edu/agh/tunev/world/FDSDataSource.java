@@ -11,42 +11,92 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.agh.tunev.model.kkm.Board;
-import edu.agh.tunev.model.kkm.Point;
-import edu.agh.tunev.model.kkm.Board.Obstacle;
-import edu.agh.tunev.model.kkm.Board.Physics;
+import edu.agh.tunev.world.World.ProgressCallback;
 
-final class DataParser {
+final class FDSDataSource extends AbstractDataSource {
 
-	private Board board;
-	private double offsetX, offsetY; // [m]
+	@Override
+	double getDuration() {
+		return duration;
+	}
+
+	@Override
+	double getXDimension() {
+		return dimensionX;
+	}
+
+	@Override
+	double getYDimension() {
+		return dimensionY;
+	}
+
+	@Override
+	Vector<Exit> getExits() {
+		return exits;
+	}
+
+	@Override
+	Vector<Obstacle> getObstacles() {
+		return obstacles;
+	}
+
+	@Override
+	Physics getPhysicsAt(double t, double x, double y) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	private int progressDone = 0, progressTotal = Integer.MAX_VALUE;
+
+	@Override
+	void readData(File from, ProgressCallback callback) {
+		if (dataFolder != null)
+			throw new IllegalArgumentException("FDSDataSource.readData already called on this FDSDataSource");
+		
+		dataFolder = from;
+		
+		callback.update(progressDone, progressTotal, "Scanning file names...");
+		parseFilenames();
+		progressDone++;
+		progressTotal = dataFiles.size() + 2;
+		
+		callback.update(progressDone, progressTotal, "Parsing tunnel.fds file...");
+		try {
+			parseInputFile();
+		} catch (FileNotFoundException | ParseException e) {
+			callback.update(-1, -1, "Error: " + e.getMessage());
+			return;
+		}
+		progressDone++;
+		
+		// TODO: parseDataFiles(callback);
+	}
+	
+	private double duration = 0;
+	private double dimensionX = 0, dimensionY = 0;
+	private double offsetX = 0, offsetY = 0; // [m]
+	private long numCellsX = 0, numCellsY = 0;
 	private File dataFolder, inputFile;
 	private SortedSet<DataFile> dataFiles;
-
-	public DataParser(Board board, String dataFolder)
-			throws FileNotFoundException, ParseException {
-		this.board = board;
-		this.dataFolder = new File(dataFolder);
-
-		parseFilenames();
-		parseInputFile();
-	}
+	private Vector<Obstacle> obstacles = new Vector<Obstacle>();
+	private Vector<Exit> exits = new Vector<Exit>();
 
 	/**
 	 * Czyta folder {@link #dataFolder} i jeœli znajdzie pliki o nazwach
 	 * pasuj¹cych do konwencji ustalonej z Kaœk¹, zapisuje je sobie odpowiednio
 	 * w pamiêci (w {@link #inputFile} i {@link #dataFiles}).
 	 */
-	public void parseFilenames() {
-		Map<Physics, Pattern> patterns = new HashMap<Physics, Pattern>();
+	private void parseFilenames() {
+		Map<Physics.Type, Pattern> patterns = new HashMap<Physics.Type, Pattern>();
 
-		patterns.put(Physics.TEMPERATURE, Pattern.compile(
+		patterns.put(Physics.Type.TEMPERATURE, Pattern.compile(
 				"^temp_(\\d+)-(\\d+)\\.csv$", Pattern.CASE_INSENSITIVE));
 
-		patterns.put(Physics.CO, Pattern.compile("^co_(\\d+)-(\\d+)\\.csv$",
+		patterns.put(Physics.Type.CO, Pattern.compile("^co_(\\d+)-(\\d+)\\.csv$",
 				Pattern.CASE_INSENSITIVE));
 
 		Pattern patternInput = Pattern.compile("^tunnel\\.fds$",
@@ -58,7 +108,7 @@ final class DataParser {
 
 		FILES_LOOP: for (File file : dataFolder.listFiles())
 			if (file.isFile()) {
-				for (Physics key : patterns.keySet()) {
+				for (Physics.Type key : patterns.keySet()) {
 					matcher = patterns.get(key).matcher(file.getName());
 					if (matcher.find()) {
 						dataFiles.add(new DataFile(key, file, 1000 * Long
@@ -85,7 +135,7 @@ final class DataParser {
 	 * @throws FileNotFoundException
 	 * @throws ParseException
 	 */
-	public void parseInputFile() throws FileNotFoundException, ParseException {
+	private void parseInputFile() throws FileNotFoundException, ParseException {
 		if (inputFile == null)
 			throw new FileNotFoundException(dataFolder.getPath()
 					+ ": no .fds input file found inside");
@@ -120,17 +170,15 @@ final class DataParser {
 				if (!gotDimensions) {
 					matcher = patternDimensions.matcher(line);
 					if (matcher.find()) {
-						long numCellsX = Long.parseLong(matcher.group(1));
-						long numCellsY = Long.parseLong(matcher.group(2));
+						numCellsX = Long.parseLong(matcher.group(1));
+						numCellsY = Long.parseLong(matcher.group(2));
 
-						Point dimensions = new Point();
 						offsetX = Double.parseDouble(matcher.group(3));
 						offsetY = Double.parseDouble(matcher.group(5));
-						dimensions.x = Double.parseDouble(matcher.group(4))
+						dimensionX = Double.parseDouble(matcher.group(4))
 								- offsetX;
-						dimensions.y = Double.parseDouble(matcher.group(6))
+						dimensionY = Double.parseDouble(matcher.group(6))
 								- offsetY;
-						board.setGeometry(dimensions, numCellsX, numCellsY);
 
 						gotDimensions = true;
 						continue;
@@ -141,8 +189,7 @@ final class DataParser {
 				if (!gotDuration) {
 					matcher = patternDuration.matcher(line);
 					if (matcher.find()) {
-						board.setDuration(1000 * Double.parseDouble(matcher
-								.group(1)));
+						duration = Double.parseDouble(matcher.group(1));
 						gotDuration = true;
 						continue;
 					}
@@ -157,19 +204,11 @@ final class DataParser {
 					if (line.contains("PERMIT_HOLE=.TRUE."))
 						continue;
 
-					Obstacle ob = board.new Obstacle(new Point(
+					obstacles.add(new Obstacle(
 							Double.parseDouble(matcher.group(1)) - offsetX,
-							Double.parseDouble(matcher.group(3)) - offsetY),
-							new Point(Double.parseDouble(matcher.group(2))
-									- offsetX, Double.parseDouble(matcher
-									.group(4)) - offsetY));
-
-					board.addObstacle(ob);
-
-					// jeœli przeszkoda jest Ÿród³em ognia to ustawiamy je w
-					// board
-					if (line.contains("SURF ID='fire'"))
-						board.addFireSrc(ob.getCentrePoint());
+							Double.parseDouble(matcher.group(3)) - offsetY,
+							Double.parseDouble(matcher.group(2)) - offsetX,
+							Double.parseDouble(matcher.group(4)) - offsetY));
 
 					continue;
 				}
@@ -180,13 +219,11 @@ final class DataParser {
 					if (!gotDimensions)
 						throw new RuntimeException("&HOLE before &MESH!");
 
-					board.addExit(
-							new Point(Double.parseDouble(matcher.group(1))
-									- offsetX, Double.parseDouble(matcher
-									.group(3)) - offsetY),
-							new Point(Double.parseDouble(matcher.group(2))
-									- offsetX, Double.parseDouble(matcher
-									.group(4)) - offsetY));
+					exits.add(new Exit(
+						Double.parseDouble(matcher.group(1)) - offsetX,
+						Double.parseDouble(matcher.group(3)) - offsetY,
+						Double.parseDouble(matcher.group(2)) - offsetX,
+						Double.parseDouble(matcher.group(4)) - offsetY));
 					continue;
 				}
 			}
@@ -208,26 +245,22 @@ final class DataParser {
 		}
 
 		// TODO: Kasiu, jakoœ oznaczamy g³ówne wyjœcia w .fds?
-		Point bd = board.getDimension();
-		if (bd.x > bd.y) { // poziomy tunel
-			board.addExit(new Point(0, 0), new Point(0, bd.y));
-			board.addExit(new Point(bd.x, 0), new Point(bd.x, bd.y));
+		if (dimensionX > dimensionY) { // poziomy tunel
+			exits.add(new Exit(0, 0, 0, dimensionY));
+			exits.add(new Exit(dimensionX, 0, dimensionX, dimensionY));
 		} else { // pionowy tunel
-			board.addExit(new Point(0, 0), new Point(bd.x, 0));
-			board.addExit(new Point(0, bd.y), new Point(bd.x, bd.y));
+			exits.add(new Exit(0, 0, dimensionX, 0));
+			exits.add(new Exit(0, dimensionY, dimensionX, dimensionY));
 		}
-
-		// TODO: to powinno byc w konstruktorze boarda, tymczasowo zostaje tu
-		// board.sortExits();
 	}
 
 	private static final class DataFile implements Comparable<DataFile> {
 		public File file;
 		public long start, end; // [ms]
 		public boolean alreadyRead = false;
-		public Physics type;
+		public Physics.Type type;
 
-		public DataFile(Physics type, File file, long start, long end) {
+		public DataFile(Physics.Type type, File file, long start, long end) {
 			this.type = type;
 			this.file = file;
 			this.start = start;
@@ -256,7 +289,7 @@ final class DataParser {
 	 * @throws FileNotFoundException
 	 * @throws ParseException
 	 */
-	public void readData(double simulationTime) throws FileNotFoundException,
+/*	private void OLDreadData(double simulationTime) throws FileNotFoundException,
 			ParseException {
 		for (DataFile f : dataFiles) {
 			if (simulationTime >= f.start && simulationTime < f.end) {
@@ -304,6 +337,6 @@ final class DataParser {
 				f.alreadyRead = true;
 			}
 		}
-	}
+	}*/
 
 }

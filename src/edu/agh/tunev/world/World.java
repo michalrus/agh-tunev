@@ -7,27 +7,54 @@ import edu.agh.tunev.model.AbstractMovable;
 
 public class World {
 
+	// -- world-data access methods
+
+	public double getXDimension() {
+		return data.getXDimension();
+	}
+
+	public double getYDimension() {
+		return data.getYDimension();
+	}
+
+	public Vector<Exit> getExits() {
+		return data.getExits();
+	}
+
+	public Vector<Obstacle> getObstacles() {
+		return data.getObstacles();
+	}
+
+	public Physics getPhysicsAt(double t, double x, double y) {
+		return data.getPhysicsAt(t, x, y);
+	}
+
+	// -- end of world-data access methods
+
 	public interface ProgressCallback {
 		void update(int done, int total, String msg);
 	}
 
-	public void readData(File dir, ProgressCallback callback) {
-		callback.update(-1, -1, "DataParser jeszcze nie pod³¹czony...");
-	}
+	private AbstractDataSource data;
 
-	public void saveState(AbstractMovable movable, double t, AbstractMovable.State state) {
+	public void readData(File dir, ProgressCallback callback) {
+		if (data != null)
+			throw new IllegalArgumentException(
+					"World.readData() already called on this World");
+		
+		data = new FDSDataSource();
+		data.readData(dir, callback);
 	}
 	
-	public double getXDimension() {
-		return 1000.0;
+	private MovableInterpolator interpolator = new MovableInterpolator();
+
+	public void saveMovableState(AbstractMovable movable, double t,
+			AbstractMovable.State state) {
+		interpolator.addDiscreetState(movable, t, state);
 	}
 	
-	public double getYDimension() {
-		return 20.0;
-	}
-	
-	public Vector<Obstacle> getObstacles() {
-		return new Vector<Obstacle>();
+	public AbstractMovable.State getMovableState(AbstractMovable movable, double t) {
+		return interpolator.getInterpolatedState(movable, t);
 	}
 
 }

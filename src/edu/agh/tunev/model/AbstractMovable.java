@@ -29,7 +29,7 @@ public abstract class AbstractMovable {
 		State state = new State();
 		state.x = x;
 		state.y = y;
-		world.saveState(this, t, state);
+		world.saveMovableState(this, t, state);
 	}
 	
 	public class State {
