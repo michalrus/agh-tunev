@@ -65,7 +65,8 @@ public class MainFrame extends JFrame {
 		new DataDialog(this);
 	}
 
-	void onDataLoaded() {
+	void onDataLoaded(String dataName) {
+		setTitle(dataName + " - " + getTitle());
 		setSize(new Dimension(950, 700));
 		setLocationRelativeTo(null);
 		setVisible(true);

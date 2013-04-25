@@ -47,7 +47,7 @@ class DataDialog extends JDialog {
 		setVisible(true);
 		setLocationRelativeTo(mainFrame);
 
-		File dir = dirChooser.getSelectedFile();
+		final File dir = dirChooser.getSelectedFile();
 
 		mainFrame.world.readData(dir, new World.ProgressCallback() {
 			public void update(final int done, final int total, final String msg) {
@@ -63,7 +63,7 @@ class DataDialog extends JDialog {
 							progress.setMaximum(total);
 							if (done >= total) {
 								DataDialog.this.dispose();
-								mainFrame.onDataLoaded();
+								mainFrame.onDataLoaded(dir.getAbsolutePath());
 							}
 						}
 					}
