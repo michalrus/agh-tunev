@@ -12,6 +12,7 @@ public class World {
 	}
 
 	public void readData(File dir, ProgressCallback callback) {
+		callback.update(-1, -1, "DataParser jeszcze nie pod³¹czony...");
 	}
 
 	public void saveState(AbstractMovable movable, double t, AbstractMovable.State state) {

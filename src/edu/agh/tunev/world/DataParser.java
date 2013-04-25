@@ -19,14 +19,14 @@ import edu.agh.tunev.model.kkm.Point;
 import edu.agh.tunev.model.kkm.Board.Obstacle;
 import edu.agh.tunev.model.kkm.Board.Physics;
 
-final class FDSParser {
+final class DataParser {
 
 	private Board board;
 	private double offsetX, offsetY; // [m]
 	private File dataFolder, inputFile;
 	private SortedSet<DataFile> dataFiles;
 
-	public FDSParser(Board board, String dataFolder)
+	public DataParser(Board board, String dataFolder)
 			throws FileNotFoundException, ParseException {
 		this.board = board;
 		this.dataFolder = new File(dataFolder);
