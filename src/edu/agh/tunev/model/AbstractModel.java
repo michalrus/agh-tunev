@@ -11,6 +11,11 @@ import edu.agh.tunev.world.World;
 public abstract class AbstractModel {
 
 	final protected World world;
+	
+	/**
+	 * Nazwa modelu w UI.
+	 */
+	public static String MODEL_NAME;
 
 	public AbstractModel(World world) {
 		this.world = world;

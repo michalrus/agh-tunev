@@ -7,7 +7,11 @@ import edu.agh.tunev.model.Person;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
 
-public class Model extends AbstractModel {
+public final class Model extends AbstractModel {
+
+	// nazwa pod jak¹ nasz model jest widoczny w UI; obecna prawdopodobnie do
+	// zmiany
+	public final static String MODEL_NAME = "w¹sowy automat z social distances";
 
 	public Model(World world) {
 		super(world);
