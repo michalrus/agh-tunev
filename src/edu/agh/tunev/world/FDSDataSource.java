@@ -76,7 +76,7 @@ final class FDSDataSource extends AbstractDataSource {
 		progressDone++;
 
 		callback.update(progressDone, progressTotal,
-				"Parsing tunnel.fds file...");
+				"Parsing file: tunnel.fds...");
 		try {
 			parseInputFile();
 		} catch (FileNotFoundException | ParseException e) {
@@ -313,7 +313,7 @@ final class FDSDataSource extends AbstractDataSource {
 
 			for (Entry<Physics.Type, File> e2 : e1.getValue().entrySet()) {
 				callback.update(progressDone, progressTotal,
-						"Parsing " + e2.getValue().getName() + " data file...");
+						"Parsing data file: " + e2.getValue().getName() + "...");
 				
 				String line;
 				long lineNum = 0;
