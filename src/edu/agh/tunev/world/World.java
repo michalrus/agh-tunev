@@ -25,6 +25,26 @@ public class World {
 		return data.getObstacles();
 	}
 
+	/**
+	 * Zawsze zwróci jak¹œ wartoœæ. Kiedy zapytasz o coœ spoza granic œwiata,
+	 * zwróci wartoœæ z najbli¿szego punktu le¿¹cego na brzegu.
+	 * 
+	 * Przyk³ad u¿ycia:
+	 * 
+	 * <pre><code>
+	 * Physics p = world.getPhysicsAt(13.33, 0.0, 1.0); 
+	 * double temp = p.get(Physics.Type.TEMPERATURE);
+	 * double co = p.get(Physics.Type.CO);
+	 * </code></pre>
+	 * 
+	 * @param t
+	 *            Rzeczywisty czas, o który pytasz.
+	 * @param x
+	 *            Pozycja na OX.
+	 * @param y
+	 *            Pozycja na OY.
+	 * @return
+	 */
 	public Physics getPhysicsAt(double t, double x, double y) {
 		return data.getPhysicsAt(t, x, y);
 	}
@@ -41,19 +61,20 @@ public class World {
 		if (data != null)
 			throw new IllegalArgumentException(
 					"World.readData() already called on this World");
-		
+
 		data = new FDSDataSource();
 		data.readData(dir, callback);
 	}
-	
+
 	private MovableInterpolator interpolator = new MovableInterpolator();
 
 	public void saveMovableState(AbstractMovable movable, double t,
 			AbstractMovable.State state) {
 		interpolator.addDiscreetState(movable, t, state);
 	}
-	
-	public AbstractMovable.State getMovableState(AbstractMovable movable, double t) {
+
+	public AbstractMovable.State getMovableState(AbstractMovable movable,
+			double t) {
 		return interpolator.getInterpolatedState(movable, t);
 	}
 

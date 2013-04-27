@@ -1,17 +1,19 @@
 package edu.agh.tunev.world;
 
 import java.io.BufferedReader;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Map.Entry;
+import java.util.NavigableMap;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,25 +48,35 @@ final class FDSDataSource extends AbstractDataSource {
 
 	@Override
 	Physics getPhysicsAt(double t, double x, double y) {
-		// TODO Auto-generated method stub
-		return null;
+		Entry<Double, Vector<Vector<Physics>>> entry;
+
+		// get entry with its t greatest but <= @param t
+		entry = physics.floorEntry(t);
+
+		// if there's no such entry, return the first entry
+		if (entry == null) {
+			entry = physics.firstEntry();
+			if (entry == null) // or throw empty-map exception
+				throw new IllegalArgumentException("physics map is empty");
+		}
+
+		return getPhysicsInGrid(entry.getValue(), x, y);
 	}
-	
-	private int progressDone = 0, progressTotal = Integer.MAX_VALUE;
 
 	@Override
 	void readData(File from, ProgressCallback callback) {
 		if (dataFolder != null)
-			throw new IllegalArgumentException("FDSDataSource.readData already called on this FDSDataSource");
-		
+			throw new IllegalArgumentException(
+					"FDSDataSource.readData already called on this FDSDataSource");
+
 		dataFolder = from;
-		
+
 		callback.update(progressDone, progressTotal, "Scanning file names...");
 		parseFilenames();
 		progressDone++;
-		progressTotal = dataFiles.size() + 2;
-		
-		callback.update(progressDone, progressTotal, "Parsing tunnel.fds file...");
+
+		callback.update(progressDone, progressTotal,
+				"Parsing tunnel.fds file...");
 		try {
 			parseInputFile();
 		} catch (FileNotFoundException | ParseException e) {
@@ -72,16 +84,18 @@ final class FDSDataSource extends AbstractDataSource {
 			return;
 		}
 		progressDone++;
-		
-		// TODO: parseDataFiles(callback);
+
+		parseDataFiles(callback);
 	}
-	
+
+	private NavigableMap<Double, Vector<Vector<Physics>>> physics;
+	private int progressDone = 0, progressTotal = 2;
 	private double duration = 0;
 	private double dimensionX = 0, dimensionY = 0;
 	private double offsetX = 0, offsetY = 0; // [m]
-	private long numCellsX = 0, numCellsY = 0;
+	private double dx = 0, dy = 0;
 	private File dataFolder, inputFile;
-	private SortedSet<DataFile> dataFiles;
+	private SortedMap<Integer, Map<Physics.Type, File>> dataFiles;
 	private Vector<Obstacle> obstacles = new Vector<Obstacle>();
 	private Vector<Exit> exits = new Vector<Exit>();
 
@@ -91,29 +105,37 @@ final class FDSDataSource extends AbstractDataSource {
 	 * w pamiêci (w {@link #inputFile} i {@link #dataFiles}).
 	 */
 	private void parseFilenames() {
-		Map<Physics.Type, Pattern> patterns = new HashMap<Physics.Type, Pattern>();
+		Map<Physics.Type, Pattern> patterns = new EnumMap<Physics.Type, Pattern>(Physics.Type.class);
 
 		patterns.put(Physics.Type.TEMPERATURE, Pattern.compile(
 				"^temp_(\\d+)-(\\d+)\\.csv$", Pattern.CASE_INSENSITIVE));
 
-		patterns.put(Physics.Type.CO, Pattern.compile("^co_(\\d+)-(\\d+)\\.csv$",
-				Pattern.CASE_INSENSITIVE));
+		patterns.put(Physics.Type.CO, Pattern.compile(
+				"^co_(\\d+)-(\\d+)\\.csv$", Pattern.CASE_INSENSITIVE));
 
 		Pattern patternInput = Pattern.compile("^tunnel\\.fds$",
 				Pattern.CASE_INSENSITIVE);
 
 		Matcher matcher;
 
-		dataFiles = new TreeSet<DataFile>();
+		dataFiles = new TreeMap<Integer, Map<Physics.Type, File>>();
 
 		FILES_LOOP: for (File file : dataFolder.listFiles())
 			if (file.isFile()) {
 				for (Physics.Type key : patterns.keySet()) {
 					matcher = patterns.get(key).matcher(file.getName());
 					if (matcher.find()) {
-						dataFiles.add(new DataFile(key, file, 1000 * Long
-								.parseLong(matcher.group(1)), 1000 * Long
-								.parseLong(matcher.group(2))));
+						int t = Integer.parseInt(matcher.group(1));
+
+						Map<Physics.Type, File> files = dataFiles.get(t);
+						if (files == null) {
+							files = new EnumMap<Physics.Type, File>(Physics.Type.class);
+							dataFiles.put(t, files);
+						}
+
+						files.put(key, file);
+						progressTotal++;
+
 						continue FILES_LOOP;
 					}
 				}
@@ -170,8 +192,8 @@ final class FDSDataSource extends AbstractDataSource {
 				if (!gotDimensions) {
 					matcher = patternDimensions.matcher(line);
 					if (matcher.find()) {
-						numCellsX = Long.parseLong(matcher.group(1));
-						numCellsY = Long.parseLong(matcher.group(2));
+						long numCellsX = Long.parseLong(matcher.group(1));
+						long numCellsY = Long.parseLong(matcher.group(2));
 
 						offsetX = Double.parseDouble(matcher.group(3));
 						offsetY = Double.parseDouble(matcher.group(5));
@@ -179,6 +201,9 @@ final class FDSDataSource extends AbstractDataSource {
 								- offsetX;
 						dimensionY = Double.parseDouble(matcher.group(6))
 								- offsetY;
+
+						dx = dimensionX / numCellsX;
+						dy = dimensionY / numCellsY;
 
 						gotDimensions = true;
 						continue;
@@ -204,11 +229,11 @@ final class FDSDataSource extends AbstractDataSource {
 					if (line.contains("PERMIT_HOLE=.TRUE."))
 						continue;
 
-					obstacles.add(new Obstacle(
-							Double.parseDouble(matcher.group(1)) - offsetX,
-							Double.parseDouble(matcher.group(3)) - offsetY,
-							Double.parseDouble(matcher.group(2)) - offsetX,
-							Double.parseDouble(matcher.group(4)) - offsetY));
+					obstacles.add(new Obstacle(Double.parseDouble(matcher
+							.group(1)) - offsetX, Double.parseDouble(matcher
+							.group(3)) - offsetY, Double.parseDouble(matcher
+							.group(2)) - offsetX, Double.parseDouble(matcher
+							.group(4)) - offsetY));
 
 					continue;
 				}
@@ -219,11 +244,11 @@ final class FDSDataSource extends AbstractDataSource {
 					if (!gotDimensions)
 						throw new RuntimeException("&HOLE before &MESH!");
 
-					exits.add(new Exit(
-						Double.parseDouble(matcher.group(1)) - offsetX,
-						Double.parseDouble(matcher.group(3)) - offsetY,
-						Double.parseDouble(matcher.group(2)) - offsetX,
-						Double.parseDouble(matcher.group(4)) - offsetY));
+					exits.add(new Exit(Double.parseDouble(matcher.group(1))
+							- offsetX, Double.parseDouble(matcher.group(3))
+							- offsetY, Double.parseDouble(matcher.group(2))
+							- offsetX, Double.parseDouble(matcher.group(4))
+							- offsetY));
 					continue;
 				}
 			}
@@ -254,51 +279,51 @@ final class FDSDataSource extends AbstractDataSource {
 		}
 	}
 
-	private static final class DataFile implements Comparable<DataFile> {
-		public File file;
-		public long start, end; // [ms]
-		public boolean alreadyRead = false;
-		public Physics.Type type;
+	private Physics getPhysicsInGrid(Vector<Vector<Physics>> grid, double x,
+			double y) {
+		// always return *some* value, for all (x,y):
 
-		public DataFile(Physics.Type type, File file, long start, long end) {
-			this.type = type;
-			this.file = file;
-			this.start = start;
-			this.end = end;
-		}
+		int row = (int) Math.round(Math.floor(y / dy));
+		row = Math.max(row, 0);
+		row = Math.min(row, grid.size() - 1);
 
-		@Override
-		public int compareTo(DataFile o) {
-			if (start == o.start)
-				if (end == o.end)
-					return file.compareTo(o.file);
-				else
-					return (int) (end - o.end);
-			else
-				return (int) (start - o.start);
-		}
+		int col = (int) Math.round(Math.floor(x / dx));
+		col = Math.max(col, 0);
+		col = Math.min(col, grid.get(0).size() - 1);
+
+		return grid.get(row).get(col);
 	}
 
-	/**
-	 * Nie czyta pliku ju¿ raz wczytanego!!! (Optymalizacja IO). Wszystko dzia³a
-	 * OK i te dane s¹ wci¹¿ pamiêtane w komórkach {@link Cell}, jeœli
-	 * wywo³ujemy {@link readData} z zawsze WIÊKSZYM argumentem ni¿ w poprzednim
-	 * wywo³aniu!
-	 * 
-	 * @param simulationTime
-	 * @throws FileNotFoundException
-	 * @throws ParseException
-	 */
-/*	private void OLDreadData(double simulationTime) throws FileNotFoundException,
-			ParseException {
-		for (DataFile f : dataFiles) {
-			if (simulationTime >= f.start && simulationTime < f.end) {
-				if (f.alreadyRead)
-					continue;
+	private void parseDataFiles(World.ProgressCallback callback) {
+		physics = new ConcurrentSkipListMap<Double, Vector<Vector<Physics>>>();
 
+		long numRows = Math.round(Math.floor(dimensionY / dy)) + 1;
+		long numCols = Math.round(Math.floor(dimensionX / dx)) + 1;
+
+		for (Entry<Integer, Map<Physics.Type, File>> e1 : dataFiles.entrySet()) {
+			double t = e1.getKey();
+			Vector<Vector<Physics>> grid = new Vector<Vector<Physics>>();
+
+			for (long i = 0; i < numRows; i++) {
+				Vector<Physics> row = new Vector<Physics>();
+				for (long j = 0; j < numCols; j++)
+					row.add(new Physics());
+				grid.add(row);
+			}
+
+			for (Entry<Physics.Type, File> e2 : e1.getValue().entrySet()) {
+				callback.update(progressDone, progressTotal,
+						"Parsing " + e2.getValue().getName() + " data file...");
+				
 				String line;
 				long lineNum = 0;
-				BufferedReader br = new BufferedReader(new FileReader(f.file));
+				BufferedReader br;
+				try {
+					br = new BufferedReader(new FileReader(e2.getValue()));
+				} catch (FileNotFoundException e) {
+					callback.update(-1, -1, e.toString());
+					return;
+				}
 				try {
 					// read header
 					br.readLine();
@@ -310,21 +335,21 @@ final class FDSDataSource extends AbstractDataSource {
 						lineNum++;
 						String[] v = line.trim().split("\\s*,\\s*");
 
-						if (v.length != 3)
-							throw new ParseException(f.file.getPath() + ":"
-									+ lineNum + ": invalid format",
-									(int) lineNum);
-
-						try {
-							board.setPhysics(
-									new Point(Double.parseDouble(v[0]), Double
-											.parseDouble(v[1])), f.type, Double
-											.parseDouble(v[2]));
-						} catch (IndexOutOfBoundsException e) {
+						if (v.length != 3) {
+							callback.update(-1, -1, e2.getValue().getPath() + ":"
+									+ lineNum + ": invalid format");
+							return;
 						}
+						
+						getPhysicsInGrid(grid, Double.parseDouble(v[0]), Double
+								.parseDouble(v[1])).set(e2.getKey(), Double
+											.parseDouble(v[2]));
 					}
+					
+					progressDone++;
 				} catch (IOException e) {
-					e.printStackTrace();
+					callback.update(-1, -1, e.toString());
+					return;
 				} finally {
 					if (br != null)
 						try {
@@ -333,10 +358,13 @@ final class FDSDataSource extends AbstractDataSource {
 							e.printStackTrace();
 						}
 				}
-
-				f.alreadyRead = true;
 			}
+
+			physics.put(t, grid);
 		}
-	}*/
+		
+		callback.update(progressDone, progressTotal,
+				"Ready.");
+	}
 
 }

@@ -67,7 +67,6 @@ class DataDialog extends JDialog {
 								} else {
 									progress.setMaximum(total);
 									progress.setValue(done);
-									System.out.println("ok");
 									if (done >= total) {
 										DataDialog.this.dispose();
 										mainFrame.onDataLoaded(dir
