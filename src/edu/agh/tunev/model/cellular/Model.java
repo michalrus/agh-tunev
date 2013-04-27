@@ -11,6 +11,9 @@ public final class Model extends AbstractModel {
 
 	// nazwa pod jak¹ nasz model jest widoczny w UI; obecna prawdopodobnie do
 	// zmiany
+
+	// ¯eby "zarejestrowaæ" nowy model, ¿eby by³ widoczny w UI, trzeba dodaæ
+	// linijkê z nazw¹ jego klasy do <code>edu.agh.tunev.Main.main()</code>.
 	public final static String MODEL_NAME = "w¹sowy automat z social distances";
 
 	public Model(World world) {
@@ -21,6 +24,9 @@ public final class Model extends AbstractModel {
 	public void simulate(double duration, Vector<Person> people,
 			ProgressCallback callback) {
 		// TODO Auto-generated method stub
+
+		// zobacz helpa do rodzica (AbstractModel.simulate) -- po prostu
+		// potrzymaj myszkê nad nazw¹ metody 4 linijki wy¿ej =)
 
 		// przyk³adzik:
 
