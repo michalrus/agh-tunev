@@ -1,15 +1,18 @@
 package edu.agh.tunev.ui;
 
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.io.File;
 
-import javax.swing.BorderFactory;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 
 import edu.agh.tunev.world.World;
 
@@ -18,6 +21,9 @@ class DataDialog extends JDialog {
 	private static final long serialVersionUID = 1L;
 
 	private JFileChooser dirChooser;
+	
+	/** layout insets */
+	private static final Insets INSETS = new Insets(5, 5, 5, 5);
 
 	public DataDialog(final MainFrame mainFrame) {
 		dirChooser = new JFileChooser();
@@ -34,15 +40,27 @@ class DataDialog extends JDialog {
 
 		final JProgressBar progress = new JProgressBar();
 		final JLabel label = new JLabel();
-		label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		label.setVerticalAlignment(JLabel.TOP);
 
-		JPanel panel = new JPanel(new BorderLayout());
-		panel.add(progress, BorderLayout.CENTER);
-		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		JPanel p = new JPanel(new GridBagLayout());
+		p.setBorder(new EmptyBorder(INSETS));
+		add(p, BorderLayout.CENTER);
 		
-		add(label, BorderLayout.CENTER);
-		add(panel, BorderLayout.SOUTH);
+		GridBagConstraints c = new GridBagConstraints();
+		
+		c.fill = GridBagConstraints.BOTH;
+		c.insets = INSETS;
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		c.gridx = 0;
+		c.gridy = 0;
+		p.add(label, c);
+		
+		c.gridx = 0;
+		c.gridy = 1;
+		c.weighty = 0.0;
+		p.add(progress, c);
+
 		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 		setSize(400, 120);
 		setResizable(false);

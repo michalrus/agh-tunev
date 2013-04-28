@@ -1,22 +1,39 @@
 package edu.agh.tunev.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyVetoException;
 import java.lang.reflect.InvocationTargetException;
+import java.text.DecimalFormat;
 import java.util.Vector;
 
-import javax.swing.BoxLayout;
+import javax.swing.AbstractAction;
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
+import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.Person;
+import edu.agh.tunev.ui.opengl.Scene;
 import edu.agh.tunev.world.World;
 
 class ControllerFrame extends JInternalFrame {
@@ -24,74 +41,252 @@ class ControllerFrame extends JInternalFrame {
 	private static final long serialVersionUID = 1L;
 
 	private AbstractModel model;
-	
-	JLabel simulationMsg, simulationIter, simulationTime;
-	JProgressBar simulationProgress;
 	Vector<Person> people;
 	World world;
 
-	ControllerFrame(int number, String name, Class<?> clazz, final World world) {
-		setTitle(number + ": " + name + " - controller");
-		setSize(new Dimension(400, 100));
-		setFrameIcon(null);
-		setVisible(true);
-		
+	ControllerFrame(int number, String name, Class<?> model, final World world) {
 		this.world = world;
 
 		try {
-			this.model = (AbstractModel) clazz.getDeclaredConstructor(
+			this.model = (AbstractModel) model.getDeclaredConstructor(
 					World.class).newInstance(world);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException("Error during instantiation of "
-					+ clazz.getName() + ".");
+					+ model.getName() + ".");
 		}
 
+		scene = new Scene();
+		init(number, name);
+		simulate();
+	}
+
+	private static final Insets INSETS = new Insets(5, 5, 5, 5);
+	private static final double DT = 0.1;
+
+	private Scene scene;
+
+	private JLabel simulationMsg, simulationIter, simulationTime, playbackTime;
+	private JProgressBar simulationProgress;
+	private JSlider slider;
+	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
+
+	void init(int number, String name) {
+		setTitle(number + ": " + name + " - controller");
+		setFrameIcon(null);
+		setLocation(number * 20, number * 20);
+
 		JPanel p = new JPanel();
-		p.setBorder(new EmptyBorder(10, 10, 10, 10));
-		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
-		
-		add(p, BorderLayout.CENTER);
-		
-		JPanel p2 = new JPanel();
-		p2.setLayout(new GridLayout(1, 3));
-		p2.setAlignmentX(0);
-		p.add(p2);
-		
+		p.setBorder(new EmptyBorder(INSETS));
+		p.setLayout(new GridBagLayout());
+		add(p, BorderLayout.PAGE_START);
+
+		GridBagConstraints c = new GridBagConstraints();
+
+		c.anchor = GridBagConstraints.FIRST_LINE_START;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 1;
+		c.weighty = 1;
+		c.gridwidth = 1;
+		c.gridy = -1;
+
+		// column struts
+
+		c.gridy++;
+		for (c.gridx = 0; c.gridx < 5; c.gridx++)
+			p.add(Box.createHorizontalStrut(10000), c);
+		c.insets = INSETS;
+
+		// simulation labels
+
+		c.gridy++;
+		c.gridx = 0;
+		c.gridwidth = 0;
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		p.add(new JLabel("Simulation:"), c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 2;
 		simulationMsg = new JLabel();
-		p2.add(simulationMsg);
-		
+		p.add(simulationMsg, c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
 		simulationIter = new JLabel();
-		p2.add(simulationIter);
-		
+		p.add(simulationIter, c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
 		simulationTime = new JLabel();
-		p2.add(simulationTime);
-		
+		p.add(simulationTime, c);
+
+		// simulation progress
+
+		c.gridwidth = 5;
+		c.gridx = 0;
+		c.gridy++;
 		simulationProgress = new JProgressBar();
-		simulationProgress.setAlignmentX(0);
-		p.add(simulationProgress);
-		
-		people = PeopleFactory.random(world, 50);
-		
-		new Thread(new Runnable(){
+		p.add(simulationProgress, c);
+
+		// separator
+
+		c.gridwidth = 1;
+		c.gridy++;
+		p.add(new JPanel(), c);
+
+		// playback labels
+
+		c.gridy++;
+		c.gridx = 0;
+		c.gridwidth = 0;
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 4;
+		p.add(new JLabel("Playback:"), c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		playbackTime = new JLabel("abc");
+		p.add(playbackTime, c);
+
+		// playback slider
+
+		c.gridy++;
+		c.gridx = 0;
+		c.gridwidth = 5;
+		slider = new JSlider(0, (int) Math.round(Math.ceil(world.getDuration()
+				/ DT)), 0);
+		p.add(slider, c);
+		slider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				double t = DT * slider.getValue();
+				playbackTime.setText("t = " + decimalFormat.format(t) + " [s]");
+				scene.setTime(t);
+			}
+		});
+		slider.getChangeListeners()[0].stateChanged(null);
+
+		// separator
+
+		c.gridwidth = 1;
+		c.gridy++;
+		p.add(new JPanel(), c);
+
+		// buttons
+
+		c.gridy++;
+		c.gridx = 0;
+		c.gridwidth = 0;
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		final JButton buttonPlay = new JButton("Play");
+		p.add(buttonPlay, c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		final JButton buttonStop = new JButton("Stop");
+		buttonStop.setEnabled(false);
+		p.add(buttonStop, c);
+
+		buttonPlay.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				buttonPlay.setEnabled(false);
+				slider.setEnabled(false);
+				buttonStop.setEnabled(true);
+				play(1.0);
+			}
+		});
+		buttonStop.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				buttonPlay.setEnabled(true);
+				slider.setEnabled(true);
+				buttonStop.setEnabled(false);
+				// ?
+			}
+		});
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		final JButton buttonPlot = new JButton("Plot...");
+		p.add(buttonPlot, c);
+
+		final JPopupMenu plotMenu = new JPopupMenu();
+
+		buttonPlot.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				plotMenu.show(buttonPlot, 0, buttonPlot.getHeight());
+			}
+		});
+
+		plotMenu.add(new JMenuItem(new AbstractAction("plot1...") {
+			private static final long serialVersionUID = 1L;
+
+			public void actionPerformed(ActionEvent e) {
+			}
+		}));
+
+		plotMenu.add(new JMenuItem(new AbstractAction("plot2...") {
+			private static final long serialVersionUID = 1L;
+
+			public void actionPerformed(ActionEvent e) {
+			}
+		}));
+
+		setVisible(true);
+		pack();
+		setSize(400, getSize().height);
+
+		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				model.simulate(world.getDuration(), people, new World.ProgressCallback() {
-					public void update(final int done, final int total, final String msg) {
-						SwingUtilities.invokeLater(new Runnable() {
-							public void run() {
-								simulationProgress.setMaximum(total);
-								simulationProgress.setValue(done);
-								simulationMsg.setText(msg);
-								simulationIter.setText(done + "/" + total);
-								simulationTime.setText("t = " + world.getDuration() * total / done + " [s]");
+				try {
+					ControllerFrame.this.setSelected(true);
+				} catch (PropertyVetoException e) {
+					ControllerFrame.this.toFront();
+					slider.requestFocus();
+				}
+			}
+		});
+	}
+
+	void simulate() {
+		new Thread(new Runnable() {
+			public void run() {
+				people = PeopleFactory.random(world, 50);
+
+				model.simulate(world.getDuration(), people,
+						new World.ProgressCallback() {
+							public void update(final int done, final int total,
+									final String msg) {
+								SwingUtilities.invokeLater(new Runnable() {
+									public void run() {
+										simulationProgress.setMaximum(total);
+										simulationProgress.setValue(done);
+										simulationMsg.setText(msg);
+										simulationIter.setText(done + "/"
+												+ total);
+										simulationTime.setText("t = "
+												+ decimalFormat.format(world
+														.getDuration()
+														* total
+														/ done) + " [s]");
+									}
+								});
 							}
 						});
-					}
-				});				
 			}
 		}).start();
+	}
+
+	void play(double speed) {
+		new Thread(new Runnable() {
+			public void run() {
+			}
+		});
 	}
 
 }
