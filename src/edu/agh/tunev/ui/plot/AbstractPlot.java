@@ -13,15 +13,25 @@ public abstract class AbstractPlot extends JInternalFrame {
 	 * Nazwa wykresu w UI.
 	 */
 	public static String PLOT_NAME;
-	public abstract String getName();
 
 	public AbstractPlot(int modelNumber, String modelName, int plotNumber,
-			Class<? extends AbstractPlot> clazz) {
+			Class<? extends AbstractPlot> subclass) {
+		String name = null;
+		try {
+			name = (String) subclass.getDeclaredField("PLOT_NAME").get(this);
+		} catch (IllegalArgumentException | IllegalAccessException
+				| NoSuchFieldException | SecurityException e1) {
+		}
+
 		setTitle(modelNumber + ": " + modelName + " - " + plotNumber + ": "
-				+ getName());
-		setSize(300, 300);
-		setLocation(modelNumber * 20 + 400 + plotNumber * 20, modelNumber * 20
-				+ plotNumber * 20);
+				+ name);
+		setSize(400, 300);
+		setLocation(modelNumber * 20 + 400 + (plotNumber - 1) * 20, modelNumber
+				* 20 + (plotNumber - 1) * 20);
+		setFrameIcon(null);
+		setResizable(true);
+		setClosable(true);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setVisible(true);
 
 		SwingUtilities.invokeLater(new Runnable() {
