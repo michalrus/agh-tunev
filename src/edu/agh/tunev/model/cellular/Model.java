@@ -34,10 +34,14 @@ public final class Model extends AbstractModel {
 		double dimX = world.getXDimension();
 		double dimY = world.getYDimension();
 
-		// stwórz automat (planszê komórek) o obliczonych dyskretnych wymiarach;
+		// jakie s¹ dyskretne wymiary œwiata? ile komórek w OX i OY?
 		// u¿ywa funkcji do t³umaczenia wymiarów z ci¹g³ych na dyskretne z
 		// uwzglêdnieniem DX i DY. Zobacz poni¿ej ich definicje.
-		board = new Board(c2dX(dimX) + 1, c2dY(dimY) + 1);
+		int numX = c2dX(dimX) + 1;
+		int numY = c2dY(dimY) + 1;
+
+		// stwórz automat (planszê komórek) o obliczonych dyskretnych wymiarach;
+		board = new Board(numX, numY);
 
 		// pozaznaczaj osoby na naszej modelowej, wewnêtrznej, planszy
 		for (Person p : people) {
@@ -56,7 +60,7 @@ public final class Model extends AbstractModel {
 		}
 
 		// TODO: pozaznaczaj przeszkody na planszy
-		
+
 		// TODO: pozaznaczaj wyjœcia na planszy
 
 		// kolejne iteracje automatu -- uwaga, ¿adnego czekania w stylu
@@ -64,23 +68,29 @@ public final class Model extends AbstractModel {
 		// wyœwietlanie "filmu" z symulacji jest niezale¿ne od obliczania (no,
 		// tyle tylko zale¿ne, ¿e mo¿emy wyœwietlaæ tylko do momentu, który ju¿
 		// siê policzy³)
-		int num = (int)Math.round(Math.ceil(world.getDuration() / DT));
+		int num = (int) Math.round(Math.ceil(world.getDuration() / DT));
 		double t = 0;
-		for (int i = 0; i < num; i++) {
+		for (int i = 1; i <= num; i++) {
 			// uaktualnij rzeczywisty czas naszej symulacji
 			t += DT;
-			
+
+			// poœci¹gaj aktualn¹ fizykê do komórek
+			for (int ix = 0; ix < numX; ix++)
+				for (int iy = 0; iy < numY; iy++)
+					board.get(ix, iy).physics = world.getPhysicsAt(t, d2cX(ix),
+							d2cY(iy));
+
 			// przejdŸ do nastêpnego stanu automatu
 			board.update();
-			
+
 			// porób zdjêcia osobom w aktualnym rzeczywistym czasie
 			for (Person p : people)
 				p.saveState(t);
-			
+
 			// grzecznoœæ: zwiêksz ProgressBar w UI
-			callback.update(i + 1, num, (i + 1 == num ? "Gotowe!" : "Wci¹¿ liczê..."));
+			callback.update(i, num, (i < num ? "Wci¹¿ liczê..." : "Gotowe!"));
 		}
-		
+
 		// i tyle ^_^
 	}
 
