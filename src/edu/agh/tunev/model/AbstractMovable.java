@@ -14,8 +14,9 @@ public abstract class AbstractMovable {
 	protected double y;
 	final protected World world;
 
-	public AbstractMovable(World world) {
+	public AbstractMovable(World world, double x, double y) {
 		this.world = world;
+		setPosition(x, y);
 	}
 
 	/**
@@ -35,6 +36,19 @@ public abstract class AbstractMovable {
 	public class State {
 		public double x = 0.0;
 		public double y = 0.0;
+	}
+	
+	public void setPosition(double x, double y) {
+		this.x = x;
+		this.y = y;
+	}
+	
+	public double getX() {
+		return x;
+	}
+	
+	public double getY() {
+		return y;
 	}
 	
 }

@@ -8,6 +8,10 @@ import edu.agh.tunev.model.AbstractMovable;
 public class World {
 
 	// -- world-data access methods
+	
+	public double getDuration() {
+		return data.getDuration();
+	}
 
 	public double getXDimension() {
 		return data.getXDimension();

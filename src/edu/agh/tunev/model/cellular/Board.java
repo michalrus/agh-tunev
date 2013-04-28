@@ -21,4 +21,13 @@ public class Board {
 		return cells.get(iy).get(ix);
 	}
 
+	public void update() {
+		// TODO Auto-generated method stub
+
+		// uwaga -- w funkcji przejœcia, gdy zmieniasz komórkê osoby,
+		// pamiêtaj, ¿eby w samej osobie uaktualniæ jej rzeczywist¹ pozycjê:
+		// Person.setPosition(x,y) -- ale (x,y) s¹ rzeczywiste, wiêc musisz u¿yæ
+		// Model.d2cX() i Model.d2cY() =)
+	}
+
 }

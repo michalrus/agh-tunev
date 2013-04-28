@@ -19,7 +19,7 @@ public final class Person extends AbstractMovable {
 	private double height = 1.7;
 
 	public Person(World world, double x, double y) {
-		super(world);
+		super(world, x, y);
 	}
 	
 	public double getWidth() {
