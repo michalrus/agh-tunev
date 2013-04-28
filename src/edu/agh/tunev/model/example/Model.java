@@ -1,4 +1,4 @@
-package edu.agh.tunev.model.cellular;
+package edu.agh.tunev.model.example;
 
 import java.util.Vector;
 
@@ -14,7 +14,7 @@ public final class Model extends AbstractModel {
 
 	// ¯eby "zarejestrowaæ" nowy model, ¿eby by³ widoczny w UI, trzeba dodaæ
 	// linijkê z nazw¹ jego klasy do <code>edu.agh.tunev.Main.main()</code>.
-	public final static String MODEL_NAME = "w¹sowy automat z social distances";
+	public final static String MODEL_NAME = "model przyk³adowy";
 
 	public Model(World world) {
 		super(world);
