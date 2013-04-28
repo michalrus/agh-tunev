@@ -16,7 +16,7 @@ import java.util.Vector;
 
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLProfile;
-import javax.media.opengl.awt.GLJPanel;
+import javax.media.opengl.awt.GLCanvas;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -73,7 +73,6 @@ class ControllerFrame extends JInternalFrame {
 		createGLFrame();
 
 		init();
-		simulate();
 	}
 
 	private static final Insets INSETS = new Insets(5, 5, 5, 5);
@@ -92,18 +91,18 @@ class ControllerFrame extends JInternalFrame {
 		// want to put this on AWT thread and block UI
 		new Thread(new Runnable() {
 			public void run() {
-				GLCapabilities cap = new GLCapabilities(GLProfile.get(GLProfile.GL2));
+				GLCapabilities cap = new GLCapabilities(GLProfile.getDefault());
 				cap.setSampleBuffers(true);
-				final GLJPanel glPanel = new GLJPanel(cap);
+				final GLCanvas canvas = new GLCanvas(cap);
 				
-				glPanel.addGLEventListener(new Scene(world, interpolator,
+				canvas.addGLEventListener(new Scene(world, interpolator,
 						new Scene.TimeGetter() {
 							public double get() {
 								return sliderTime;
 							}
 						}));
 				
-				refresher = new Refresher(glPanel);
+				refresher = new Refresher(canvas);
 				
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
@@ -117,9 +116,12 @@ class ControllerFrame extends JInternalFrame {
 						frame.setFrameIcon(null);
 						frame.setResizable(true);
 
-						frame.add(glPanel, BorderLayout.CENTER);
+						frame.add(canvas);
 						ControllerFrame.this.getParent().add(frame);
 						frame.setVisible(true);
+						
+						// simulate after both frames were loaded
+						simulate();
 					}
 				});
 			}
