@@ -1,16 +1,22 @@
 package edu.agh.tunev.ui;
 
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
+import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.world.World;
 
@@ -70,5 +76,32 @@ public class MainFrame extends JFrame {
 		setSize(new Dimension(950, 700));
 		setLocationRelativeTo(null);
 		setVisible(true);
+
+		JMenuBar menuBar = new JMenuBar();
+		this.setJMenuBar(menuBar);
+		
+		JMenu menu = new JMenu("Run model...");
+		menuBar.add(menu);
+		
+		for (final Map.Entry<String, Class<?>> e : models.entrySet()) {
+			final JMenuItem menuItem = new JMenuItem(e.getKey());
+			menuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent ev) {
+					onRunModel(e.getKey());
+				}
+			});
+			menu.add(menuItem);
+		}
+
+		desktopPane = new JDesktopPane();
+		desktopPane.setBackground(Color.LIGHT_GRAY);
+		setContentPane(desktopPane);
+	}
+	
+	private JDesktopPane desktopPane;
+	private int modelCounter = 0;
+	
+	void onRunModel(String name) {
+		add(new ControllerFrame(++modelCounter, name, models.get(name), world));
 	}
 }
