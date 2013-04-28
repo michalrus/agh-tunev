@@ -4,8 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -13,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
+import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.swing.AbstractAction;
@@ -21,7 +20,6 @@ import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JProgressBar;
@@ -34,6 +32,7 @@ import javax.swing.event.ChangeListener;
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.Person;
 import edu.agh.tunev.ui.opengl.Scene;
+import edu.agh.tunev.ui.plot.AbstractPlot;
 import edu.agh.tunev.world.World;
 
 class ControllerFrame extends JInternalFrame {
@@ -44,7 +43,13 @@ class ControllerFrame extends JInternalFrame {
 	Vector<Person> people;
 	World world;
 
-	ControllerFrame(int number, String name, Class<?> model, final World world) {
+	private int modelNumber;
+	private String modelName;
+
+	ControllerFrame(int modelNumber, String modelName, Class<?> model,
+			final World world) {
+		this.modelNumber = modelNumber;
+		this.modelName = modelName;
 		this.world = world;
 
 		try {
@@ -59,7 +64,7 @@ class ControllerFrame extends JInternalFrame {
 		}
 
 		scene = new Scene();
-		init(number, name);
+		init();
 		simulate();
 	}
 
@@ -73,10 +78,10 @@ class ControllerFrame extends JInternalFrame {
 	private JSlider slider;
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
-	void init(int number, String name) {
-		setTitle(number + ": " + name + " - controller");
+	void init() {
+		setTitle(modelNumber + ": " + modelName + " - controller");
 		setFrameIcon(null);
-		setLocation(number * 20, number * 20);
+		setLocation(modelNumber * 20, modelNumber * 20);
 
 		JPanel p = new JPanel();
 		p.setBorder(new EmptyBorder(INSETS));
@@ -223,19 +228,14 @@ class ControllerFrame extends JInternalFrame {
 			}
 		});
 
-		plotMenu.add(new JMenuItem(new AbstractAction("plot1...") {
-			private static final long serialVersionUID = 1L;
+		for (final Entry<String, Class<?>> e : MainFrame.plots.entrySet())
+			plotMenu.add(new JMenuItem(new AbstractAction(e.getKey()) {
+				private static final long serialVersionUID = 1L;
 
-			public void actionPerformed(ActionEvent e) {
-			}
-		}));
-
-		plotMenu.add(new JMenuItem(new AbstractAction("plot2...") {
-			private static final long serialVersionUID = 1L;
-
-			public void actionPerformed(ActionEvent e) {
-			}
-		}));
+				public void actionPerformed(ActionEvent arg0) {
+					plot(e.getValue());
+				}
+			}));
 
 		setVisible(true);
 		pack();
@@ -287,6 +287,25 @@ class ControllerFrame extends JInternalFrame {
 			public void run() {
 			}
 		});
+	}
+
+	private int plotCounter = 0;
+
+	void plot(Class<?> type) {
+		AbstractPlot plot;
+		try {
+			plot = (AbstractPlot) type.getDeclaredConstructor(int.class,
+					String.class, int.class).newInstance(modelNumber,
+					modelName, ++plotCounter);
+		} catch (InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException("Error during instantiation of "
+					+ type.getName() + ".");
+		}
+
+		getParent().add(plot);
 	}
 
 }

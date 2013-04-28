@@ -18,23 +18,32 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import edu.agh.tunev.model.AbstractModel;
+import edu.agh.tunev.ui.plot.AbstractPlot;
 import edu.agh.tunev.world.World;
 
 public class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	
-	World world;
-	static Map<String, Class<?>> models = new HashMap<String, Class<?>>();
 
-	public static void register(Class<?> model) {
-		if (!AbstractModel.class.isAssignableFrom(model))
-			throw new IllegalArgumentException(model.getName()
-					+ " is not a subclass of " + AbstractModel.class.getName());
+	World world;
+	private static Map<String, Class<?>> models = new HashMap<String, Class<?>>();
+	static Map<String, Class<?>> plots = new HashMap<String, Class<?>>();
+
+	public static void register(Class<?> thing) {
+		boolean model = AbstractModel.class.isAssignableFrom(thing);
+		boolean plot = AbstractPlot.class.isAssignableFrom(thing);
 
 		try {
-			models.put((String) model.getDeclaredField("MODEL_NAME").get(null),
-					model);
+			if (model)
+				models.put(
+						(String) thing.getDeclaredField("MODEL_NAME").get(null),
+						thing);
+			else if (plot)
+				plots.put((String) thing.getDeclaredField("PLOT_NAME")
+						.get(null), thing);
+			else
+				throw new IllegalArgumentException(thing.getName()
+						+ " is neither an AbstractModel nor an AbstractPlot");
 		} catch (IllegalArgumentException | IllegalAccessException
 				| NoSuchFieldException | SecurityException e) {
 			e.printStackTrace();
@@ -79,10 +88,10 @@ public class MainFrame extends JFrame {
 
 		JMenuBar menuBar = new JMenuBar();
 		this.setJMenuBar(menuBar);
-		
+
 		JMenu menu = new JMenu("Run model...");
 		menuBar.add(menu);
-		
+
 		for (final Map.Entry<String, Class<?>> e : models.entrySet()) {
 			final JMenuItem menuItem = new JMenuItem(e.getKey());
 			menuItem.addActionListener(new ActionListener() {
@@ -97,10 +106,10 @@ public class MainFrame extends JFrame {
 		desktopPane.setBackground(Color.LIGHT_GRAY);
 		setContentPane(desktopPane);
 	}
-	
+
 	private JDesktopPane desktopPane;
 	private int modelCounter = 0;
-	
+
 	void onRunModel(String name) {
 		add(new ControllerFrame(++modelCounter, name, models.get(name), world));
 	}
