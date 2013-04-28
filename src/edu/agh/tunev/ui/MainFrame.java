@@ -89,7 +89,7 @@ public class MainFrame extends JFrame {
 		JMenuBar menuBar = new JMenuBar();
 		this.setJMenuBar(menuBar);
 
-		JMenu menu = new JMenu("Run model...");
+		JMenu menu = new JMenu("Run model");
 		menuBar.add(menu);
 
 		for (final Map.Entry<String, Class<?>> e : models.entrySet()) {
