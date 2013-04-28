@@ -110,7 +110,7 @@ class ControllerFrame extends JInternalFrame {
 						JInternalFrame frame = new JInternalFrame();
 
 						frame.setTitle(modelNumber + ": " + modelName + " - "
-								+ " visualisation");
+								+ " visualization");
 						frame.setSize(400, 300);
 						frame.setLocation(modelNumber * 20 + 400,
 								modelNumber * 20);
