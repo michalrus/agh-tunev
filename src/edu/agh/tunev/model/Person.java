@@ -1,7 +1,5 @@
 package edu.agh.tunev.model;
 
-import edu.agh.tunev.world.World;
-
 /**
  * Ta klasa reprezentuje osobê. Cechy osoby nie zale¿¹ od modelu, dlatego ka¿dy
  * model u¿ywa takiej samej osoby. Dlatego final. Nie dziedziczymy. -- m.
@@ -18,8 +16,8 @@ public final class Person extends AbstractMovable {
 	/** Wysokoœæ osoby (OZ) [m] */
 	private double height = 1.7;
 
-	public Person(World world, double x, double y) {
-		super(world, x, y);
+	public Person(double x, double y) {
+		super(x, y);
 	}
 	
 	public double getWidth() {

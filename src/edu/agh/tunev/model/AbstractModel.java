@@ -2,6 +2,7 @@ package edu.agh.tunev.model;
 
 import java.util.Vector;
 
+import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.world.World;
 
 /**
@@ -14,14 +15,16 @@ import edu.agh.tunev.world.World;
 public abstract class AbstractModel {
 
 	final protected World world;
+	final protected Interpolator interpolator;
 
 	/**
 	 * Nazwa modelu w UI.
 	 */
 	public static String MODEL_NAME;
 
-	public AbstractModel(World world) {
+	public AbstractModel(World world, Interpolator interpolator) {
 		this.world = world;
+		this.interpolator = interpolator;
 	}
 
 	/**

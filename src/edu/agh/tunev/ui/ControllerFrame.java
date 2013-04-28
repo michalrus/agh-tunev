@@ -29,6 +29,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.Person;
 import edu.agh.tunev.ui.opengl.Scene;
@@ -42,6 +43,7 @@ class ControllerFrame extends JInternalFrame {
 	private AbstractModel model;
 	Vector<Person> people;
 	World world;
+	Interpolator interpolator = new Interpolator();
 
 	private int modelNumber;
 	private String modelName;
@@ -54,7 +56,7 @@ class ControllerFrame extends JInternalFrame {
 
 		try {
 			this.model = (AbstractModel) model.getDeclaredConstructor(
-					World.class).newInstance(world);
+					World.class, Interpolator.class).newInstance(world, interpolator);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException e) {
@@ -256,7 +258,8 @@ class ControllerFrame extends JInternalFrame {
 	void simulate() {
 		new Thread(new Runnable() {
 			public void run() {
-				people = PeopleFactory.random(world, 50);
+				people = PeopleFactory.random(50, world.getXDimension(),
+						world.getYDimension());
 
 				model.simulate(world.getDuration(), people,
 						new World.ProgressCallback() {

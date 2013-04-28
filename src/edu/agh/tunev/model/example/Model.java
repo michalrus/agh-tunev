@@ -2,6 +2,7 @@ package edu.agh.tunev.model.example;
 
 import java.util.Vector;
 
+import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.Person;
 import edu.agh.tunev.world.World;
@@ -11,13 +12,13 @@ public final class Model extends AbstractModel {
 
 	// nazwa pod jak¹ nasz model jest widoczny w UI; obecna prawdopodobnie do
 	// zmiany
-
+	//
 	// ¯eby "zarejestrowaæ" nowy model, ¿eby by³ widoczny w UI, trzeba dodaæ
 	// linijkê z nazw¹ jego klasy do <code>edu.agh.tunev.Main.main()</code>.
 	public final static String MODEL_NAME = "model przyk³adowy";
 
-	public Model(World world) {
-		super(world);
+	public Model(World world, Interpolator interpolator) {
+		super(world, interpolator);
 	}
 
 	@Override
@@ -45,7 +46,7 @@ public final class Model extends AbstractModel {
 
 				// wa¿ne: zapisujemy jej stan w danej chwili t w interpolatorze
 				// -- niezwykle ta¿ czynnoœæ istotna!
-				p.saveState(t);
+				interpolator.saveState(p, t);
 			}
 
 			// wa¿ne: i czas podawany w .saveState(t) i wspó³rzêdne .x i .y s¹

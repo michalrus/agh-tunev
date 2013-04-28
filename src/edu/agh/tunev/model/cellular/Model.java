@@ -2,6 +2,7 @@ package edu.agh.tunev.model.cellular;
 
 import java.util.Vector;
 
+import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.Person;
 import edu.agh.tunev.world.World;
@@ -11,8 +12,8 @@ public final class Model extends AbstractModel {
 
 	public final static String MODEL_NAME = "w¹sowy automat komórkowy";
 
-	public Model(World world) {
-		super(world);
+	public Model(World world, Interpolator interpolator) {
+		super(world, interpolator);
 	}
 
 	// przyk³adowa dyskretyzacja œwiata -- czyli rozmiar jednej komórki na
@@ -52,7 +53,7 @@ public final class Model extends AbstractModel {
 			// przesuñ j¹ dok³adnie na œrodek tej komórki...
 			p.setPosition(d2cX(ix), d2cY(iy));
 			// ... i zrób jej tam "zdjêcie" dla interpolatora w chwili t=0[s]
-			p.saveState(0.0);
+			interpolator.saveState(p, 0.0);
 
 			// zaznacz w odpowiedniej komórce automatu, ¿e któr¹ osobê
 			Cell c = board.get(ix, iy);
@@ -85,7 +86,7 @@ public final class Model extends AbstractModel {
 
 			// porób zdjêcia osobom w aktualnym rzeczywistym czasie
 			for (Person p : people)
-				p.saveState(t);
+				interpolator.saveState(p, t);
 
 			// grzecznoœæ: zwiêksz ProgressBar w UI
 			callback.update(i, num, (i < num ? "Wci¹¿ liczê..." : "Gotowe!"));

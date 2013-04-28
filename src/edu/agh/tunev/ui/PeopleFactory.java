@@ -4,18 +4,16 @@ import java.util.Random;
 import java.util.Vector;
 
 import edu.agh.tunev.model.Person;
-import edu.agh.tunev.world.World;
 
 final class PeopleFactory {
 
 	static Random rng = new Random();
 
-	static Vector<Person> random(World world, int num) {
+	static Vector<Person> random(int num, double maxX, double maxY) {
 		Vector<Person> r = new Vector<Person>();
 
 		for (int i = 0; i < num; i++)
-			r.add(new Person(world, rng.nextDouble() * world.getXDimension(),
-					rng.nextDouble() * world.getYDimension()));
+			r.add(new Person(rng.nextDouble() * maxX, rng.nextDouble() * maxY));
 
 		return r;
 	}
