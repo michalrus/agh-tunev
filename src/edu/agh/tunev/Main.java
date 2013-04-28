@@ -10,7 +10,7 @@ public class Main {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		MainFrame.register(edu.agh.tunev.model.example.Model.class);
+		MainFrame.register(edu.agh.tunev.model.cellular.Model.class);
 
 		new MainFrame();
 	}
