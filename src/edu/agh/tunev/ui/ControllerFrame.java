@@ -35,6 +35,7 @@ import javax.swing.event.ChangeListener;
 import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.Person;
+import edu.agh.tunev.ui.opengl.Refresher;
 import edu.agh.tunev.ui.opengl.Scene;
 import edu.agh.tunev.ui.plot.AbstractPlot;
 import edu.agh.tunev.world.World;
@@ -76,7 +77,7 @@ class ControllerFrame extends JInternalFrame {
 	}
 
 	private static final Insets INSETS = new Insets(5, 5, 5, 5);
-	private static final double DT = 0.1;
+	private static final double DT = 0.01;
 
 	private JButton buttonPlay, buttonStop;
 	private JLabel simulationMsg, simulationIter, simulationTime, playbackTime;
@@ -84,6 +85,7 @@ class ControllerFrame extends JInternalFrame {
 	private JSlider slider;
 	private double sliderTime = 0.0;
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
+	private Refresher refresher;
 
 	private void createGLFrame() {
 		// in a new thread, because loading of JOGL takes some time, we don't
@@ -92,14 +94,17 @@ class ControllerFrame extends JInternalFrame {
 			public void run() {
 				GLCapabilities cap = new GLCapabilities(GLProfile.get(GLProfile.GL2));
 				cap.setSampleBuffers(true);
-				final GLJPanel panel = new GLJPanel(cap);
+				final GLJPanel glPanel = new GLJPanel(cap);
 				
-				panel.addGLEventListener(new Scene(world, interpolator,
+				glPanel.addGLEventListener(new Scene(world, interpolator,
 						new Scene.TimeGetter() {
 							public double get() {
 								return sliderTime;
 							}
 						}));
+				
+				refresher = new Refresher(glPanel);
+				
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						JInternalFrame frame = new JInternalFrame();
@@ -112,7 +117,7 @@ class ControllerFrame extends JInternalFrame {
 						frame.setFrameIcon(null);
 						frame.setResizable(true);
 
-						frame.add(panel, BorderLayout.CENTER);
+						frame.add(glPanel, BorderLayout.CENTER);
 						ControllerFrame.this.getParent().add(frame);
 						frame.setVisible(true);
 					}
@@ -297,6 +302,10 @@ class ControllerFrame extends JInternalFrame {
 	private void onSliderChange() {
 		sliderTime = DT * slider.getValue();
 		playbackTime.setText("t = " + decimalFormat.format(sliderTime) + " [s]");
+		
+		// refresh visualisation
+		if (refresher != null)
+			refresher.refresh();
 	}
 
 	private void onPlayingFinished() {
