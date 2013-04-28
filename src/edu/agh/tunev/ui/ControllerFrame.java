@@ -14,6 +14,9 @@ import java.text.DecimalFormat;
 import java.util.Map.Entry;
 import java.util.Vector;
 
+import javax.media.opengl.GLCapabilities;
+import javax.media.opengl.GLProfile;
+import javax.media.opengl.awt.GLJPanel;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -66,7 +69,8 @@ class ControllerFrame extends JInternalFrame {
 					+ model.getName() + ".");
 		}
 
-		scene = new Scene();
+		createGLFrame();
+
 		init();
 		simulate();
 	}
@@ -74,13 +78,48 @@ class ControllerFrame extends JInternalFrame {
 	private static final Insets INSETS = new Insets(5, 5, 5, 5);
 	private static final double DT = 0.1;
 
-	private Scene scene;
-
 	private JButton buttonPlay, buttonStop;
 	private JLabel simulationMsg, simulationIter, simulationTime, playbackTime;
 	private JProgressBar simulationProgress;
 	private JSlider slider;
+	private double sliderTime = 0.0;
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
+
+	private void createGLFrame() {
+		// in a new thread, because loading of JOGL takes some time, we don't
+		// want to put this on AWT thread and block UI
+		new Thread(new Runnable() {
+			public void run() {
+				GLCapabilities cap = new GLCapabilities(GLProfile.get(GLProfile.GL2));
+				cap.setSampleBuffers(true);
+				final GLJPanel panel = new GLJPanel(cap);
+				
+				panel.addGLEventListener(new Scene(world, interpolator,
+						new Scene.TimeGetter() {
+							public double get() {
+								return sliderTime;
+							}
+						}));
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						JInternalFrame frame = new JInternalFrame();
+
+						frame.setTitle(modelNumber + ": " + modelName + " - "
+								+ " visualisation");
+						frame.setSize(400, 300);
+						frame.setLocation(modelNumber * 20 + 400,
+								modelNumber * 20);
+						frame.setFrameIcon(null);
+						frame.setResizable(true);
+
+						frame.add(panel, BorderLayout.CENTER);
+						ControllerFrame.this.getParent().add(frame);
+						frame.setVisible(true);
+					}
+				});
+			}
+		}).start();
+	}
 
 	private void init() {
 		setTitle(modelNumber + ": " + modelName + " - controller");
@@ -256,16 +295,14 @@ class ControllerFrame extends JInternalFrame {
 	}
 
 	private void onSliderChange() {
-		double t = DT * slider.getValue();
-		playbackTime.setText("t = " + decimalFormat.format(t) + " [s]");
-		scene.setTime(t);
+		sliderTime = DT * slider.getValue();
+		playbackTime.setText("t = " + decimalFormat.format(sliderTime) + " [s]");
 	}
 
 	private void onPlayingFinished() {
 		buttonPlay.setEnabled(true);
 		slider.setEnabled(true);
 		buttonStop.setEnabled(false);
-		// ?
 	}
 
 	private void simulate() {
