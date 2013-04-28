@@ -56,7 +56,8 @@ class ControllerFrame extends JInternalFrame {
 
 		try {
 			this.model = (AbstractModel) model.getDeclaredConstructor(
-					World.class, Interpolator.class).newInstance(world, interpolator);
+					World.class, Interpolator.class).newInstance(world,
+					interpolator);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException e) {
@@ -75,12 +76,13 @@ class ControllerFrame extends JInternalFrame {
 
 	private Scene scene;
 
+	private JButton buttonPlay, buttonStop;
 	private JLabel simulationMsg, simulationIter, simulationTime, playbackTime;
 	private JProgressBar simulationProgress;
 	private JSlider slider;
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
-	void init() {
+	private void init() {
 		setTitle(modelNumber + ": " + modelName + " - controller");
 		setFrameIcon(null);
 		setLocation(modelNumber * 20, modelNumber * 20);
@@ -170,12 +172,10 @@ class ControllerFrame extends JInternalFrame {
 		p.add(slider, c);
 		slider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
-				double t = DT * slider.getValue();
-				playbackTime.setText("t = " + decimalFormat.format(t) + " [s]");
-				scene.setTime(t);
+				onSliderChange();
 			}
 		});
-		slider.getChangeListeners()[0].stateChanged(null);
+		onSliderChange();
 
 		// separator
 
@@ -191,12 +191,12 @@ class ControllerFrame extends JInternalFrame {
 
 		c.gridx += c.gridwidth;
 		c.gridwidth = 1;
-		final JButton buttonPlay = new JButton("Play");
+		buttonPlay = new JButton("Play");
 		p.add(buttonPlay, c);
 
 		c.gridx += c.gridwidth;
 		c.gridwidth = 1;
-		final JButton buttonStop = new JButton("Stop");
+		buttonStop = new JButton("Stop");
 		buttonStop.setEnabled(false);
 		p.add(buttonStop, c);
 
@@ -210,10 +210,10 @@ class ControllerFrame extends JInternalFrame {
 		});
 		buttonStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				buttonPlay.setEnabled(true);
-				slider.setEnabled(true);
-				buttonStop.setEnabled(false);
-				// ?
+				try {
+					playThread.interrupt();
+				} catch (Exception e) {
+				}
 			}
 		});
 
@@ -255,7 +255,20 @@ class ControllerFrame extends JInternalFrame {
 		});
 	}
 
-	void simulate() {
+	private void onSliderChange() {
+		double t = DT * slider.getValue();
+		playbackTime.setText("t = " + decimalFormat.format(t) + " [s]");
+		scene.setTime(t);
+	}
+
+	private void onPlayingFinished() {
+		buttonPlay.setEnabled(true);
+		slider.setEnabled(true);
+		buttonStop.setEnabled(false);
+		// ?
+	}
+
+	private void simulate() {
 		new Thread(new Runnable() {
 			public void run() {
 				people = PeopleFactory.random(50, world.getXDimension(),
@@ -285,16 +298,34 @@ class ControllerFrame extends JInternalFrame {
 		}).start();
 	}
 
-	void play(double speed) {
-		new Thread(new Runnable() {
+	private Thread playThread = null;
+
+	private void play(double speed) {
+		playThread = new Thread(new Runnable() {
 			public void run() {
+				boolean cont = slider.getValue() < slider.getMaximum();
+				try {
+					while (cont) {
+						Thread.sleep(Math.round(DT * 1000));
+						cont = slider.getValue() + 1 < slider.getMaximum();
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								slider.setValue(slider.getValue() + 1);
+							}
+						});
+					}
+				} catch (InterruptedException e) {
+					// probably stop pressed
+				}
+				onPlayingFinished();
 			}
 		});
+		playThread.start();
 	}
 
 	private int plotCounter = 0;
 
-	void plot(Class<?> type) {
+	private void plot(Class<?> type) {
 		AbstractPlot plot;
 		try {
 			plot = (AbstractPlot) type.getDeclaredConstructor(int.class,
