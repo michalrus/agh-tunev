@@ -6,7 +6,7 @@ import java.util.Vector;
 public class World {
 
 	// -- world-data access methods
-	
+
 	public double getDuration() {
 		return data.getDuration();
 	}
@@ -33,11 +33,13 @@ public class World {
 	 * 
 	 * Przyk³ad u¿ycia:
 	 * 
-	 * <pre><code>
+	 * <pre>
+	 * <code>
 	 * Physics p = world.getPhysicsAt(13.33, 0.0, 1.0); 
 	 * double temp = p.get(Physics.Type.TEMPERATURE);
 	 * double co = p.get(Physics.Type.CO);
-	 * </code></pre>
+	 * </code>
+	 * </pre>
 	 * 
 	 * @param t
 	 *            Rzeczywisty czas, o który pytasz.
