@@ -1,19 +1,28 @@
 package edu.agh.tunev.interpolation;
 
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+
 import edu.agh.tunev.model.AbstractMovable;
 
-public class Interpolator {
+public final class Interpolator {
 
 	/**
 	 * Zapisuje dyskretny stan w interpolatorze. -- m.
-	 * 
-	 * Po ustaleniu this.x i this.y, wywo³aæ this.saveState(t).
 	 * 
 	 * @param t
 	 *            Dana chwila czasu dla jakiej zapisujemy stan.
 	 */
 	public void saveState(AbstractMovable movable, double t) {
-		State state = new State(movable);
+		NavigableMap<Double, State> states = data.get(movable);
+		if (states == null) {
+			states = new ConcurrentSkipListMap<Double, State>();
+			data.put(movable, states);
+		}
+
+		states.put(t, new State(movable));
 	}
 
 	public State getState(AbstractMovable movable, double t) {
@@ -30,5 +39,11 @@ public class Interpolator {
 			this.y = movable.getY();
 		}
 	}
+
+	public Interpolator() {
+		data = new ConcurrentHashMap<AbstractMovable, NavigableMap<Double, State>>();
+	}
+
+	private final Map<AbstractMovable, NavigableMap<Double, State>> data;
 
 }
