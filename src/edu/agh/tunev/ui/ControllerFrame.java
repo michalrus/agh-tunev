@@ -82,7 +82,7 @@ class ControllerFrame extends JInternalFrame {
 	private JLabel simulationMsg, simulationIter, simulationTime, playbackTime;
 	private JProgressBar simulationProgress;
 	private JSlider slider;
-	private double sliderTime = 0.0;
+	private double sliderTime = 0.0, progressTime = 0.0;
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
 	private Refresher refresher;
 
@@ -302,7 +302,7 @@ class ControllerFrame extends JInternalFrame {
 	}
 
 	private void onSliderChange() {
-		sliderTime = DT * slider.getValue();
+		sliderTime = Math.min(DT * slider.getValue(), progressTime);
 		playbackTime.setText("t = " + decimalFormat.format(sliderTime) + " [s]");
 		
 		// refresh visualisation
@@ -326,6 +326,10 @@ class ControllerFrame extends JInternalFrame {
 						new World.ProgressCallback() {
 							public void update(final int done, final int total,
 									final String msg) {
+								progressTime = world
+										.getDuration()
+										* done
+										/ total;
 								SwingUtilities.invokeLater(new Runnable() {
 									public void run() {
 										simulationProgress.setMaximum(total);
@@ -334,10 +338,9 @@ class ControllerFrame extends JInternalFrame {
 										simulationIter.setText(done + "/"
 												+ total);
 										simulationTime.setText("t = "
-												+ decimalFormat.format(world
-														.getDuration()
-														* total
-														/ done) + " [s]");
+												+ decimalFormat.format(progressTime) + " [s]");
+										
+										onSliderChange();
 									}
 								});
 							}
