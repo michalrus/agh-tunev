@@ -26,8 +26,8 @@ public abstract class AbstractPlot extends JInternalFrame {
 		setTitle(modelNumber + ": " + modelName + " - " + plotNumber + ": "
 				+ name);
 		setSize(400, 300);
-		setLocation(modelNumber * 20 + 400 + (plotNumber - 1) * 20, modelNumber
-				* 20 + (plotNumber - 1) * 20);
+		setLocation(modelNumber * 20 + 400 + 20 + plotNumber * 20, modelNumber
+				* 20 + 20 + plotNumber * 20);
 		setFrameIcon(null);
 		setResizable(true);
 		setClosable(true);
