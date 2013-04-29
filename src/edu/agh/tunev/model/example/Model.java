@@ -4,7 +4,6 @@ import java.util.Vector;
 
 import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
-import edu.agh.tunev.model.AbstractPerson;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
 
@@ -37,7 +36,7 @@ public final class Model extends AbstractModel<Person> {
 		final int num = (int) Math.round(duration / dt);
 		double t = 0.0;
 		for (int i = 1; i <= num; i++) {
-			for (AbstractPerson p : people) {
+			for (Person p : people) {
 				// ruszamy ludzikiem, update'ujemy .x i .y
 
 				// ... cokolwiek
