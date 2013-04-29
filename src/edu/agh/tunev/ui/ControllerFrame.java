@@ -301,13 +301,16 @@ class ControllerFrame extends JInternalFrame {
 		});
 	}
 
+	private double previousSliderTime = Double.POSITIVE_INFINITY;
 	private void onSliderChange() {
 		sliderTime = Math.min(DT * slider.getValue(), progressTime);
 		playbackTime.setText("t = " + decimalFormat.format(sliderTime) + " [s]");
 		
 		// refresh visualisation
-		if (refresher != null)
+		if (refresher != null && Math.abs(previousSliderTime - sliderTime) > DT / 2) {
+			previousSliderTime = sliderTime;
 			refresher.refresh();
+		}
 	}
 
 	private void onPlayingFinished() {
