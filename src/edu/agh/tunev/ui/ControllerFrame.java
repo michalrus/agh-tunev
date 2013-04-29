@@ -122,6 +122,7 @@ class ControllerFrame extends JInternalFrame {
 			public void run() {
 				GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
 				caps.setSampleBuffers(true);
+				caps.setNumSamples(16);
 				glwindow = GLWindow.create(caps);
 				glcanvas = new NewtCanvasAWT(glwindow);
 
