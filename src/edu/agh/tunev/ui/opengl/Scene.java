@@ -17,23 +17,24 @@ public class Scene implements GLEventListener {
 		public double get();
 	}
 
-	//private final World world;
-	//private final Interpolator interpolator;
+	// private final World world;
+	// private final Interpolator interpolator;
 	private final TimeGetter timeGetter;
 	private final List<AbstractRenderer> renderers;
 
 	public Scene(World world, Interpolator interpolator, TimeGetter timeGetter) {
-		//this.world = world;
-		//this.interpolator = interpolator;
+		// this.world = world;
+		// this.interpolator = interpolator;
 		this.timeGetter = timeGetter;
 		renderers = new ArrayList<AbstractRenderer>();
 	}
-	
+
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		double t = timeGetter.get();
+
 		GL2 gl = drawable.getGL().getGL2();
-		
+
 		// clear buffer
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 
@@ -41,7 +42,7 @@ public class Scene implements GLEventListener {
 		for (AbstractRenderer r : renderers)
 			r.render(gl, t);
 	}
-	
+
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
 	}
@@ -50,7 +51,7 @@ public class Scene implements GLEventListener {
 	public void init(GLAutoDrawable drawable) {
 		// init all renderers
 		renderers.add(new TestRenderer());
-		
+
 		// turn on antialiasing
 		GL2 gl = drawable.getGL().getGL2();
 		gl.glEnable(GL2.GL_LINE_SMOOTH);

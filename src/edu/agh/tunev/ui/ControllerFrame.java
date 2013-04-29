@@ -18,7 +18,6 @@ import java.util.Vector;
 
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLProfile;
-import javax.media.opengl.awt.GLCanvas;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -34,6 +33,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.jogamp.newt.awt.NewtCanvasAWT;
+import com.jogamp.newt.opengl.GLWindow;
+
 import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.AbstractPerson;
@@ -43,6 +45,10 @@ import edu.agh.tunev.ui.plot.AbstractPlot;
 import edu.agh.tunev.world.World;
 
 class ControllerFrame extends JInternalFrame {
+
+	static {
+		GLProfile.initSingleton();
+	}
 
 	private static final long serialVersionUID = 1L;
 
@@ -106,24 +112,27 @@ class ControllerFrame extends JInternalFrame {
 	private double sliderTime = 0.0, progressTime = 0.0;
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
 	private Refresher refresher;
+	private GLWindow glwindow;
+	private NewtCanvasAWT glcanvas;
 
 	private void createGLFrame() {
 		// in a new thread, because loading of JOGL takes some time, we don't
 		// want to put this on AWT thread and block UI
 		new Thread(new Runnable() {
 			public void run() {
-				GLCapabilities cap = new GLCapabilities(GLProfile.getDefault());
-				cap.setSampleBuffers(true);
-				final GLCanvas canvas = new GLCanvas(cap);
+				GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
+				caps.setSampleBuffers(true);
+				glwindow = GLWindow.create(caps);
+				glcanvas = new NewtCanvasAWT(glwindow);
 
-				canvas.addGLEventListener(new Scene(world, interpolator,
+				glwindow.addGLEventListener(new Scene(world, interpolator,
 						new Scene.TimeGetter() {
 							public double get() {
 								return sliderTime;
 							}
 						}));
 
-				refresher = new Refresher(canvas);
+				refresher = new Refresher(glwindow);
 
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
@@ -137,7 +146,8 @@ class ControllerFrame extends JInternalFrame {
 						frame.setFrameIcon(null);
 						frame.setResizable(true);
 
-						frame.add(canvas);
+						frame.getContentPane().add(glcanvas,
+								BorderLayout.CENTER);
 						ControllerFrame.this.getParent().add(frame);
 						frame.setVisible(true);
 
