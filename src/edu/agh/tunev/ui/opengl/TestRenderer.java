@@ -9,7 +9,7 @@ final class TestRenderer implements AbstractRenderer {
 	
 	@Override
 	public void render(GL2 gl, double t) {
-		theta += 0.005;
+		theta = t / 2;
 		double s = Math.sin(theta);
 		double c = Math.cos(theta);
 
