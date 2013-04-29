@@ -4,6 +4,10 @@ import java.util.Vector;
 
 import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
+import edu.agh.tunev.model.cellular.agent.Person;
+import edu.agh.tunev.model.cellular.grid.Board;
+import edu.agh.tunev.model.cellular.grid.Cell;
+import edu.agh.tunev.world.Physics;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
 
@@ -15,10 +19,10 @@ public final class Model extends AbstractModel<Person> {
 		super(world, interpolator);
 	}
 
-	//@Override
-	//public Class<? extends AbstractPerson> getPersonClass() {
-	//	return Person.class;
-	//}
+	// @Override
+	// public Class<? extends AbstractPerson> getPersonClass() {
+	// return Person.class;
+	// }
 
 	// przyk³adowa dyskretyzacja œwiata -- czyli rozmiar jednej komórki na
 	// planszy -- oczywiœcie w metrach -- do zmiany
@@ -36,10 +40,11 @@ public final class Model extends AbstractModel<Person> {
 	public void simulate(double duration, Vector<Person> people,
 			ProgressCallback callback) {
 		// przecastuj abstractPeople na Vector<Person>
-/*		Vector<Person> people = new Vector<Person>();
-		for (AbstractPerson p : abstractPeople)
-			people.add(p.as)*/
-		
+		/*
+		 * Vector<Person> people = new Vector<Person>(); for (AbstractPerson p :
+		 * abstractPeople) people.add(p.as)
+		 */
+
 		// jakie s¹ rzeczywiste wymiary œwiata?
 		double dimX = world.getXDimension();
 		double dimY = world.getYDimension();
@@ -66,7 +71,7 @@ public final class Model extends AbstractModel<Person> {
 
 			// zaznacz w odpowiedniej komórce automatu, ¿e któr¹ osobê
 			Cell c = board.get(ix, iy);
-			c.person = p;
+			c.setPerson(p);
 		}
 
 		// TODO: pozaznaczaj przeszkody na planszy
@@ -86,9 +91,10 @@ public final class Model extends AbstractModel<Person> {
 
 			// poœci¹gaj aktualn¹ fizykê do komórek
 			for (int ix = 0; ix < numX; ix++)
-				for (int iy = 0; iy < numY; iy++)
-					board.get(ix, iy).physics = world.getPhysicsAt(t, d2cX(ix),
-							d2cY(iy));
+				for (int iy = 0; iy < numY; iy++) {
+					Physics physics = world.getPhysicsAt(t, d2cX(ix), d2cY(iy));
+					board.get(ix, iy).setPhysics(physics);
+				}
 
 			// przejdŸ do nastêpnego stanu automatu
 			board.update();

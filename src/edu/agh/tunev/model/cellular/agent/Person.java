@@ -1,4 +1,4 @@
-package edu.agh.tunev.model.cellular;
+package edu.agh.tunev.model.cellular.agent;
 
 import edu.agh.tunev.model.AbstractPerson;
 

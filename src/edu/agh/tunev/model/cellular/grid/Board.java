@@ -1,6 +1,7 @@
-package edu.agh.tunev.model.cellular;
+package edu.agh.tunev.model.cellular.grid;
 
 import java.util.Vector;
+
 
 public class Board {
 
