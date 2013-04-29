@@ -10,6 +10,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.text.DecimalFormat;
 import java.util.Map.Entry;
 import java.util.Vector;
@@ -34,7 +36,7 @@ import javax.swing.event.ChangeListener;
 
 import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
-import edu.agh.tunev.model.Person;
+import edu.agh.tunev.model.AbstractPerson;
 import edu.agh.tunev.ui.opengl.Refresher;
 import edu.agh.tunev.ui.opengl.Scene;
 import edu.agh.tunev.ui.plot.AbstractPlot;
@@ -44,8 +46,9 @@ class ControllerFrame extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	private AbstractModel model;
-	Vector<Person> people;
+	private AbstractModel<? extends AbstractPerson> model;
+	private Class<?> personClass;
+	Vector<AbstractPerson> people;
 	World world;
 	Interpolator interpolator = new Interpolator();
 
@@ -58,10 +61,32 @@ class ControllerFrame extends JInternalFrame {
 		this.modelName = modelName;
 		this.world = world;
 
+		setModel(model);
+
+		people = PeopleFactory.random(personClass, 50, world.getXDimension(),
+				world.getYDimension());
+
+		init();
+		createGLFrame();
+	}
+
+	@SuppressWarnings("unchecked")
+	void setModel(Class<?> model) {
 		try {
-			this.model = (AbstractModel) model.getDeclaredConstructor(
-					World.class, Interpolator.class).newInstance(world,
-					interpolator);
+			Type personType = ((ParameterizedType) model.getGenericSuperclass())
+					.getActualTypeArguments()[0];
+			if (!Class.class.isInstance(personType))
+				throw new IllegalArgumentException(model.getName()
+						+ "'s generic parameter is not a class.");
+			Class<?> personClass = (Class<?>) personType;
+			if (!AbstractPerson.class.isAssignableFrom(personClass))
+				throw new IllegalArgumentException(model.getName()
+						+ "'s generic parameter is not an AbstractPerson.");
+			this.personClass = personClass;
+
+			this.model = (AbstractModel<? extends AbstractPerson>) model
+					.getDeclaredConstructor(World.class, Interpolator.class)
+					.newInstance(world, interpolator);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException e) {
@@ -69,10 +94,6 @@ class ControllerFrame extends JInternalFrame {
 			throw new IllegalArgumentException("Error during instantiation of "
 					+ model.getName() + ".");
 		}
-
-		createGLFrame();
-
-		init();
 	}
 
 	private static final Insets INSETS = new Insets(5, 5, 5, 5);
@@ -94,16 +115,16 @@ class ControllerFrame extends JInternalFrame {
 				GLCapabilities cap = new GLCapabilities(GLProfile.getDefault());
 				cap.setSampleBuffers(true);
 				final GLCanvas canvas = new GLCanvas(cap);
-				
+
 				canvas.addGLEventListener(new Scene(world, interpolator,
 						new Scene.TimeGetter() {
 							public double get() {
 								return sliderTime;
 							}
 						}));
-				
+
 				refresher = new Refresher(canvas);
-				
+
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						JInternalFrame frame = new JInternalFrame();
@@ -119,7 +140,7 @@ class ControllerFrame extends JInternalFrame {
 						frame.add(canvas);
 						ControllerFrame.this.getParent().add(frame);
 						frame.setVisible(true);
-						
+
 						// simulate after both frames were loaded
 						simulate();
 					}
@@ -302,12 +323,15 @@ class ControllerFrame extends JInternalFrame {
 	}
 
 	private double previousSliderTime = Double.POSITIVE_INFINITY;
+
 	private void onSliderChange() {
 		sliderTime = Math.min(DT * slider.getValue(), progressTime);
-		playbackTime.setText("t = " + decimalFormat.format(sliderTime) + " [s]");
-		
+		playbackTime
+				.setText("t = " + decimalFormat.format(sliderTime) + " [s]");
+
 		// refresh visualisation
-		if (refresher != null && Math.abs(previousSliderTime - sliderTime) > DT / 2) {
+		if (refresher != null
+				&& Math.abs(previousSliderTime - sliderTime) > DT / 2) {
 			previousSliderTime = sliderTime;
 			refresher.refresh();
 		}
@@ -322,16 +346,11 @@ class ControllerFrame extends JInternalFrame {
 	private void simulate() {
 		new Thread(new Runnable() {
 			public void run() {
-				people = PeopleFactory.random(50, world.getXDimension(),
-						world.getYDimension());
-
-				model.simulate(world.getDuration(), people,
+				model.simulateWrapper(world.getDuration(), people,
 						new World.ProgressCallback() {
 							public void update(final int done, final int total,
 									final String msg) {
-								progressTime = world
-										.getDuration()
-										* done
+								progressTime = world.getDuration() * done
 										/ total;
 								SwingUtilities.invokeLater(new Runnable() {
 									public void run() {
@@ -341,8 +360,10 @@ class ControllerFrame extends JInternalFrame {
 										simulationIter.setText(done + "/"
 												+ total);
 										simulationTime.setText("t = "
-												+ decimalFormat.format(progressTime) + " [s]");
-										
+												+ decimalFormat
+														.format(progressTime)
+												+ " [s]");
+
 										onSliderChange();
 									}
 								});

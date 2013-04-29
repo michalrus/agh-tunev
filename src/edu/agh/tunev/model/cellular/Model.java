@@ -4,17 +4,21 @@ import java.util.Vector;
 
 import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
-import edu.agh.tunev.model.Person;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
 
-public final class Model extends AbstractModel {
+public final class Model extends AbstractModel<Person> {
 
 	public final static String MODEL_NAME = "w¹sowy automat komórkowy";
 
 	public Model(World world, Interpolator interpolator) {
 		super(world, interpolator);
 	}
+
+	//@Override
+	//public Class<? extends AbstractPerson> getPersonClass() {
+	//	return Person.class;
+	//}
 
 	// przyk³adowa dyskretyzacja œwiata -- czyli rozmiar jednej komórki na
 	// planszy -- oczywiœcie w metrach -- do zmiany
@@ -31,6 +35,11 @@ public final class Model extends AbstractModel {
 	@Override
 	public void simulate(double duration, Vector<Person> people,
 			ProgressCallback callback) {
+		// przecastuj abstractPeople na Vector<Person>
+/*		Vector<Person> people = new Vector<Person>();
+		for (AbstractPerson p : abstractPeople)
+			people.add(p.as)*/
+		
 		// jakie s¹ rzeczywiste wymiary œwiata?
 		double dimX = world.getXDimension();
 		double dimY = world.getYDimension();

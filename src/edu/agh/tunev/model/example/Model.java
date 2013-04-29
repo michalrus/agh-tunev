@@ -4,11 +4,13 @@ import java.util.Vector;
 
 import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
-import edu.agh.tunev.model.Person;
+import edu.agh.tunev.model.AbstractPerson;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
 
-public final class Model extends AbstractModel {
+// zauwa¿, ¿e rozszerzaj¹c, podajemy w parametrze klasê, która modeluje nam
+// osobê w tym modelu
+public final class Model extends AbstractModel<Person> {
 
 	// nazwa pod jak¹ nasz model jest widoczny w UI; obecna prawdopodobnie do
 	// zmiany
@@ -35,7 +37,7 @@ public final class Model extends AbstractModel {
 		final int num = (int) Math.round(duration / dt);
 		double t = 0.0;
 		for (int i = 1; i <= num; i++) {
-			for (Person p : people) {
+			for (AbstractPerson p : people) {
 				// ruszamy ludzikiem, update'ujemy .x i .y
 
 				// ... cokolwiek
