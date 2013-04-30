@@ -7,6 +7,8 @@ import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.model.cellular.grid.Board;
 import edu.agh.tunev.model.cellular.grid.Cell;
+import edu.agh.tunev.statistics.KilledStatistics;
+import edu.agh.tunev.statistics.Statistics.AddCallback;
 import edu.agh.tunev.world.Physics;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
@@ -33,7 +35,7 @@ public final class Model extends AbstractModel<Person> {
 
 	@Override
 	public void simulate(double duration, Vector<Person> people,
-			ProgressCallback callback) {
+			ProgressCallback progressCallback, AddCallback addCallback) {
 		// jakie s¹ rzeczywiste wymiary œwiata?
 		double dimX = world.getXDimension();
 		double dimY = world.getYDimension();
@@ -62,6 +64,15 @@ public final class Model extends AbstractModel<Person> {
 			Cell c = board.get(ix, iy);
 			c.setPerson(p);
 		}
+
+		// TODO: pododawaj jakieœ wykresy do UI zwi¹zane z tym modelem
+		//
+		// sidenote: zobacz helpa do interfejsu Statistics: gdy dany wykres
+		// pasuje do wielu modeli (np. liczba zabitych jako f(t)), to dodaj jego
+		// klasê do pakietu tunev.statistics; jeœli pasuje tylko do tego modelu,
+		// to dodaj do pakietu tego modelu
+		KilledStatistics killedStatistics = new KilledStatistics();
+		addCallback.add(killedStatistics);
 
 		// TODO: pozaznaczaj przeszkody na planszy
 
@@ -92,9 +103,19 @@ public final class Model extends AbstractModel<Person> {
 			for (Person p : people)
 				interpolator.saveState(p, t);
 
+			// TODO: uaktualnij wykresy, które mog¹ byæ aktualizowane w trakcie
+			// iteracji
+			int currentNumDead = 123; // prawdopodobnie ta dana ustawiana
+										// gdzie indziej ;p~
+			killedStatistics.add(t, currentNumDead);
+
 			// grzecznoœæ: zwiêksz ProgressBar w UI
-			callback.update(i, num, (i < num ? "Wci¹¿ liczê..." : "Gotowe!"));
+			progressCallback.update(i, num, (i < num ? "Wci¹¿ liczê..."
+					: "Gotowe!"));
 		}
+
+		// TODO: ew. wype³nij wykresy, które mog¹ byæ wype³nione dopiero po
+		// zakoñczeniu symulacji
 
 		// i tyle ^_^
 	}

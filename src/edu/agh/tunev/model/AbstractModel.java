@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.world.World;
+import edu.agh.tunev.statistics.Statistics;
 
 /**
  * Po tym dziedziczy klasa g³ówna ka¿dego modelu. -- m.
@@ -38,7 +39,7 @@ public abstract class AbstractModel<T extends AbstractPerson> {
 	 *            Czas trwania symulacji.
 	 * @param people
 	 *            Lista osób w danym œwiecie.
-	 * @param callback
+	 * @param progressCallback
 	 *            Wywo³ujemy po ka¿dej iteracji
 	 *            <code>callback.update(done, total,
 	 *            msg</code>), gdzie <code>done</code> to numer aktualnej
@@ -46,17 +47,24 @@ public abstract class AbstractModel<T extends AbstractPerson> {
 	 *            zaplanowanych, a <code>msg</code> to jakiœ komunikat tekstowy,
 	 *            mo¿e byæ <code>""</code>/<code>null</code>. Po to, ¿eby
 	 *            rysowaæ ProgressBar ile ju¿ siê policzy³o z ca³oœci.
+	 * @param addCallback
+	 *            Wywo³ujemy gdy chcemy dodaæ jakiœ wykres do UI. W dowolnym
+	 *            momencie. Mo¿e byæ na pocz¹tku i uaktualniamy w trakcie, mo¿e
+	 *            byæ na koñcu, jak ju¿ siê wszystko policzy.
 	 */
 	public abstract void simulate(double duration, Vector<T> people,
-			World.ProgressCallback callback);
+			World.ProgressCallback progressCallback,
+			Statistics.AddCallback addCallback);
 
 	/** tego nie ruszamy :] t³umaczy Vector<AbstractPerson> -> Vector<T> */
 	@SuppressWarnings("unchecked")
 	public final void simulateWrapper(double duration,
-			Vector<AbstractPerson> people, World.ProgressCallback callback) {
+			Vector<AbstractPerson> people,
+			World.ProgressCallback progressCallback,
+			Statistics.AddCallback addCallback) {
 		Vector<T> castedPeople = new Vector<T>();
 		for (AbstractPerson p : people)
 			castedPeople.add((T) p);
-		simulate(duration, castedPeople, callback);
+		simulate(duration, castedPeople, progressCallback, addCallback);
 	}
 }

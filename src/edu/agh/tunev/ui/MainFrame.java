@@ -18,29 +18,23 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import edu.agh.tunev.model.AbstractModel;
-import edu.agh.tunev.ui.plot.AbstractPlot;
 import edu.agh.tunev.world.World;
 
-public class MainFrame extends JFrame {
+public final class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
 	World world;
 	private static Map<String, Class<?>> models = new HashMap<String, Class<?>>();
-	static Map<String, Class<?>> plots = new HashMap<String, Class<?>>();
 
 	public static void register(Class<?> thing) {
 		boolean model = AbstractModel.class.isAssignableFrom(thing);
-		boolean plot = AbstractPlot.class.isAssignableFrom(thing);
 
 		try {
 			if (model)
 				models.put(
 						(String) thing.getDeclaredField("MODEL_NAME").get(null),
 						thing);
-			else if (plot)
-				plots.put((String) thing.getDeclaredField("PLOT_NAME")
-						.get(null), thing);
 			else
 				throw new IllegalArgumentException(thing.getName()
 						+ " is neither an AbstractModel nor an AbstractPlot");

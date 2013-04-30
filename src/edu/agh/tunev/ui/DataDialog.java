@@ -16,7 +16,7 @@ import javax.swing.border.EmptyBorder;
 
 import edu.agh.tunev.world.World;
 
-class DataDialog extends JDialog {
+final class DataDialog extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 

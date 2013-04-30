@@ -13,7 +13,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.text.DecimalFormat;
-import java.util.Map.Entry;
 import java.util.Vector;
 
 import javax.media.opengl.GLCapabilities;
@@ -39,12 +38,12 @@ import com.jogamp.newt.opengl.GLWindow;
 import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.AbstractPerson;
+import edu.agh.tunev.statistics.Statistics;
 import edu.agh.tunev.ui.opengl.Refresher;
 import edu.agh.tunev.ui.opengl.Scene;
-import edu.agh.tunev.ui.plot.AbstractPlot;
 import edu.agh.tunev.world.World;
 
-class ControllerFrame extends JInternalFrame {
+final class ControllerFrame extends JInternalFrame {
 
 	static {
 		GLProfile.initSingleton();
@@ -108,6 +107,7 @@ class ControllerFrame extends JInternalFrame {
 	private JButton buttonPlay, buttonStop;
 	private JLabel simulationMsg, simulationIter, simulationTime, playbackTime;
 	private JProgressBar simulationProgress;
+	private JPopupMenu plotMenu;
 	private JSlider slider;
 	private double sliderTime = 0.0, progressTime = 0.0;
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
@@ -300,22 +300,13 @@ class ControllerFrame extends JInternalFrame {
 		final JButton buttonPlot = new JButton("Plot...");
 		p.add(buttonPlot, c);
 
-		final JPopupMenu plotMenu = new JPopupMenu();
+		plotMenu = new JPopupMenu();
 
 		buttonPlot.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				plotMenu.show(buttonPlot, 0, buttonPlot.getHeight());
 			}
 		});
-
-		for (final Entry<String, Class<?>> e : MainFrame.plots.entrySet())
-			plotMenu.add(new JMenuItem(new AbstractAction(e.getKey()) {
-				private static final long serialVersionUID = 1L;
-
-				public void actionPerformed(ActionEvent arg0) {
-					plot(e.getValue());
-				}
-			}));
 
 		setVisible(true);
 		pack();
@@ -379,6 +370,21 @@ class ControllerFrame extends JInternalFrame {
 									}
 								});
 							}
+						}, new Statistics.AddCallback() {
+							@Override
+							public void add(Statistics statistics) {
+								final PlotFrame frame = new PlotFrame(modelNumber, modelName, statistics);
+								ControllerFrame.this.getParent().add(frame);
+								
+								plotMenu.add(new JMenuItem(new AbstractAction(statistics.getTitle()) {
+									private static final long serialVersionUID = 1L;
+
+									public void actionPerformed(ActionEvent arg0) {
+										frame.show();
+									}
+								}));
+
+							}
 						});
 			}
 		}).start();
@@ -407,25 +413,6 @@ class ControllerFrame extends JInternalFrame {
 			}
 		});
 		playThread.start();
-	}
-
-	private int plotCounter = 0;
-
-	private void plot(Class<?> type) {
-		AbstractPlot plot;
-		try {
-			plot = (AbstractPlot) type.getDeclaredConstructor(int.class,
-					String.class, int.class).newInstance(modelNumber,
-					modelName, ++plotCounter);
-		} catch (InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException e) {
-			e.printStackTrace();
-			throw new IllegalArgumentException("Error during instantiation of "
-					+ type.getName() + ".");
-		}
-
-		getParent().add(plot);
 	}
 
 }

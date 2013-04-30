@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
+import edu.agh.tunev.statistics.Statistics.AddCallback;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
 
@@ -24,7 +25,7 @@ public final class Model extends AbstractModel<Person> {
 
 	@Override
 	public void simulate(double duration, Vector<Person> people,
-			ProgressCallback callback) {
+			ProgressCallback progressCallback, AddCallback addCallback) {
 		// TODO Auto-generated method stub
 
 		// zobacz helpa do rodzica (AbstractModel.simulate) -- po prostu
@@ -58,7 +59,7 @@ public final class Model extends AbstractModel<Person> {
 
 			// zwiêkszamy ProgressBar w UI, ¿eby user nie myœla³, ¿e nic siê nie
 			// dzieje =)~
-			callback.update(i, num, "Simulating...");
+			progressCallback.update(i, num, "Simulating...");
 
 			// a jakie jeszcze klasy s¹ w tym pakiecie, czy to implementuj¹ce
 			// automat komórkowy itd. -- dla mnie nieistotne. Te¿ ofc ta funkcja
