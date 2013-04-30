@@ -19,11 +19,6 @@ public final class Model extends AbstractModel<Person> {
 		super(world, interpolator);
 	}
 
-	// @Override
-	// public Class<? extends AbstractPerson> getPersonClass() {
-	// return Person.class;
-	// }
-
 	// przyk³adowa dyskretyzacja œwiata -- czyli rozmiar jednej komórki na
 	// planszy -- oczywiœcie w metrach -- do zmiany
 	private static final double DX = 0.5;
@@ -39,12 +34,6 @@ public final class Model extends AbstractModel<Person> {
 	@Override
 	public void simulate(double duration, Vector<Person> people,
 			ProgressCallback callback) {
-		// przecastuj abstractPeople na Vector<Person>
-		/*
-		 * Vector<Person> people = new Vector<Person>(); for (AbstractPerson p :
-		 * abstractPeople) people.add(p.as)
-		 */
-
 		// jakie s¹ rzeczywiste wymiary œwiata?
 		double dimX = world.getXDimension();
 		double dimY = world.getYDimension();

@@ -21,7 +21,8 @@ public abstract class AbstractModel<T extends AbstractPerson> {
 	final protected Interpolator interpolator;
 
 	/**
-	 * Nazwa modelu w UI.
+	 * Nazwa modelu w UI. Jak to nie bêdzie ustawione w klasie dziedzicz¹cej, to
+	 * register() w main() rzuci wyj¹tek.
 	 */
 	public static String MODEL_NAME;
 

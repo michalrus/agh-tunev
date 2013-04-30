@@ -2,7 +2,6 @@ package edu.agh.tunev.model.cellular.grid;
 
 import java.util.Vector;
 
-
 public class Board {
 
 	private Vector<Vector<Cell>> cells;
@@ -29,6 +28,10 @@ public class Board {
 		// pamiêtaj, ¿eby w samej osobie uaktualniæ jej rzeczywist¹ pozycjê:
 		// Person.setPosition(x,y) -- ale (x,y) s¹ rzeczywiste, wiêc musisz u¿yæ
 		// Model.d2cX() i Model.d2cY() =)
+		//
+		// a potem, ¿eby przeiterowaæ po osobach i zrobiæ
+		// interpolator.saveState, ale to ju¿ chyba w Model.simulate, tak jak
+		// jest teraz?
 	}
 
 }
