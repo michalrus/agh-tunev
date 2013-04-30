@@ -1,16 +1,23 @@
 package edu.agh.tunev.ui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -99,6 +106,22 @@ public final class MainFrame extends JFrame {
 		desktopPane = new JDesktopPane();
 		desktopPane.setBackground(Color.LIGHT_GRAY);
 		setContentPane(desktopPane);
+
+		desktopPane.addContainerListener(new ContainerListener() {
+			@Override
+			public void componentAdded(ContainerEvent e) {
+				Component c = e.getChild();
+				if (c instanceof JInternalFrame)
+					((JInternalFrame) c)
+							.addComponentListener(internalFrameComponentListener);
+				if (c instanceof ControllerFrame)
+					controllerFrames.add((ControllerFrame) c);
+			}
+
+			@Override
+			public void componentRemoved(ContainerEvent e) {
+			}
+		});
 	}
 
 	private JDesktopPane desktopPane;
@@ -107,4 +130,36 @@ public final class MainFrame extends JFrame {
 	void onRunModel(String name) {
 		add(new ControllerFrame(++modelCounter, name, models.get(name), world));
 	}
+
+	private final Vector<ControllerFrame> controllerFrames = new Vector<ControllerFrame>();
+
+	private void refreshAll() {
+		for (ControllerFrame f : controllerFrames)
+			if (f.refresher != null)
+				f.refresher.refresh();
+	}
+
+	private final ComponentListener internalFrameComponentListener = new ComponentListener() {
+
+		@Override
+		public void componentHidden(ComponentEvent arg0) {
+			refreshAll();
+		}
+
+		@Override
+		public void componentMoved(ComponentEvent arg0) {
+			refreshAll();
+		}
+
+		@Override
+		public void componentResized(ComponentEvent arg0) {
+			refreshAll();
+		}
+
+		@Override
+		public void componentShown(ComponentEvent arg0) {
+			refreshAll();
+		}
+
+	};
 }

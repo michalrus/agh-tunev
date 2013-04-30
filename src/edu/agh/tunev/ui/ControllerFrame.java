@@ -52,8 +52,8 @@ final class ControllerFrame extends JInternalFrame {
 
 	private AbstractModel<? extends AbstractPerson> model;
 	private Class<?> personClass;
-	Vector<AbstractPerson> people;
-	World world;
+	private Vector<AbstractPerson> people;
+	private World world;
 
 	private int modelNumber;
 	private String modelName;
@@ -108,7 +108,7 @@ final class ControllerFrame extends JInternalFrame {
 	private JSlider slider;
 	private double sliderTime = 0.0, progressTime = 0.0;
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
-	private Refresher refresher;
+	Refresher refresher;
 	private GLWindow glwindow;
 	private NewtCanvasAWT glcanvas;
 
