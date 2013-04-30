@@ -56,6 +56,9 @@ public class Scene implements GLEventListener {
 	public void init(GLAutoDrawable drawable) {
 		// init all renderers
 		renderers.add(new TestRenderer());
+
+		renderers.add(new FloorRenderer(world));
+		renderers.add(new WallsRenderer(world));
 		
 		for (AbstractPerson p : people)
 			renderers.add(new PersonRenderer(p, model));
