@@ -3,10 +3,10 @@ package edu.agh.tunev.model.cellular.grid;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.world.Physics;
 
-public class Cell {
+public final class Cell {
 
-	Person person = null;
-	Physics physics = null;
+	private Person person = null;
+	private Physics physics = null;
 
 	public Person getPerson() {
 		return person;

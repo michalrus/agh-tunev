@@ -2,7 +2,7 @@ package edu.agh.tunev.model.cellular.grid;
 
 import java.util.Vector;
 
-public class Board {
+public final class Board {
 
 	private Vector<Vector<Cell>> cells;
 
