@@ -9,9 +9,9 @@ public final class Physics {
 	}
 	
 	/**
-	 * Zwraca konkretne wartoúci fizyczne z danego punktu.
+	 * Zwraca konkretne warto≈õci fizyczne z danego punktu.
 	 * 
-	 * Przyk≥ad uøycia:
+	 * Przyk≈Çad u≈ºycia:
 	 * 
 	 * <pre><code>
 	 * Physics p = world.getPhysicsAt(13.33, 0.0, 1.0); 
@@ -19,7 +19,7 @@ public final class Physics {
 	 * double co = p.get(Physics.Type.CO);
 	 * </code></pre>
 	 * 
-	 * @param type  Typ wartoúci.
+	 * @param type  Typ warto≈õci.
 	 * @return
 	 */
 	public double get(Type type) {

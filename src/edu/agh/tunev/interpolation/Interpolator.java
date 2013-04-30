@@ -43,7 +43,7 @@ public final class Interpolator {
 		else if (prev == next)
 			return prev.getValue();
 		
-		// splajny 1-go stopnia? bêdzie git
+		// splajny 1-go stopnia? bÄ™dzie git
 		
 		double ratio = (t - prev.getKey()) / (next.getKey() - prev.getKey());
 		

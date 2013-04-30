@@ -24,7 +24,7 @@ public final class KilledStatistics implements Statistics {
 
 	@Override
 	public String getTitle() {
-		return "Statystyka zabitych w poøarze";
+		return "Statystyka zabitych w po≈ºarze";
 	}
 
 	@Override

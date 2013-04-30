@@ -100,9 +100,9 @@ final class FDSDataSource extends AbstractDataSource {
 	private Vector<Exit> exits = new Vector<Exit>();
 
 	/**
-	 * Czyta folder {@link #dataFolder} i jeœli znajdzie pliki o nazwach
-	 * pasuj¹cych do konwencji ustalonej z Kaœk¹, zapisuje je sobie odpowiednio
-	 * w pamiêci (w {@link #inputFile} i {@link #dataFiles}).
+	 * Czyta folder {@link #dataFolder} i jeÅ›li znajdzie pliki o nazwach
+	 * pasujÄ…cych do konwencji ustalonej z KaÅ›kÄ…, zapisuje je sobie odpowiednio
+	 * w pamiÄ™ci (w {@link #inputFile} i {@link #dataFiles}).
 	 */
 	private void parseFilenames() {
 		Map<Physics.Type, Pattern> patterns = new EnumMap<Physics.Type, Pattern>(Physics.Type.class);
@@ -149,10 +149,10 @@ final class FDSDataSource extends AbstractDataSource {
 	}
 
 	/**
-	 * Wczytywanie danych z pliku wejœciowego FDS-a.
+	 * Wczytywanie danych z pliku wejÅ›ciowego FDS-a.
 	 * 
-	 * Pamiêtaj: x to szerokoœæ tunelu, y to d³ugoœæ. Podajemy czêsto
-	 * wspó³rzêdne x,y,z albo x,x1,y,y1,z,z1.
+	 * PamiÄ™taj: x to szerokoÅ›Ä‡ tunelu, y to dÅ‚ugoÅ›Ä‡. Podajemy czÄ™sto
+	 * wspÃ³Å‚rzÄ™dne x,y,z albo x,x1,y,y1,z,z1.
 	 * 
 	 * @throws FileNotFoundException
 	 * @throws ParseException
@@ -269,7 +269,7 @@ final class FDSDataSource extends AbstractDataSource {
 						+ ": no simulation duration declared", 0);
 		}
 
-		// TODO: Kasiu, jakoœ oznaczamy g³ówne wyjœcia w .fds?
+		// TODO: Kasiu, jakoÅ› oznaczamy gÅ‚Ã³wne wyjÅ›cia w .fds?
 		if (dimensionX > dimensionY) { // poziomy tunel
 			exits.add(new Exit(0, 0, 0, dimensionY));
 			exits.add(new Exit(dimensionX, 0, dimensionX, dimensionY));

@@ -14,16 +14,16 @@ class Motion {
 		ERECT, BENT, CRAWL
 	}
 
-	/** Wspolczynnik predkosci dla pozycji zgiêtej */
+	/** Wspolczynnik predkosci dla pozycji zgiÄ™tej */
 	private final static double BENT_COEFF = 0.75;
 
-	/** Wspolczynnik predkosci dla czo³gania */
+	/** Wspolczynnik predkosci dla czoÅ‚gania */
 	private final static double CRAWL_COEFF = 0.1;
 
-	/** Gêstoœæ dymu przy której agent musi siê zgi¹æ */
+	/** GÄ™stoÅ›Ä‡ dymu przy ktÃ³rej agent musi siÄ™ zgiÄ…Ä‡ */
 	private final static double SMOKE_BENT_DENSITY = 5200;
 
-	/** Gêstoœæ dymu, przy której agent musi siê czo³gaæ */
+	/** GÄ™stoÅ›Ä‡ dymu, przy ktÃ³rej agent musi siÄ™ czoÅ‚gaÄ‡ */
 	private final static double SMOKE_CRAWL_DENSITY = 20800;
 
 	/** Standardowa, poczatkowa predkosc ruchu */
@@ -73,9 +73,9 @@ class Motion {
 	 * poziom jego przerazenia
 	 * 
 	 * @param smoke_density
-	 *            gêstoœæ dymu na aktualnej pozycji
+	 *            gÄ™stoÅ›Ä‡ dymu na aktualnej pozycji
 	 * @param anxiety
-	 *            poziom przera¿enia
+	 *            poziom przeraÅ¼enia
 	 */
 	void adjustVelocity(double smoke_density, double anxiety) {
 		changeStance(smoke_density);
@@ -113,7 +113,7 @@ class Motion {
 	}
 
 	/**
-	 * Sprawdza czy w danym punkcie znajduje siê przeszkoda.
+	 * Sprawdza czy w danym punkcie znajduje siÄ™ przeszkoda.
 	 * 
 	 * @param p
 	 *            punkt
@@ -130,7 +130,7 @@ class Motion {
 
 	/**
 	 * Funkcja oblicza punkt, w ktory agent musi sie udac, by obejsc przeszkode.
-	 * Najpierw sprawdza, z której strony Obstacle sie znajduje, a nastepnie
+	 * Najpierw sprawdza, z ktÃ³rej strony Obstacle sie znajduje, a nastepnie
 	 * wybiera, w strone ktorego wierzcholka sie poruszyc (wybiera ten, ktory
 	 * znajduje sie blizej wyjscia);
 	 * 
@@ -218,7 +218,7 @@ class Motion {
 	 * liscie.
 	 */
 	void updateCheckpoints() {
-		if (agent.exit == null) // TODO:doda³em, bo wywala³o
+		if (agent.exit == null) // TODO:dodaÅ‚em, bo wywalaÅ‚o
 								// NullPointerException --
 								// m.
 			return;
@@ -250,7 +250,7 @@ class Motion {
 	}
 
 	/**
-	 * Okreœla postawê agenta w zale¿nosci od gêstoœci dymu.
+	 * OkreÅ›la postawÄ™ agenta w zaleÅ¼nosci od gÄ™stoÅ›ci dymu.
 	 * 
 	 * @param smoke_density
 	 */
@@ -266,7 +266,7 @@ class Motion {
 
 	/**
 	 * Sprawdza, czy w punkcie, do ktorego agent sie chce przemiescic, nie
-	 * znajduje siê inny ewakuowany
+	 * znajduje siÄ™ inny ewakuowany
 	 * 
 	 * @param dest
 	 *            punkt do ktorego agent chce sie przemiescic

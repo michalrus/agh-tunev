@@ -3,7 +3,7 @@ package edu.agh.tunev.model.example;
 import edu.agh.tunev.model.AbstractPerson;
 
 /**
- * Przyk≥adowa implementacja osoby w przyk≥adowym modelu.
+ * Przyk≈Çadowa implementacja osoby w przyk≈Çadowym modelu.
  * 
  */
 public final class Person extends AbstractPerson {

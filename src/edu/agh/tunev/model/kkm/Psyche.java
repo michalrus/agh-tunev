@@ -10,11 +10,11 @@ class Psyche {
 	private final static double ANXIETY_COEFF_SIGNIF = 0.2;
 	private final static double MIN_THREAT_COMP = 35 * Agent.TEMP_THREAT_COEFF;
 
-	/** Czas reakcji na zagroøenie = detekcja + decyzja */
+	/** Czas reakcji na zagro≈ºenie = detekcja + decyzja */
 	double reaction_t;
 
 	/**
-	 * Poddenerwowanie agenta. Standardowo 1, jeúli nie ma zagroøenia;
+	 * Poddenerwowanie agenta. Standardowo 1, je≈õli nie ma zagro≈ºenia;
 	 */
 	double anxiety;
 

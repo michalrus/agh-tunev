@@ -28,10 +28,10 @@ public class World {
 	}
 
 	/**
-	 * Zawsze zwróci jak¹œ wartoœæ. Kiedy zapytasz o coœ spoza granic œwiata,
-	 * zwróci wartoœæ z najbli¿szego punktu le¿¹cego na brzegu.
+	 * Zawsze zwrÃ³ci jakÄ…Å› wartoÅ›Ä‡. Kiedy zapytasz o coÅ› spoza granic Å›wiata,
+	 * zwrÃ³ci wartoÅ›Ä‡ z najbliÅ¼szego punktu leÅ¼Ä…cego na brzegu.
 	 * 
-	 * Przyk³ad u¿ycia:
+	 * PrzykÅ‚ad uÅ¼ycia:
 	 * 
 	 * <pre>
 	 * <code>
@@ -42,7 +42,7 @@ public class World {
 	 * </pre>
 	 * 
 	 * @param t
-	 *            Rzeczywisty czas, o który pytasz.
+	 *            Rzeczywisty czas, o ktÃ³ry pytasz.
 	 * @param x
 	 *            Pozycja na OX.
 	 * @param y

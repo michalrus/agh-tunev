@@ -3,14 +3,14 @@ package edu.agh.tunev.model.cellular.agent;
 import edu.agh.tunev.model.AbstractPerson;
 
 /**
- * Tutaj mo¿esz pamiêtaæ sobie jakieœ dane o osobie, które maj¹ znaczenie tylko
- * w implementowanym modelu. Wszystkie cechy "osobnicze", które maj¹ sens poza
- * konkretnym modelem, powinny byæ dodane do AbstractPerson. Przyk³ad:
+ * Tutaj moÅ¼esz pamiÄ™taÄ‡ sobie jakieÅ› dane o osobie, ktÃ³re majÄ… znaczenie tylko
+ * w implementowanym modelu. Wszystkie cechy "osobnicze", ktÃ³re majÄ… sens poza
+ * konkretnym modelem, powinny byÄ‡ dodane do AbstractPerson. PrzykÅ‚ad:
  * 
  * Do <code>AbstractPerson</code>: wiek, rasa, orientacja, religious views
  * 
  * Do <code>Person extends AbstractPerson</code>: informacja o tym co osoba
- * s¹dzi nt. konkretnych pól automatu komórkowego
+ * sÄ…dzi nt. konkretnych pÃ³l automatu komÃ³rkowego
  * 
  */
 public final class Person extends AbstractPerson {

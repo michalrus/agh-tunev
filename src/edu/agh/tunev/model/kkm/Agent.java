@@ -12,17 +12,17 @@ public final class Agent {
 		STAND, CROUCH, CRAWL
 	}
 
-	/** Wspolczynnik przeskalowujacy temperature na zagro¿enie */
+	/** Wspolczynnik przeskalowujacy temperature na zagroÅ¼enie */
 	static final double TEMP_THREAT_COEFF = 0.06;
 
-	/** Szerokoœæ elipsy Agenta w [m]. */
+	/** SzerokoÅ›Ä‡ elipsy Agenta w [m]. */
 	public static final double BROADNESS = 0.33;
 
-	/** Ten drugi wymiar (gruboœæ?) elipsy Agenta w [m]. */
+	/** Ten drugi wymiar (gruboÅ›Ä‡?) elipsy Agenta w [m]. */
 	public static final double THICKNESS = 0.2;
 
 	/**
-	 * D³ugoœæ wektora orientacji Agenta w [m]. Nic nie robi, tylko do
+	 * DÅ‚ugoÅ›Ä‡ wektora orientacji Agenta w [m]. Nic nie robi, tylko do
 	 * rysowania.
 	 */
 	public static final double ORIENTATION_VECTOR = 1.0;
@@ -45,21 +45,21 @@ public final class Agent {
 	private static final double BASE_ATTR_CALC = 1.01;
 
 	/**
-	 * Wspó³czynnik do skalowania funkcji wyk³adniczej wykorzystywanej do
-	 * obliczania promienia s¹siedztwa
+	 * WspÃ³Å‚czynnik do skalowania funkcji wykÅ‚adniczej wykorzystywanej do
+	 * obliczania promienia sÄ…siedztwa
 	 */
 	private static final double POW_RADIUS_COEFF = 8;
 
 	/**
-	 * Wspó³czynnik do skalowania funkcji wyk³adniczej wykorzystywanej do
+	 * WspÃ³Å‚czynnik do skalowania funkcji wykÅ‚adniczej wykorzystywanej do
 	 * obliczania wspolczynnika atrakcyjnosci.
 	 */
 	private static final double POW_ATTR_COEFF = 1;
 
 	/**
-	 * Minimalna wartoœæ wspó³czynnika zagro¿enia powoduj¹ca zmianê kierunku.
-	 * Agent zawsze kierujê siê w stronê wyjœcia, chyba ¿e czynniki œrodowiskowe
-	 * mu na to nie pozwalaj¹.
+	 * Minimalna wartoÅ›Ä‡ wspÃ³Å‚czynnika zagroÅ¼enia powodujÄ…ca zmianÄ™ kierunku.
+	 * Agent zawsze kierujÄ™ siÄ™ w stronÄ™ wyjÅ›cia, chyba Å¼e czynniki Å›rodowiskowe
+	 * mu na to nie pozwalajÄ….
 	 */
 	private static final double MIN_THREAT_VAL = 60;
 
@@ -69,7 +69,7 @@ public final class Agent {
 	 */
 	private static final double EXIT_RUSH_DIST = 3;
 
-	/** Minimalna temp. przy której agent widzi ogieñ */
+	/** Minimalna temp. przy ktÃ³rej agent widzi ogieÅ„ */
 	private static final double MIN_FLAME_TEMP = 70;
 
 	/** Smiertelna wartosc temp. na wysokosci 1,5m */
@@ -81,44 +81,44 @@ public final class Agent {
 	/** Stezenie karboksyhemoglobiny we krwi powodujace natychmiastowy zgon [%] */
 	private static final double LETHAL_HbCO_CONCN = 75.0;
 
-	/** Prêdkoœæ z jak¹ usuwane s¹ karboksyhemoglobiny z organizmu */
+	/** PrÄ™dkoÅ›Ä‡ z jakÄ… usuwane sÄ… karboksyhemoglobiny z organizmu */
 	private static final double CLEANSING_VELOCITY = 0.08;
 
-	/** Wsp. do obliczania gêstoœci dymu na podstawie stê¿enia CO */
-	// TODO: bardzo naci¹gane, ale to jest zbyt zmienne i nie ma danych
+	/** Wsp. do obliczania gÄ™stoÅ›ci dymu na podstawie stÄ™Å¼enia CO */
+	// TODO: bardzo naciÄ…gane, ale to jest zbyt zmienne i nie ma danych
 	private static final double CO_SMOKE_COEFF = 6.5;
 	
 	/** Mol/mol do ppm*/
 	private static final double MOL_TO_PPM = 1E11;
 
-	/** Wspó³czynnik funkcji przekszta³caj¹cej odleg³oœæ na czas reakcji */
+	/** WspÃ³Å‚czynnik funkcji przeksztaÅ‚cajÄ…cej odlegÅ‚oÅ›Ä‡ na czas reakcji */
 	private static final double REACTION_COEFF = 0.3 * 1000; // wspolczynnik *
 																// [s/ms]
 
 	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
 	Point position;
 
-	/** Aktualnie wybrane wyjœcie ewakuacyjne */
+	/** Aktualnie wybrane wyjÅ›cie ewakuacyjne */
 	Exit exit;
 
 	/** Referencja do planszy. */
 	Board board;
 
 	/**
-	 * Orientacja: k¹t miêdzy wektorem "wzroku" i osi¹ OX w [deg]. Kiedy wynosi
-	 * 0.0 deg, to Agent "patrzy" jak oœ OX (jak na geometrii analitycznej).
-	 * Wtedy te¿ sin() i cos() dzia³aj¹ ~intuicyjne, tak samo jak analityczne
+	 * Orientacja: kÄ…t miÄ™dzy wektorem "wzroku" i osiÄ… OX w [deg]. Kiedy wynosi
+	 * 0.0 deg, to Agent "patrzy" jak oÅ› OX (jak na geometrii analitycznej).
+	 * Wtedy teÅ¼ sin() i cos() dziaÅ‚ajÄ… ~intuicyjne, tak samo jak analityczne
 	 * wzory. :] -- m.
 	 */
 	double phi;
 
-	/** Flaga informuj¹ca o statusie jednostki - zywa lub martwa */
+	/** Flaga informujÄ…ca o statusie jednostki - zywa lub martwa */
 	private boolean alive;
 
-	/** Flaga mówi¹ca o tym, czy Agentowi uda³o siê ju¿ uciec. */
+	/** Flaga mÃ³wiÄ…ca o tym, czy Agentowi udaÅ‚o siÄ™ juÅ¼ uciec. */
 	boolean exited;
 
-	/** Czas, który up³ynie, nim agent podejmie decyzje o ruchu */
+	/** Czas, ktÃ³ry upÅ‚ynie, nim agent podejmie decyzje o ruchu */
 	private double pre_movement_t;
 
 	/** Aktualne stezenie karboksyhemoglobiny we krwii */
@@ -134,14 +134,14 @@ public final class Agent {
 	private Psyche psyche;
 
 	/**
-	 * Konstruktor agenta. Inicjuje wszystkie pola niezbêdne do jego egzystencji
-	 * na planszy. Pozycja jest z góry narzucona z poziomu Board. Orientacja
+	 * Konstruktor agenta. Inicjuje wszystkie pola niezbÄ™dne do jego egzystencji
+	 * na planszy. Pozycja jest z gÃ³ry narzucona z poziomu Board. Orientacja
 	 * zostaje wylosowana.
 	 * 
 	 * @param board
 	 *            referencja do planszy
 	 * @param position
-	 *            referencja to komórki bêd¹cej pierwotn¹ pozycj¹ agenta
+	 *            referencja to komÃ³rki bÄ™dÄ…cej pierwotnÄ… pozycjÄ… agenta
 	 */
 	public Agent(Board board, Point position) {
 		this.board = board;
@@ -165,13 +165,13 @@ public final class Agent {
 	 * 
 	 * 1. Sprawdza, czy agent nie powinien zginac w tej turze.
 	 * 
-	 * 2. Wybiera wyjœcie.
+	 * 2. Wybiera wyjÅ›cie.
 	 * 
 	 * 3. Aktualizuje liste checkpointow.
 	 * 
-	 * 4. Aktualizuje stopieñ poddenerwowania agenta.
+	 * 4. Aktualizuje stopieÅ„ poddenerwowania agenta.
 	 * 
-	 * 5. Dostosowuje prêdkoœæ do warunków z uwzglêdnieniem poddenerwowania.
+	 * 5. Dostosowuje prÄ™dkoÅ›Ä‡ do warunkÃ³w z uwzglÄ™dnieniem poddenerwowania.
 	 * 
 	 * 6. Na podstawie danych otrzymanych w poprzednim punkcie podejmuje
 	 * decyzje.
@@ -179,9 +179,9 @@ public final class Agent {
 	 * 7. Wykonuje ruch.
 	 * 
 	 * @param dt
-	 *            Czas w [ms] jaki up³yn¹³ od ostatniego update()'u. Mo¿na
-	 *            wykorzystaæ go do policzenia przesuniêcia w tej iteracji z
-	 *            zadan¹ wartoœci¹ prêdkoœci:
+	 *            Czas w [ms] jaki upÅ‚ynÄ…Å‚ od ostatniego update()'u. MoÅ¼na
+	 *            wykorzystaÄ‡ go do policzenia przesuniÄ™cia w tej iteracji z
+	 *            zadanÄ… wartoÅ›ciÄ… prÄ™dkoÅ›ci:
 	 *            {@code dx = dt * v * cos(phi); dy = dt * v * sin(phi);}
 	 * @throws NoPhysicsDataException
 	 */
@@ -203,10 +203,10 @@ public final class Agent {
 			motion.move();
 		}
 
-		// jak wyszliœmy poza planszê, to wyszliœmy z tunelu? exited = true
-		// spowoduje zaprzestanie wyœwietlania agenta i podbicie statystyk
-		// uratowanych w ka¿dym razie :]
-		// TODO: zmieniaæ na true dopiero gdy doszliœmy do wyjœcia
+		// jak wyszliÅ›my poza planszÄ™, to wyszliÅ›my z tunelu? exited = true
+		// spowoduje zaprzestanie wyÅ›wietlania agenta i podbicie statystyk
+		// uratowanych w kaÅ¼dym razie :]
+		// TODO: zmieniaÄ‡ na true dopiero gdy doszliÅ›my do wyjÅ›cia
 		exited = (distToExit(exit) < THICKNESS)
 				|| (position.x < 0 || position.y < 0
 						|| position.x > board.getDimension().x || position.y > board
@@ -226,7 +226,7 @@ public final class Agent {
 	}
 
 	/**
-	 * Zwraca wartoœæ niezale¿nie od tego, czy jest na planszy, czy nie.
+	 * Zwraca wartoÅ›Ä‡ niezaleÅ¼nie od tego, czy jest na planszy, czy nie.
 	 * 
 	 * @return stan zdrowia
 	 */
@@ -252,7 +252,7 @@ public final class Agent {
 	}
 
 	/**
-	 * Zwraca stê¿enie karboksyhemoglobiny we krwi
+	 * Zwraca stÄ™Å¼enie karboksyhemoglobiny we krwi
 	 * 
 	 * @return hbco
 	 */
@@ -261,7 +261,7 @@ public final class Agent {
 	}
 
 	/**
-	 * Zwraca aktualna prêdkoœæ agenta
+	 * Zwraca aktualna prÄ™dkoÅ›Ä‡ agenta
 	 * 
 	 * @return velocity
 	 */
@@ -278,9 +278,9 @@ public final class Agent {
 	 * toksyn we krwii
 	 * 
 	 * @param curr_co
-	 *            stê¿enie co w bliskim otoczeniu agenta
+	 *            stÄ™Å¼enie co w bliskim otoczeniu agenta
 	 * @param curr_temp
-	 *            œrednia temp. w bliskim otoczeniu agenta
+	 *            Å›rednia temp. w bliskim otoczeniu agenta
 	 */
 	private void checkIfIWillLive(double curr_co, double curr_temp) {
 		evaluateHbCO(curr_co);
@@ -337,17 +337,17 @@ public final class Agent {
 	}
 
 	/**
-	 * Metoda obliczaj¹ca k¹t, który agent musi obraæ, by skierowaæ siê do
-	 * wybranego checkpointa. K¹t jest wyznaczony przez oœ X i odcinek ³¹cz¹cy
-	 * najblizszy checkpoint z aktualn¹ pozycj¹ agenta. Korzysta z funkcji
-	 * atan2(), która w przeciwieñstwie do atan() uwzglêdnia orientacjê na
-	 * p³aszczyŸnie.
+	 * Metoda obliczajÄ…ca kÄ…t, ktÃ³ry agent musi obraÄ‡, by skierowaÄ‡ siÄ™ do
+	 * wybranego checkpointa. KÄ…t jest wyznaczony przez oÅ› X i odcinek Å‚Ä…czÄ…cy
+	 * najblizszy checkpoint z aktualnÄ… pozycjÄ… agenta. Korzysta z funkcji
+	 * atan2(), ktÃ³ra w przeciwieÅ„stwie do atan() uwzglÄ™dnia orientacjÄ™ na
+	 * pÅ‚aszczyÅºnie.
 	 * 
-	 * @return k¹t zawart w przedziale [-180, 180)
+	 * @return kÄ…t zawart w przedziale [-180, 180)
 	 */
 	private double calculateNewPhi() {
-		if (motion.checkpoints.isEmpty()) // TODO: chyba tak ma byæ, nie by³o
-											// tego sprawdzenia i wywala³o
+		if (motion.checkpoints.isEmpty()) // TODO: chyba tak ma byÄ‡, nie byÅ‚o
+											// tego sprawdzenia i wywalaÅ‚o
 											// ArrayIndexOutOfBoundsException --
 											// m.
 			return phi;
@@ -362,7 +362,7 @@ public final class Agent {
 	}
 
 	/**
-	 * Wybór najbli¿szego wyjœcia do którego mo¿liwe jest przejœcie
+	 * WybÃ³r najbliÅ¼szego wyjÅ›cia do ktÃ³rego moÅ¼liwe jest przejÅ›cie
 	 * 
 	 * @throws NoPhysicsDataException
 	 */
@@ -381,14 +381,14 @@ public final class Agent {
 	}
 
 	/**
-	 * Bierze pod uwage odleg³oœci na tylko jednej osi. Szuka najbli¿szego
-	 * wyjœcia w odleg³oœci nie mniejszej ni¿ dist. Pozwala to na szukanie wyjœæ
-	 * bêd¹cych alternatywami. Dla min_dist mniejszego od 0 szuka po prostu
-	 * najbli¿szego wyjœcia
+	 * Bierze pod uwage odlegÅ‚oÅ›ci na tylko jednej osi. Szuka najbliÅ¼szego
+	 * wyjÅ›cia w odlegÅ‚oÅ›ci nie mniejszej niÅ¼ dist. Pozwala to na szukanie wyjÅ›Ä‡
+	 * bÄ™dÄ…cych alternatywami. Dla min_dist mniejszego od 0 szuka po prostu
+	 * najbliÅ¼szego wyjÅ›cia
 	 * 
 	 * @param min_dist
-	 *            zadana minimalna odleg³oœæ
-	 * @return najbli¿sze wyjœcie spe³niaj¹ce warunki
+	 *            zadana minimalna odlegÅ‚oÅ›Ä‡
+	 * @return najbliÅ¼sze wyjÅ›cie speÅ‚niajÄ…ce warunki
 	 */
 	private Exit getNearestExit(double min_dist) {
 		double shortest_dist = board.getDimension().x + board.getDimension().y;
@@ -405,22 +405,22 @@ public final class Agent {
 	}
 
 	/**
-	 * Algorytm dzia³a, poruszaj¹c sie po dwóch osiach: X - zawsze, Y - jeœli
-	 * znajdzie blokadê. Zaczyna od wspolrzêdnej Y agenta i porszuamy siê po tej
-	 * osi w stronê potencjalnego wyjœcia. Jeœli natrafi na przeszkodê, to
-	 * sprawdza, czy ca³a szerokoœæ tunelu dla tej wartoœci Y jest zablokowana.
-	 * Porszuaj¹c siê po osi X o szerokoœæ agenta, sprawdza, czy na ca³ym
-	 * odcinku o d³. równej szerokoœci tunelu znajduj¹ siê blokady. Jeœli
-	 * znajdzie siê choæ jeden przesmyk - przejœcie istnieje -> sprawdzamy
-	 * kolejne punkty na osi Y. Jeœli nie istnieje, metoda zwraca wspolrzedna Y
+	 * Algorytm dziaÅ‚a, poruszajÄ…c sie po dwÃ³ch osiach: X - zawsze, Y - jeÅ›li
+	 * znajdzie blokadÄ™. Zaczyna od wspolrzÄ™dnej Y agenta i porszuamy siÄ™ po tej
+	 * osi w stronÄ™ potencjalnego wyjÅ›cia. JeÅ›li natrafi na przeszkodÄ™, to
+	 * sprawdza, czy caÅ‚a szerokoÅ›Ä‡ tunelu dla tej wartoÅ›ci Y jest zablokowana.
+	 * PorszuajÄ…c siÄ™ po osi X o szerokoÅ›Ä‡ agenta, sprawdza, czy na caÅ‚ym
+	 * odcinku o dÅ‚. rÃ³wnej szerokoÅ›ci tunelu znajdujÄ… siÄ™ blokady. JeÅ›li
+	 * znajdzie siÄ™ choÄ‡ jeden przesmyk - przejÅ›cie istnieje -> sprawdzamy
+	 * kolejne punkty na osi Y. JeÅ›li nie istnieje, metoda zwraca wspolrzedna Y
 	 * blokady.
 	 * 
 	 * TODO: W bardziej rzeczywistym modelu agent wybierze kierunek przeciwny do
-	 * Ÿród³a ognia.
+	 * ÅºrÃ³dÅ‚a ognia.
 	 * 
 	 * @param _exit
-	 *            wyjœcie, w kierunku którego agent chce uciekaæ
-	 * @return -1 jeœli drgoa do wyjœcia _exit nie jest zablokowana wspolrzedna
+	 *            wyjÅ›cie, w kierunku ktÃ³rego agent chce uciekaÄ‡
+	 * @return -1 jeÅ›li drgoa do wyjÅ›cia _exit nie jest zablokowana wspolrzedna
 	 *         y blokady, jesli nie ma przejscia
 	 * @throws NoPhysicsDataException
 	 */
@@ -434,7 +434,7 @@ public final class Agent {
 		if (position.y > exit_y)
 			ds = -ds;
 
-		// poruszamy siê po osi Y w kierunku wyjœcia
+		// poruszamy siÄ™ po osi Y w kierunku wyjÅ›cia
 		double y_coord = position.y + ds;
 		while (Math.abs(y_coord - position.y) < dist) {
 			double x_coord = 0 + BROADNESS;
@@ -446,7 +446,7 @@ public final class Agent {
 				// nic sie nie dzieje
 			}
 
-			// poruszamy siê po osi X, jeœli natrafiliœmy na blokadê
+			// poruszamy siÄ™ po osi X, jeÅ›li natrafiliÅ›my na blokadÄ™
 			if (checkpoint_y_temp > MIN_FLAME_TEMP) {
 				viable_route = false;
 				while (x_coord < board.getDimension().x) {
@@ -466,7 +466,7 @@ public final class Agent {
 					x_coord += BROADNESS;
 				}
 			}
-			// jeœli nie ma przejœcia zwracamy wsp. Y blokady
+			// jeÅ›li nie ma przejÅ›cia zwracamy wsp. Y blokady
 			if (!viable_route)
 				return y_coord;
 
@@ -490,42 +490,42 @@ public final class Agent {
 	}
 
 	/**
-	 * Zwraca œredni¹ wartoœæ parametru fizycznego na wybranej powierzchni --
-	 * wycinka ko³a o œrodku w œrodku danego Agenta.
+	 * Zwraca Å›redniÄ… wartoÅ›Ä‡ parametru fizycznego na wybranej powierzchni --
+	 * wycinka koÅ‚a o Å›rodku w Å›rodku danego Agenta.
 	 * 
-	 * Koncept: 1) jedziemy ze sta³ym {@code dalpha} po ca³ym {@code alpha}; 2)
-	 * dla ka¿dego z tych k¹tów jedziemy ze sta³ym {@code dr} po {@code r}. 3)
-	 * Bierzemy wartoœæ parametru w punkcie okreœlonym przez {@code dalpha} i
-	 * {@code dr}, dodajemy do sumy, a na koñcu 4) zwracamy sumê podzielon¹
-	 * przez liczbê wybranych w ten sposób punktów.
+	 * Koncept: 1) jedziemy ze staÅ‚ym {@code dalpha} po caÅ‚ym {@code alpha}; 2)
+	 * dla kaÅ¼dego z tych kÄ…tÃ³w jedziemy ze staÅ‚ym {@code dr} po {@code r}. 3)
+	 * Bierzemy wartoÅ›Ä‡ parametru w punkcie okreÅ›lonym przez {@code dalpha} i
+	 * {@code dr}, dodajemy do sumy, a na koÅ„cu 4) zwracamy sumÄ™ podzielonÄ…
+	 * przez liczbÄ™ wybranych w ten sposÃ³b punktÃ³w.
 	 * 
-	 * Taki sposób ma 2 zalety: 1) jest ultraprosty, 2) punkty bli¿ej pozycji
-	 * Agenta s¹ gêœciej rozmieszczone na wycinku, dlatego wiêksze znaczenie ma
+	 * Taki sposÃ³b ma 2 zalety: 1) jest ultraprosty, 2) punkty bliÅ¼ej pozycji
+	 * Agenta sÄ… gÄ™Å›ciej rozmieszczone na wycinku, dlatego wiÄ™ksze znaczenie ma
 	 * temperatura przy nim. ^_^ (Jeszcze kwestia dobrego dobrania
 	 * {@code dalpha} i {@code dr}).
 	 * 
 	 * @param orientation
-	 *            K¹t miêdzy wektorem orientacji Agenta a osi¹ symetrii wycinka
-	 *            ko³a. Innymi s³owy, jak chcemy wycinek po lewej rêce danego
+	 *            KÄ…t miÄ™dzy wektorem orientacji Agenta a osiÄ… symetrii wycinka
+	 *            koÅ‚a. Innymi sÅ‚owy, jak chcemy wycinek po lewej rÄ™ce danego
 	 *            Agenta, to dajemy tu 90.0 [deg], jak po prawej to -90.0 [deg].
-	 *            (Dlatego, ¿e k¹ty w geometrii analitycznej rosn¹ przeciwnie do
-	 *            ruchu wskazówek zegara!).
+	 *            (Dlatego, Å¼e kÄ…ty w geometrii analitycznej rosnÄ… przeciwnie do
+	 *            ruchu wskazÃ³wek zegara!).
 	 * @param alpha
-	 *            Rozstaw "ramion" wycinka ko³a w [deg]. Jak chcemy np. 1/8
-	 *            ko³a, to dajemy 45.0 [deg], w miarê oczywiste chyba. Byæ mo¿e
-	 *            warto zmieniæ nazwê tego parametru.
+	 *            Rozstaw "ramion" wycinka koÅ‚a w [deg]. Jak chcemy np. 1/8
+	 *            koÅ‚a, to dajemy 45.0 [deg], w miarÄ™ oczywiste chyba. ByÄ‡ moÅ¼e
+	 *            warto zmieniÄ‡ nazwÄ™ tego parametru.
 	 * 
-	 *            Nic nie stoi na przeszkodzie, ¿eby wywo³aæ tê funkcjê z
-	 *            {@code alpha == 0.0} i zdj¹æ œredni¹ tylko z linii.
+	 *            Nic nie stoi na przeszkodzie, Å¼eby wywoÅ‚aÄ‡ tÄ™ funkcjÄ™ z
+	 *            {@code alpha == 0.0} i zdjÄ…Ä‡ Å›redniÄ… tylko z linii.
 	 * 
-	 *            Mo¿na tak¿e przyj¹æ {@code alpha == 360.0} i policzyæ œredni¹
-	 *            z ca³ego otoczenia, np. do wyznaczenia warunków œmierci
+	 *            MoÅ¼na takÅ¼e przyjÄ…Ä‡ {@code alpha == 360.0} i policzyÄ‡ Å›redniÄ…
+	 *            z caÅ‚ego otoczenia, np. do wyznaczenia warunkÃ³w Å›mierci
 	 *            (zamiast punktowo, tylko na pozycji Agenta). ^_^
 	 * @param r
-	 *            Promieñ ko³a, na powierzchni wycinka którego obliczamy
-	 *            œredni¹. (Ale konstrukt jêzykowy ;b).
+	 *            PromieÅ„ koÅ‚a, na powierzchni wycinka ktÃ³rego obliczamy
+	 *            Å›redniÄ…. (Ale konstrukt jÄ™zykowy ;b).
 	 * @param what
-	 *            O któr¹ wielkoœæ fizyczn¹ nam chodzi.
+	 *            O ktÃ³rÄ… wielkoÅ›Ä‡ fizycznÄ… nam chodzi.
 	 * @return
 	 */
 	private double getMeanPhysics(double orientation, double alpha, double r,
@@ -547,9 +547,9 @@ public final class Agent {
 		long num = 0;
 
 		alpha = alphaA;
-		// dlatego jest potrzebna konstrukcja do-while, ¿eby to wykona³o siê
-		// przynajmniej raz (nie jestem pewien czy przy k¹cie zerowym by
-		// zadzia³a³o z u¿yciem for-a -- b³êdy numeryczne: nie mo¿na porównywaæ
+		// dlatego jest potrzebna konstrukcja do-while, Å¼eby to wykonaÅ‚o siÄ™
+		// przynajmniej raz (nie jestem pewien czy przy kÄ…cie zerowym by
+		// zadziaÅ‚aÅ‚o z uÅ¼yciem for-a -- bÅ‚Ä™dy numeryczne: nie moÅ¼na porÃ³wnywaÄ‡
 		// zmiennoprzecinkowych)
 		do {
 			double sin = Math.sin(Math.toRadians(alpha));
@@ -561,8 +561,8 @@ public final class Agent {
 							position.y + sin * r), what);
 					num++;
 				} catch (NoPhysicsDataException e) {
-					// nie ma danych tego typu w tym punkcie -- nie uwzglêniaj
-					// go do œredniej
+					// nie ma danych tego typu w tym punkcie -- nie uwzglÄ™niaj
+					// go do Å›redniej
 				}
 				r += dr;
 			} while (r <= rB);

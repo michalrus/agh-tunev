@@ -8,16 +8,16 @@ import edu.agh.tunev.statistics.Statistics.AddCallback;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
 
-// zauwa¿, ¿e rozszerzaj¹c, podajemy w parametrze klasê, która modeluje nam
-// osobê w tym modelu
+// zauwaÅ¼, Å¼e rozszerzajÄ…c, podajemy w parametrze klasÄ™, ktÃ³ra modeluje nam
+// osobÄ™ w tym modelu
 public final class Model extends AbstractModel<Person> {
 
-	// nazwa pod jak¹ nasz model jest widoczny w UI; obecna prawdopodobnie do
+	// nazwa pod jakÄ… nasz model jest widoczny w UI; obecna prawdopodobnie do
 	// zmiany
 	//
-	// ¯eby "zarejestrowaæ" nowy model, ¿eby by³ widoczny w UI, trzeba dodaæ
-	// linijkê z nazw¹ jego klasy do <code>edu.agh.tunev.Main.main()</code>.
-	public final static String MODEL_NAME = "model przyk³adowy";
+	// Å»eby "zarejestrowaÄ‡" nowy model, Å¼eby byÅ‚ widoczny w UI, trzeba dodaÄ‡
+	// linijkÄ™ z nazwÄ… jego klasy do <code>edu.agh.tunev.Main.main()</code>.
+	public final static String MODEL_NAME = "model przykÅ‚adowy";
 
 	public Model(World world, Interpolator interpolator) {
 		super(world, interpolator);
@@ -29,9 +29,9 @@ public final class Model extends AbstractModel<Person> {
 		// TODO Auto-generated method stub
 
 		// zobacz helpa do rodzica (AbstractModel.simulate) -- po prostu
-		// potrzymaj myszkê nad nazw¹ metody 4 linijki wy¿ej =)
+		// potrzymaj myszkÄ™ nad nazwÄ… metody 4 linijki wyÅ¼ej =)
 
-		// przyk³adzik:
+		// przykÅ‚adzik:
 
 		final double dt = 0.01;
 		final int num = (int) Math.round(duration / dt);
@@ -42,40 +42,40 @@ public final class Model extends AbstractModel<Person> {
 
 				// ... cokolwiek
 
-				// wymiary œwiata to World.getXDimension() i Y accordingly
+				// wymiary Å›wiata to World.getXDimension() i Y accordingly
 
 				// przeszkody to World.getObstacles, ale tego jeszcze nie ma
 
-				// wa¿ne: zapisujemy jej stan w danej chwili t w interpolatorze
-				// -- niezwykle ta¿ czynnoœæ istotna!
+				// waÅ¼ne: zapisujemy jej stan w danej chwili t w interpolatorze
+				// -- niezwykle taÅ¼ czynnoÅ›Ä‡ istotna!
 				interpolator.saveState(p, t);
 			}
 
-			// wa¿ne: i czas podawany w .saveState(t) i wspó³rzêdne .x i .y s¹
+			// waÅ¼ne: i czas podawany w .saveState(t) i wspÃ³Å‚rzÄ™dne .x i .y sÄ…
 			// rzeczywiste (czyli sekundy i metry!)
 
-			// zwiêkszamy nasz wewnêtrzny czas symulatora
+			// zwiÄ™kszamy nasz wewnÄ™trzny czas symulatora
 			t += dt;
 
-			// zwiêkszamy ProgressBar w UI, ¿eby user nie myœla³, ¿e nic siê nie
+			// zwiÄ™kszamy ProgressBar w UI, Å¼eby user nie myÅ›laÅ‚, Å¼e nic siÄ™ nie
 			// dzieje =)~
 			progressCallback.update(i, num, "Simulating...");
 
-			// a jakie jeszcze klasy s¹ w tym pakiecie, czy to implementuj¹ce
-			// automat komórkowy itd. -- dla mnie nieistotne. Te¿ ofc ta funkcja
-			// nie musi tak wygl¹daæ. Dla mnie jest wa¿ne, ¿ebym dosta³
-			// .saveState(t) na ka¿dej osobie w odpowiednich dyskretnych czasach
+			// a jakie jeszcze klasy sÄ… w tym pakiecie, czy to implementujÄ…ce
+			// automat komÃ³rkowy itd. -- dla mnie nieistotne. TeÅ¼ ofc ta funkcja
+			// nie musi tak wyglÄ…daÄ‡. Dla mnie jest waÅ¼ne, Å¼ebym dostaÅ‚
+			// .saveState(t) na kaÅ¼dej osobie w odpowiednich dyskretnych czasach
 			// i tyle
 
-			// mo¿emy umówiæ siê, ¿e jak Person znika z planszy, to przypisujemy
-			// do .x i .y wartoœæ Double.NaN
+			// moÅ¼emy umÃ³wiÄ‡ siÄ™, Å¼e jak Person znika z planszy, to przypisujemy
+			// do .x i .y wartoÅ›Ä‡ Double.NaN
 
-			// warto te¿ wywo³aæ callback.update() okresowo, ¿eby pokazaæ postêp
-			// obliczeñ
+			// warto teÅ¼ wywoÅ‚aÄ‡ callback.update() okresowo, Å¼eby pokazaÄ‡ postÄ™p
+			// obliczeÅ„
 
-			// to tyle :B powodzenia, ja zabieram siê za drug¹ stronê
+			// to tyle :B powodzenia, ja zabieram siÄ™ za drugÄ… stronÄ™
 
-			// 05:09, ja pierniczê -,-
+			// 05:09, ja pierniczÄ™ -,-
 		}
 	}
 

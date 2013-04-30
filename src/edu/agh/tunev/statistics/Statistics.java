@@ -3,14 +3,14 @@ package edu.agh.tunev.statistics;
 import org.jfree.chart.JFreeChart;
 
 /**
- * Interfejs, który implementuj¹ obiekty reprezentuj¹ce jakieœ zmierzone dane w
+ * Interfejs, ktÃ³ry implementujÄ… obiekty reprezentujÄ…ce jakieÅ› zmierzone dane w
  * modelu.
  * 
- * Dla danych maj¹cych sens dla ka¿dego modelu (np. liczba zabitych w czasie),
- * umieszczajmy ich klasê w tym pakiecie.
+ * Dla danych majÄ…cych sens dla kaÅ¼dego modelu (np. liczba zabitych w czasie),
+ * umieszczajmy ich klasÄ™ w tym pakiecie.
  * 
- * Dla danych maj¹cych sens tylko dla konkretnego modelu, umieszczajmy ich klasê
- * gdzieœ w pakiecie tego modelu. Mo¿e edu.agh.tunev.model._nazwa_.statistics?
+ * Dla danych majÄ…cych sens tylko dla konkretnego modelu, umieszczajmy ich klasÄ™
+ * gdzieÅ› w pakiecie tego modelu. MoÅ¼e edu.agh.tunev.model._nazwa_.statistics?
  * 
  */
 public interface Statistics {
@@ -20,7 +20,7 @@ public interface Statistics {
 	public abstract JFreeChart getChart();
 
 	/**
-	 * Kiedy chcemy, ¿eby konkretne Statistics by³o dostêpne w UI, musimy wywo³aæ
+	 * Kiedy chcemy, Å¼eby konkretne Statistics byÅ‚o dostÄ™pne w UI, musimy wywoÅ‚aÄ‡
 	 * Statistics.AddCallback.add(konkretne_statistics). AddCallback jest
 	 * przekazywany w parametrze do AbstractModel.simulate(), podobnie jak
 	 * ProgressCallback.

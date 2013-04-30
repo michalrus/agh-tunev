@@ -5,7 +5,7 @@ import edu.agh.tunev.ui.MainFrame;
 public class Main {
 
 	/**
-	 * Tutaj rejestrujemy wszystkie nasze modele, które maj¹ byæ widoczne w UI.
+	 * Tutaj rejestrujemy wszystkie nasze modele, ktÃ³re majÄ… byÄ‡ widoczne w UI.
 	 * 
 	 * @param args
 	 */

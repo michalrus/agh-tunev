@@ -15,20 +15,20 @@ import edu.agh.tunev.world.World.ProgressCallback;
 
 public final class Model extends AbstractModel<Person> {
 
-	public final static String MODEL_NAME = "w¹sowy automat komórkowy";
+	public final static String MODEL_NAME = "wÄ…sowy automat komÃ³rkowy";
 
 	public Model(World world, Interpolator interpolator) {
 		super(world, interpolator);
 	}
 
-	// przyk³adowa dyskretyzacja œwiata -- czyli rozmiar jednej komórki na
-	// planszy -- oczywiœcie w metrach -- do zmiany
+	// przykÅ‚adowa dyskretyzacja Å›wiata -- czyli rozmiar jednej komÃ³rki na
+	// planszy -- oczywiÅ›cie w metrach -- do zmiany
 	private static final double DX = 0.5;
 	private static final double DY = 0.4;
 
-	// przyk³adowa dyskretyzacja czasu -- czyli co ile czasu nasze osobniki
-	// podejmuj¹ decyzjê o skoku? inaczej: co ile rzeczywistego czasu
-	// update'ujemy stan naszego automatu -- oczywiœcie w sekundach -- do zmiany
+	// przykÅ‚adowa dyskretyzacja czasu -- czyli co ile czasu nasze osobniki
+	// podejmujÄ… decyzjÄ™ o skoku? inaczej: co ile rzeczywistego czasu
+	// update'ujemy stan naszego automatu -- oczywiÅ›cie w sekundach -- do zmiany
 	private static final double DT = 0.5;
 
 	private Board board;
@@ -36,86 +36,86 @@ public final class Model extends AbstractModel<Person> {
 	@Override
 	public void simulate(double duration, Vector<Person> people,
 			ProgressCallback progressCallback, AddCallback addCallback) {
-		// jakie s¹ rzeczywiste wymiary œwiata?
+		// jakie sÄ… rzeczywiste wymiary Å›wiata?
 		double dimX = world.getXDimension();
 		double dimY = world.getYDimension();
 
-		// jakie s¹ dyskretne wymiary œwiata? ile komórek w OX i OY?
-		// u¿ywa funkcji do t³umaczenia wymiarów z ci¹g³ych na dyskretne z
-		// uwzglêdnieniem DX i DY. Zobacz poni¿ej ich definicje.
+		// jakie sÄ… dyskretne wymiary Å›wiata? ile komÃ³rek w OX i OY?
+		// uÅ¼ywa funkcji do tÅ‚umaczenia wymiarÃ³w z ciÄ…gÅ‚ych na dyskretne z
+		// uwzglÄ™dnieniem DX i DY. Zobacz poniÅ¼ej ich definicje.
 		int numX = c2dX(dimX) + 1;
 		int numY = c2dY(dimY) + 1;
 
-		// stwórz automat (planszê komórek) o obliczonych dyskretnych wymiarach;
+		// stwÃ³rz automat (planszÄ™ komÃ³rek) o obliczonych dyskretnych wymiarach;
 		board = new Board(numX, numY);
 
-		// pozaznaczaj osoby na naszej modelowej, wewnêtrznej, planszy
+		// pozaznaczaj osoby na naszej modelowej, wewnÄ™trznej, planszy
 		for (Person p : people) {
-			// w której komórce jest ta osoba?
+			// w ktÃ³rej komÃ³rce jest ta osoba?
 			int ix = c2dX(p.getX());
 			int iy = c2dY(p.getY());
 
-			// przesuñ j¹ dok³adnie na œrodek tej komórki...
+			// przesuÅ„ jÄ… dokÅ‚adnie na Å›rodek tej komÃ³rki...
 			p.setPosition(d2cX(ix), d2cY(iy));
-			// ... i zrób jej tam "zdjêcie" dla interpolatora w chwili t=0[s]
+			// ... i zrÃ³b jej tam "zdjÄ™cie" dla interpolatora w chwili t=0[s]
 			interpolator.saveState(p, 0.0);
 
-			// zaznacz w odpowiedniej komórce automatu, ¿e któr¹ osobê
+			// zaznacz w odpowiedniej komÃ³rce automatu, Å¼e ktÃ³rÄ… osobÄ™
 			Cell c = board.get(ix, iy);
 			c.setPerson(p);
 		}
 
-		// TODO: pododawaj jakieœ wykresy do UI zwi¹zane z tym modelem
+		// TODO: pododawaj jakieÅ› wykresy do UI zwiÄ…zane z tym modelem
 		//
 		// sidenote: zobacz helpa do interfejsu Statistics: gdy dany wykres
 		// pasuje do wielu modeli (np. liczba zabitych jako f(t)), to dodaj jego
-		// klasê do pakietu tunev.statistics; jeœli pasuje tylko do tego modelu,
+		// klasÄ™ do pakietu tunev.statistics; jeÅ›li pasuje tylko do tego modelu,
 		// to dodaj do pakietu tego modelu
 		KilledStatistics killedStatistics = new KilledStatistics();
 		addCallback.add(killedStatistics);
 
 		// TODO: pozaznaczaj przeszkody na planszy
 
-		// TODO: pozaznaczaj wyjœcia na planszy
+		// TODO: pozaznaczaj wyjÅ›cia na planszy
 
-		// kolejne iteracje automatu -- uwaga, ¿adnego czekania w stylu
-		// Thread.sleep() -- to ma siê policzyæ *jak najszybciej*! --
-		// wyœwietlanie "filmu" z symulacji jest niezale¿ne od obliczania (no,
-		// tyle tylko zale¿ne, ¿e mo¿emy wyœwietlaæ tylko do momentu, który ju¿
-		// siê policzy³)
+		// kolejne iteracje automatu -- uwaga, Å¼adnego czekania w stylu
+		// Thread.sleep() -- to ma siÄ™ policzyÄ‡ *jak najszybciej*! --
+		// wyÅ›wietlanie "filmu" z symulacji jest niezaleÅ¼ne od obliczania (no,
+		// tyle tylko zaleÅ¼ne, Å¼e moÅ¼emy wyÅ›wietlaÄ‡ tylko do momentu, ktÃ³ry juÅ¼
+		// siÄ™ policzyÅ‚)
 		int num = (int) Math.round(Math.ceil(world.getDuration() / DT));
 		double t = 0;
 		for (int i = 1; i <= num; i++) {
 			// uaktualnij rzeczywisty czas naszej symulacji
 			t += DT;
 
-			// poœci¹gaj aktualn¹ fizykê do komórek
+			// poÅ›ciÄ…gaj aktualnÄ… fizykÄ™ do komÃ³rek
 			for (int ix = 0; ix < numX; ix++)
 				for (int iy = 0; iy < numY; iy++) {
 					Physics physics = world.getPhysicsAt(t, d2cX(ix), d2cY(iy));
 					board.get(ix, iy).setPhysics(physics);
 				}
 
-			// przejdŸ do nastêpnego stanu automatu
+			// przejdÅº do nastÄ™pnego stanu automatu
 			board.update();
 
-			// porób zdjêcia osobom w aktualnym rzeczywistym czasie
+			// porÃ³b zdjÄ™cia osobom w aktualnym rzeczywistym czasie
 			for (Person p : people)
 				interpolator.saveState(p, t);
 
-			// TODO: uaktualnij wykresy, które mog¹ byæ aktualizowane w trakcie
+			// TODO: uaktualnij wykresy, ktÃ³re mogÄ… byÄ‡ aktualizowane w trakcie
 			// iteracji
 			int currentNumDead = 123; // prawdopodobnie ta dana ustawiana
 										// gdzie indziej ;p~
 			killedStatistics.add(t, currentNumDead);
 
-			// grzecznoœæ: zwiêksz ProgressBar w UI
-			progressCallback.update(i, num, (i < num ? "Wci¹¿ liczê..."
+			// grzecznoÅ›Ä‡: zwiÄ™ksz ProgressBar w UI
+			progressCallback.update(i, num, (i < num ? "WciÄ…Å¼ liczÄ™..."
 					: "Gotowe!"));
 		}
 
-		// TODO: ew. wype³nij wykresy, które mog¹ byæ wype³nione dopiero po
-		// zakoñczeniu symulacji
+		// TODO: ew. wypeÅ‚nij wykresy, ktÃ³re mogÄ… byÄ‡ wypeÅ‚nione dopiero po
+		// zakoÅ„czeniu symulacji
 
 		// i tyle ^_^
 	}
@@ -124,7 +124,7 @@ public final class Model extends AbstractModel<Person> {
 	 * Discreet to continuous dimensions for OX.
 	 */
 	private static double d2cX(int ix) {
-		// zwróæ pozycjê w œrodku komórki
+		// zwrÃ³Ä‡ pozycjÄ™ w Å›rodku komÃ³rki
 		return (0.5 + ix) * DX;
 	}
 
@@ -132,7 +132,7 @@ public final class Model extends AbstractModel<Person> {
 	 * Discrete to continuous dimensions for OY.
 	 */
 	private static double d2cY(int iy) {
-		// zwróæ pozycjê w œrodku komórki
+		// zwrÃ³Ä‡ pozycjÄ™ w Å›rodku komÃ³rki
 		return (0.5 + iy) * DY;
 	}
 

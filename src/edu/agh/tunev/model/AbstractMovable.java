@@ -1,9 +1,9 @@
 package edu.agh.tunev.model;
 
 /**
- * Po tej klasie musi dziedziczyæ wszystko co siê rusza -- m.
+ * Po tej klasie musi dziedziczyÄ‡ wszystko co siÄ™ rusza -- m.
  * 
- * Ale póki co chyba tylko model.Person. -- m.
+ * Ale pÃ³ki co chyba tylko model.Person. -- m.
  *
  */
 public abstract class AbstractMovable {

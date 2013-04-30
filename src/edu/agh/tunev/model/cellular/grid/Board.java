@@ -24,13 +24,13 @@ public final class Board {
 	public void update() {
 		// TODO Auto-generated method stub
 
-		// uwaga -- w funkcji przejœcia, gdy zmieniasz komórkê osoby,
-		// pamiêtaj, ¿eby w samej osobie uaktualniæ jej rzeczywist¹ pozycjê:
-		// Person.setPosition(x,y) -- ale (x,y) s¹ rzeczywiste, wiêc musisz u¿yæ
+		// uwaga -- w funkcji przejÅ›cia, gdy zmieniasz komÃ³rkÄ™ osoby,
+		// pamiÄ™taj, Å¼eby w samej osobie uaktualniÄ‡ jej rzeczywistÄ… pozycjÄ™:
+		// Person.setPosition(x,y) -- ale (x,y) sÄ… rzeczywiste, wiÄ™c musisz uÅ¼yÄ‡
 		// Model.d2cX() i Model.d2cY() =)
 		//
-		// a potem, ¿eby przeiterowaæ po osobach i zrobiæ
-		// interpolator.saveState, ale to ju¿ chyba w Model.simulate, tak jak
+		// a potem, Å¼eby przeiterowaÄ‡ po osobach i zrobiÄ‡
+		// interpolator.saveState, ale to juÅ¼ chyba w Model.simulate, tak jak
 		// jest teraz?
 	}
 

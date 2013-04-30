@@ -7,14 +7,14 @@ import edu.agh.tunev.world.World;
 import edu.agh.tunev.statistics.Statistics;
 
 /**
- * Po tym dziedziczy klasa g³ówna ka¿dego modelu. -- m.
+ * Po tym dziedziczy klasa gÅ‚Ã³wna kaÅ¼dego modelu. -- m.
  * 
- * ¯eby "zarejestrowaæ" nowy model, ¿eby by³ widoczny w UI, trzeba dodaæ linijkê
- * z nazw¹ jego klasy do <code>edu.agh.tunev.Main.main()</code>.
+ * Å»eby "zarejestrowaÄ‡" nowy model, Å¼eby byÅ‚ widoczny w UI, trzeba dodaÄ‡ linijkÄ™
+ * z nazwÄ… jego klasy do <code>edu.agh.tunev.Main.main()</code>.
  * 
  * @param <T>
- *            mówi o tym, która klasa reprezentuje osobê w danym modelu (musi
- *            dziedziczyæ po AbstractPerson).
+ *            mÃ³wi o tym, ktÃ³ra klasa reprezentuje osobÄ™ w danym modelu (musi
+ *            dziedziczyÄ‡ po AbstractPerson).
  */
 public abstract class AbstractModel<T extends AbstractPerson> {
 
@@ -22,8 +22,8 @@ public abstract class AbstractModel<T extends AbstractPerson> {
 	final protected Interpolator interpolator;
 
 	/**
-	 * Nazwa modelu w UI. Jak to nie bêdzie ustawione w klasie dziedzicz¹cej, to
-	 * register() w main() rzuci wyj¹tek.
+	 * Nazwa modelu w UI. Jak to nie bÄ™dzie ustawione w klasie dziedziczÄ…cej, to
+	 * register() w main() rzuci wyjÄ…tek.
 	 */
 	public static String MODEL_NAME;
 
@@ -33,30 +33,30 @@ public abstract class AbstractModel<T extends AbstractPerson> {
 	}
 
 	/**
-	 * Metoda startuj¹ca symulacjê.
+	 * Metoda startujÄ…ca symulacjÄ™.
 	 * 
 	 * @param duration
 	 *            Czas trwania symulacji.
 	 * @param people
-	 *            Lista osób w danym œwiecie.
+	 *            Lista osÃ³b w danym Å›wiecie.
 	 * @param progressCallback
-	 *            Wywo³ujemy po ka¿dej iteracji
+	 *            WywoÅ‚ujemy po kaÅ¼dej iteracji
 	 *            <code>callback.update(done, total,
 	 *            msg</code>), gdzie <code>done</code> to numer aktualnej
 	 *            iteracji, a <code>total</code> to liczba wszystkich
-	 *            zaplanowanych, a <code>msg</code> to jakiœ komunikat tekstowy,
-	 *            mo¿e byæ <code>""</code>/<code>null</code>. Po to, ¿eby
-	 *            rysowaæ ProgressBar ile ju¿ siê policzy³o z ca³oœci.
+	 *            zaplanowanych, a <code>msg</code> to jakiÅ› komunikat tekstowy,
+	 *            moÅ¼e byÄ‡ <code>""</code>/<code>null</code>. Po to, Å¼eby
+	 *            rysowaÄ‡ ProgressBar ile juÅ¼ siÄ™ policzyÅ‚o z caÅ‚oÅ›ci.
 	 * @param addCallback
-	 *            Wywo³ujemy gdy chcemy dodaæ jakiœ wykres do UI. W dowolnym
-	 *            momencie. Mo¿e byæ na pocz¹tku i uaktualniamy w trakcie, mo¿e
-	 *            byæ na koñcu, jak ju¿ siê wszystko policzy.
+	 *            WywoÅ‚ujemy gdy chcemy dodaÄ‡ jakiÅ› wykres do UI. W dowolnym
+	 *            momencie. MoÅ¼e byÄ‡ na poczÄ…tku i uaktualniamy w trakcie, moÅ¼e
+	 *            byÄ‡ na koÅ„cu, jak juÅ¼ siÄ™ wszystko policzy.
 	 */
 	public abstract void simulate(double duration, Vector<T> people,
 			World.ProgressCallback progressCallback,
 			Statistics.AddCallback addCallback);
 
-	/** tego nie ruszamy :] t³umaczy Vector<AbstractPerson> -> Vector<T> */
+	/** tego nie ruszamy :] tÅ‚umaczy Vector<AbstractPerson> -> Vector<T> */
 	@SuppressWarnings("unchecked")
 	public final void simulateWrapper(double duration,
 			Vector<AbstractPerson> people,

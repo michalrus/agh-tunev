@@ -16,7 +16,7 @@ public class Board {
 
 	/**
 	 * Zwraca dane fizyczne zadanego typu. Jak nie ma dla tego punktu takich
-	 * danych, rzuca wyj¹tek.
+	 * danych, rzuca wyjÄ…tek.
 	 * 
 	 * @param where
 	 * @param what
@@ -28,7 +28,7 @@ public class Board {
 		try {
 			return getDataCell(where).getPhysics(what);
 		} catch (IndexOutOfBoundsException e) {
-			// jeœli nie ma ¿adnej komórki na pozycji {@code where}
+			// jeÅ›li nie ma Å¼adnej komÃ³rki na pozycji {@code where}
 			throw new NoPhysicsDataException();
 		}
 	}
@@ -67,11 +67,11 @@ public class Board {
 
 	public void updateData(double simTime) throws FileNotFoundException,
 			ParseException {
-		// parser, ty nie czytaæ danych w tym miejscu! -- m.
+		// parser, ty nie czytaÄ‡ danych w tym miejscu! -- m.
 		//parser.readData(simTime);
 	}
 
-	/** sprawdza, czy punkty znajduje siê na planszy */
+	/** sprawdza, czy punkty znajduje siÄ™ na planszy */
 	public boolean isOutOfBounds(Point p) {
 		return p.x < 0 || p.x > getDimension().x || p.y < 0
 				|| p.y > getDimension().y;
@@ -109,16 +109,16 @@ public class Board {
 	// commented-out (unused), see below (wyszukaj "sim.")
 
 	/** Parser dla danej planszy */
-	// parser, ty nie czytaæ danych w tym miejscu! -- m.
+	// parser, ty nie czytaÄ‡ danych w tym miejscu! -- m.
 	//private FDSParser parser;
 
 	// ------------- internals start here, an Agent should not use those
 	private Point dimension;
 
-	/** Œrodkowy punkt Ÿród³a ognia */
+	/** Åšrodkowy punkt ÅºrÃ³dÅ‚a ognia */
 	private List<Point> fire_srcs;
 
-	/** Czas dla jakiego mamy okreœlone dane dla planszy */
+	/** Czas dla jakiego mamy okreÅ›lone dane dla planszy */
 	private double data_duration;
 
 	// leave these package-private (without access modifier) -- BoardView
@@ -140,7 +140,7 @@ public class Board {
 		exits = new ArrayList<Exit>();
 		fire_srcs = new ArrayList<Point>();
 		rng = new Random();
-		// parser, ty nie czytaæ danych w tym miejscu! -- m.
+		// parser, ty nie czytaÄ‡ danych w tym miejscu! -- m.
 		//parser = new FDSParser(this, dataFolder);
 		//this.sim = _sim;
 		// commented-out (unused), see below (wyszukaj "sim.")
@@ -151,7 +151,7 @@ public class Board {
 	 * jest na planszy i uplynal juz jego pre movement time
 	 * 
 	 * @param dt
-	 *            czas w [ms] który up³yn¹³ od poprzedniej iteracji
+	 *            czas w [ms] ktÃ³ry upÅ‚ynÄ…Å‚ od poprzedniej iteracji
 	 * @throws NoPhysicsDataException
 	 */
 	public void update(double dt) throws NoPhysicsDataException {
@@ -166,14 +166,14 @@ public class Board {
 	}
 
 	/**
-	 * Ustawia geometriê planszy.
+	 * Ustawia geometriÄ™ planszy.
 	 * 
 	 * @param dimension
-	 *            Rozmiar planszy (najdalszy punkt od jej pocz¹tku).
+	 *            Rozmiar planszy (najdalszy punkt od jej poczÄ…tku).
 	 * @param numCellsX
-	 *            Rozdzielczoœæ w OX (na ile odcinków dzielimy OX).
+	 *            RozdzielczoÅ›Ä‡ w OX (na ile odcinkÃ³w dzielimy OX).
 	 * @param numCellsY
-	 *            Rozdzielczoœæ w OY.
+	 *            RozdzielczoÅ›Ä‡ w OY.
 	 */
 	public void setGeometry(Point dimension, long numCellsX, long numCellsY) {
 		this.dimension = dimension;
@@ -233,7 +233,7 @@ public class Board {
 		}
 	}
 
-	// TODO: hardcode do testow, nie chcia³o mi siê na razie robiæ parsowania
+	// TODO: hardcode do testow, nie chciaÅ‚o mi siÄ™ na razie robiÄ‡ parsowania
 	/*
 	 * public void initAgents(long vehicles_num) { for (long i = 0; i <
 	 * vehicles_num; i += 2) { obstacles.add(new Obstacle(new Point(5, 100 - 3 *
@@ -329,12 +329,12 @@ public class Board {
 		}
 
 		/**
-		 * Znajduje punkt le¿¹cy na odcinku reprezentuj¹cym wyjœcie, bêd¹cy w
-		 * najmniejszej odleg³oœci do zadanego punktu
+		 * Znajduje punkt leÅ¼Ä…cy na odcinku reprezentujÄ…cym wyjÅ›cie, bÄ™dÄ…cy w
+		 * najmniejszej odlegÅ‚oÅ›ci do zadanego punktu
 		 * 
 		 * @param p
 		 *            zadany punkt
-		 * @return najbli¿ej le¿¹cy punkt
+		 * @return najbliÅ¼ej leÅ¼Ä…cy punkt
 		 */
 		public Point getClosestPoint(Point p) {
 			Point closestPoint;
