@@ -1,4 +1,4 @@
-package edu.agh.tunev.interpolation;
+package edu.agh.tunev.model;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -6,7 +6,7 @@ import java.util.NavigableMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import edu.agh.tunev.model.AbstractMovable;
+import edu.agh.tunev.model.AbstractModel.MovableState;
 
 public final class Interpolator {
 
@@ -17,22 +17,22 @@ public final class Interpolator {
 	 *            Dana chwila czasu dla jakiej zapisujemy stan.
 	 */
 	public void saveState(AbstractMovable movable, double t) {
-		NavigableMap<Double, State> states = data.get(movable);
+		NavigableMap<Double, MovableState> states = data.get(movable);
 		if (states == null) {
-			states = new ConcurrentSkipListMap<Double, State>();
+			states = new ConcurrentSkipListMap<Double, MovableState>();
 			data.put(movable, states);
 		}
 
-		states.put(t, new State(movable));
+		states.put(t, new MovableState(movable));
 	}
 
-	public State getState(AbstractMovable movable, double t) {
-		NavigableMap<Double, State> states = data.get(movable);
+	public MovableState getState(AbstractMovable movable, double t) {
+		NavigableMap<Double, MovableState> states = data.get(movable);
 		if (states == null)
 			return null;
 
-		Entry<Double, State> prev = states.floorEntry(t);
-		Entry<Double, State> next = states.ceilingEntry(t);
+		Entry<Double, MovableState> prev = states.floorEntry(t);
+		Entry<Double, MovableState> next = states.ceilingEntry(t);
 		
 		if (prev == null && next == null)
 			return null;
@@ -50,28 +50,13 @@ public final class Interpolator {
 		double x = prev.getValue().x + ratio * (next.getValue().x - prev.getValue().x);
 		double y = prev.getValue().y + ratio * (next.getValue().y - prev.getValue().y);
 		
-		return new State(x, y);
-	}
-
-	public class State {
-		public final double x;
-		public final double y;
-
-		public State(AbstractMovable movable) {
-			this.x = movable.getX();
-			this.y = movable.getY();
-		}
-		
-		public State(double x, double y) {
-			this.x = x;
-			this.y = y;
-		}
+		return new MovableState(x, y);
 	}
 
 	public Interpolator() {
-		data = new ConcurrentHashMap<AbstractMovable, NavigableMap<Double, State>>();
+		data = new ConcurrentHashMap<AbstractMovable, NavigableMap<Double, MovableState>>();
 	}
 
-	private final Map<AbstractMovable, NavigableMap<Double, State>> data;
+	private final Map<AbstractMovable, NavigableMap<Double, MovableState>> data;
 
 }

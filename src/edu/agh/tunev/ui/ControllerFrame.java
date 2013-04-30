@@ -35,7 +35,6 @@ import javax.swing.event.ChangeListener;
 import com.jogamp.newt.awt.NewtCanvasAWT;
 import com.jogamp.newt.opengl.GLWindow;
 
-import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.AbstractPerson;
 import edu.agh.tunev.statistics.Statistics;
@@ -55,7 +54,6 @@ final class ControllerFrame extends JInternalFrame {
 	private Class<?> personClass;
 	Vector<AbstractPerson> people;
 	World world;
-	Interpolator interpolator = new Interpolator();
 
 	private int modelNumber;
 	private String modelName;
@@ -90,8 +88,7 @@ final class ControllerFrame extends JInternalFrame {
 			this.personClass = personClass;
 
 			this.model = (AbstractModel<? extends AbstractPerson>) model
-					.getDeclaredConstructor(World.class, Interpolator.class)
-					.newInstance(world, interpolator);
+					.getDeclaredConstructor(World.class).newInstance(world);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException e) {
@@ -126,7 +123,7 @@ final class ControllerFrame extends JInternalFrame {
 				glwindow = GLWindow.create(caps);
 				glcanvas = new NewtCanvasAWT(glwindow);
 
-				glwindow.addGLEventListener(new Scene(world, interpolator,
+				glwindow.addGLEventListener(new Scene(world, model, people,
 						new Scene.TimeGetter() {
 							public double get() {
 								return sliderTime;
@@ -373,10 +370,12 @@ final class ControllerFrame extends JInternalFrame {
 						}, new Statistics.AddCallback() {
 							@Override
 							public void add(Statistics statistics) {
-								final PlotFrame frame = new PlotFrame(modelNumber, modelName, statistics);
+								final PlotFrame frame = new PlotFrame(
+										modelNumber, modelName, statistics);
 								ControllerFrame.this.getParent().add(frame);
-								
-								plotMenu.add(new JMenuItem(new AbstractAction(statistics.getTitle()) {
+
+								plotMenu.add(new JMenuItem(new AbstractAction(
+										statistics.getTitle()) {
 									private static final long serialVersionUID = 1L;
 
 									public void actionPerformed(ActionEvent arg0) {

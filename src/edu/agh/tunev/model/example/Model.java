@@ -2,7 +2,6 @@ package edu.agh.tunev.model.example;
 
 import java.util.Vector;
 
-import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.statistics.Statistics.AddCallback;
 import edu.agh.tunev.world.World;
@@ -19,8 +18,8 @@ public final class Model extends AbstractModel<Person> {
 	// linijkę z nazwą jego klasy do <code>edu.agh.tunev.Main.main()</code>.
 	public final static String MODEL_NAME = "model przykładowy";
 
-	public Model(World world, Interpolator interpolator) {
-		super(world, interpolator);
+	public Model(World world) {
+		super(world);
 	}
 
 	@Override

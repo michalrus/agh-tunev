@@ -2,7 +2,6 @@ package edu.agh.tunev.model.cellular;
 
 import java.util.Vector;
 
-import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.model.cellular.grid.Board;
@@ -17,8 +16,8 @@ public final class Model extends AbstractModel<Person> {
 
 	public final static String MODEL_NAME = "wąsowy automat komórkowy";
 
-	public Model(World world, Interpolator interpolator) {
-		super(world, interpolator);
+	public Model(World world) {
+		super(world);
 	}
 
 	// przykładowa dyskretyzacja świata -- czyli rozmiar jednej komórki na

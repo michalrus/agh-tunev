@@ -2,13 +2,15 @@ package edu.agh.tunev.ui.opengl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 
-import edu.agh.tunev.interpolation.Interpolator;
+import edu.agh.tunev.model.AbstractModel;
+import edu.agh.tunev.model.AbstractPerson;
 import edu.agh.tunev.world.World;
 
 public class Scene implements GLEventListener {
@@ -17,14 +19,17 @@ public class Scene implements GLEventListener {
 		public double get();
 	}
 
-	// private final World world;
-	// private final Interpolator interpolator;
+	private final World world;
 	private final TimeGetter timeGetter;
 	private final List<Renderable> renderers;
+	private final AbstractModel<? extends AbstractPerson> model;
+	private final Vector<AbstractPerson> people;
 
-	public Scene(World world, Interpolator interpolator, TimeGetter timeGetter) {
-		// this.world = world;
-		// this.interpolator = interpolator;
+	public Scene(World world, AbstractModel<? extends AbstractPerson> model,
+			Vector<AbstractPerson> people, TimeGetter timeGetter) {
+		this.world = world;
+		this.model = model;
+		this.people = people;
 		this.timeGetter = timeGetter;
 		renderers = new ArrayList<Renderable>();
 	}
@@ -51,6 +56,9 @@ public class Scene implements GLEventListener {
 	public void init(GLAutoDrawable drawable) {
 		// init all renderers
 		renderers.add(new TestRenderer());
+		
+		for (AbstractPerson p : people)
+			renderers.add(new PersonRenderer(p, model));
 
 		// turn on antialiasing
 		GL2 gl = drawable.getGL().getGL2();

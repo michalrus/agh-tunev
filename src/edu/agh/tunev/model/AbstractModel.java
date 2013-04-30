@@ -2,7 +2,6 @@ package edu.agh.tunev.model;
 
 import java.util.Vector;
 
-import edu.agh.tunev.interpolation.Interpolator;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.statistics.Statistics;
 
@@ -27,9 +26,9 @@ public abstract class AbstractModel<T extends AbstractPerson> {
 	 */
 	public static String MODEL_NAME;
 
-	public AbstractModel(World world, Interpolator interpolator) {
+	public AbstractModel(World world) {
 		this.world = world;
-		this.interpolator = interpolator;
+		interpolator = new Interpolator();
 	}
 
 	/**
@@ -55,6 +54,25 @@ public abstract class AbstractModel<T extends AbstractPerson> {
 	public abstract void simulate(double duration, Vector<T> people,
 			World.ProgressCallback progressCallback,
 			Statistics.AddCallback addCallback);
+	
+	public final MovableState getMovableState(AbstractMovable movable, double t) {
+		return interpolator.getState(movable, t);
+	}
+
+	public static class MovableState {
+		public final double x;
+		public final double y;
+	
+		public MovableState(AbstractMovable movable) {
+			this.x = movable.getX();
+			this.y = movable.getY();
+		}
+		
+		public MovableState(double x, double y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
 
 	/** tego nie ruszamy :] tłumaczy Vector<AbstractPerson> -> Vector<T> */
 	@SuppressWarnings("unchecked")
