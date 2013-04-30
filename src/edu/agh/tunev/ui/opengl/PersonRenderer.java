@@ -4,7 +4,7 @@ import javax.media.opengl.GL2;
 
 import edu.agh.tunev.model.AbstractPerson;
 
-final class PersonRenderer implements AbstractRenderer {
+final class PersonRenderer implements Renderable {
 	
 	//private AbstractPerson person;
 	

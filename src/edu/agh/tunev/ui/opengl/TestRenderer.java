@@ -3,7 +3,7 @@ package edu.agh.tunev.ui.opengl;
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 
-final class TestRenderer implements AbstractRenderer {
+final class TestRenderer implements Renderable {
 
 	private double theta = 0;
 	

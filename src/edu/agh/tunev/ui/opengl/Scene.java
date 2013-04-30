@@ -20,13 +20,13 @@ public class Scene implements GLEventListener {
 	// private final World world;
 	// private final Interpolator interpolator;
 	private final TimeGetter timeGetter;
-	private final List<AbstractRenderer> renderers;
+	private final List<Renderable> renderers;
 
 	public Scene(World world, Interpolator interpolator, TimeGetter timeGetter) {
 		// this.world = world;
 		// this.interpolator = interpolator;
 		this.timeGetter = timeGetter;
-		renderers = new ArrayList<AbstractRenderer>();
+		renderers = new ArrayList<Renderable>();
 	}
 
 	@Override
@@ -39,7 +39,7 @@ public class Scene implements GLEventListener {
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 
 		// render all
-		for (AbstractRenderer r : renderers)
+		for (Renderable r : renderers)
 			r.render(gl, t);
 	}
 
