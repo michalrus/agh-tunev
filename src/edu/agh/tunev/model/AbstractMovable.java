@@ -1,5 +1,7 @@
 package edu.agh.tunev.model;
 
+import java.awt.geom.Point2D;
+
 /**
  * Po tej klasie musi dziedziczyć wszystko co się rusza -- m.
  * 
@@ -8,24 +10,18 @@ package edu.agh.tunev.model;
  */
 public abstract class AbstractMovable {
 
-	protected double x;
-	protected double y;
+	protected Point2D.Double position;
 
-	public AbstractMovable(double x, double y) {
-		setPosition(x, y);
+	public AbstractMovable(Point2D.Double position) {
+		setPosition(position);
+	}
+
+	public Point2D.Double getPosition() {
+		return position;
 	}
 	
-	public void setPosition(double x, double y) {
-		this.x = x;
-		this.y = y;
-	}
-	
-	public double getX() {
-		return x;
-	}
-	
-	public double getY() {
-		return y;
+	public void setPosition(Point2D.Double position) {
+		this.position = position;
 	}
 	
 }

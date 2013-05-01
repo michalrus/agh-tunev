@@ -1,5 +1,6 @@
 package edu.agh.tunev.model;
 
+import java.awt.geom.Point2D;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
@@ -31,8 +32,8 @@ public final class Interpolator {
 		if (states == null)
 			return null;
 
-		Entry<Double, MovableState> prev = states.floorEntry(t);
-		Entry<Double, MovableState> next = states.ceilingEntry(t);
+		final Entry<Double, MovableState> prev = states.floorEntry(t);
+		final Entry<Double, MovableState> next = states.ceilingEntry(t);
 		
 		if (prev == null && next == null)
 			return null;
@@ -45,12 +46,20 @@ public final class Interpolator {
 		
 		// splajny 1-go stopnia? będzie git
 		
-		double ratio = (t - prev.getKey()) / (next.getKey() - prev.getKey());
+		final double ratio = (t - prev.getKey()) / (next.getKey() - prev.getKey());
+
+		final Point2D.Double p = prev.getValue().position;
+		final Point2D.Double n = next.getValue().position;
+
+		final double px = p.getX();
+		final double py = p.getY();
+		final double nx = n.getX();
+		final double ny = n.getY();
 		
-		double x = prev.getValue().x + ratio * (next.getValue().x - prev.getValue().x);
-		double y = prev.getValue().y + ratio * (next.getValue().y - prev.getValue().y);
+		final double x = px + ratio * (nx - px);
+		final double y = py + ratio * (ny - py);
 		
-		return new MovableState(x, y);
+		return new MovableState(new Point2D.Double(x, y));
 	}
 
 	public Interpolator() {

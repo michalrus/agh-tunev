@@ -1,5 +1,6 @@
 package edu.agh.tunev.model;
 
+import java.awt.geom.Point2D;
 import java.util.Vector;
 
 import edu.agh.tunev.world.World;
@@ -60,17 +61,14 @@ public abstract class AbstractModel<T extends AbstractPerson> {
 	}
 
 	public static class MovableState {
-		public final double x;
-		public final double y;
+		public final Point2D.Double position;
 	
 		public MovableState(AbstractMovable movable) {
-			this.x = movable.getX();
-			this.y = movable.getY();
+			position = movable.getPosition();
 		}
 		
-		public MovableState(double x, double y) {
-			this.x = x;
-			this.y = y;
+		public MovableState(Point2D.Double position) {
+			this.position = position;
 		}
 	}
 

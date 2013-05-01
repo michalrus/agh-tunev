@@ -1,5 +1,7 @@
 package edu.agh.tunev.model;
 
+import java.awt.geom.Point2D;
+
 /**
  * Ta klasa reprezentuje osobę: jej cechy niezależne od modelu, cechy które (w
  * przyszłości) możemy wybrać w UI dodając osoby.
@@ -23,8 +25,8 @@ public abstract class AbstractPerson extends AbstractMovable {
 	/** Wysokość osoby (OZ) [m] */
 	protected double height = 1.7;
 
-	public AbstractPerson(double x, double y) {
-		super(x, y);
+	public AbstractPerson(Point2D.Double position) {
+		super(position);
 	}
 
 	public double getWidth() {
