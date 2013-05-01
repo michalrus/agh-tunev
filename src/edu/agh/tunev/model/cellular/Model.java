@@ -1,5 +1,6 @@
 package edu.agh.tunev.model.cellular;
 
+import java.awt.geom.Point2D;
 import java.util.Vector;
 
 import edu.agh.tunev.model.AbstractModel;
@@ -51,11 +52,11 @@ public final class Model extends AbstractModel<Person> {
 		// pozaznaczaj osoby na naszej modelowej, wewnętrznej, planszy
 		for (Person p : people) {
 			// w której komórce jest ta osoba?
-			int ix = c2dX(p.getX());
-			int iy = c2dY(p.getY());
+			int ix = c2dX(p.getPosition().x);
+			int iy = c2dY(p.getPosition().y);
 
 			// przesuń ją dokładnie na środek tej komórki...
-			p.setPosition(d2cX(ix), d2cY(iy));
+			p.setPosition(new Point2D.Double(d2cX(ix), d2cY(iy)));
 			// ... i zrób jej tam "zdjęcie" dla interpolatora w chwili t=0[s]
 			interpolator.saveState(p, 0.0);
 

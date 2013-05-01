@@ -42,10 +42,17 @@ public class Scene implements GLEventListener {
 
 		// clear buffer
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+		
+		// set camera
+		setCamera(gl);
 
 		// render all
 		for (Renderable r : renderers)
 			r.render(gl, t);
+	}
+	
+	private void setCamera(GL2 gl) {
+		
 	}
 
 	@Override
