@@ -1,5 +1,6 @@
 package edu.agh.tunev.world;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.Vector;
 
@@ -11,12 +12,8 @@ public class World {
 		return data.getDuration();
 	}
 
-	public double getXDimension() {
-		return data.getXDimension();
-	}
-
-	public double getYDimension() {
-		return data.getYDimension();
+	public Point2D.Double getDimension() {
+		return new Point2D.Double(data.getXDimension(), data.getYDimension());
 	}
 
 	public Vector<Exit> getExits() {
@@ -35,7 +32,7 @@ public class World {
 	 * 
 	 * <pre>
 	 * <code>
-	 * Physics p = world.getPhysicsAt(13.33, 0.0, 1.0); 
+	 * Physics p = world.getPhysicsAt(13.33, new Point2D.Double(0.0, 1.0)); 
 	 * double temp = p.get(Physics.Type.TEMPERATURE);
 	 * double co = p.get(Physics.Type.CO);
 	 * </code>
@@ -43,14 +40,12 @@ public class World {
 	 * 
 	 * @param t
 	 *            Rzeczywisty czas, o który pytasz.
-	 * @param x
-	 *            Pozycja na OX.
-	 * @param y
-	 *            Pozycja na OY.
+	 * @param p
+	 *            Punkt, o który pytasz.
 	 * @return
 	 */
-	public Physics getPhysicsAt(double t, double x, double y) {
-		return data.getPhysicsAt(t, x, y);
+	public Physics getPhysicsAt(double t, Point2D.Double p) {
+		return data.getPhysicsAt(t, p.x, p.y);
 	}
 
 	// -- end of world-data access methods

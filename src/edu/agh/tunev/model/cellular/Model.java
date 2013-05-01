@@ -1,5 +1,6 @@
 package edu.agh.tunev.model.cellular;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
@@ -36,32 +37,27 @@ public final class Model extends AbstractModel<Person> {
 	@Override
 	public void simulate(double duration, Vector<Person> people,
 			ProgressCallback progressCallback, AddCallback addCallback) {
-		// jakie są rzeczywiste wymiary świata?
-		double dimX = world.getXDimension();
-		double dimY = world.getYDimension();
-
 		// jakie są dyskretne wymiary świata? ile komórek w OX i OY?
 		// używa funkcji do tłumaczenia wymiarów z ciągłych na dyskretne z
 		// uwzględnieniem DX i DY. Zobacz poniżej ich definicje.
-		int numX = c2dX(dimX) + 1;
-		int numY = c2dY(dimY) + 1;
+		Point dim = c2d(world.getDimension());
+		dim.x += 1; dim.y += 1;
 
 		// stwórz automat (planszę komórek) o obliczonych dyskretnych wymiarach;
-		board = new Board(numX, numY);
+		board = new Board(dim.x, dim.y);
 
 		// pozaznaczaj osoby na naszej modelowej, wewnętrznej, planszy
 		for (Person p : people) {
 			// w której komórce jest ta osoba?
-			int ix = c2dX(p.getPosition().x);
-			int iy = c2dY(p.getPosition().y);
+			Point pos = c2d(p.getPosition());
 
 			// przesuń ją dokładnie na środek tej komórki...
-			p.setPosition(new Point2D.Double(d2cX(ix), d2cY(iy)));
+			p.setPosition(d2c(pos));
 			// ... i zrób jej tam "zdjęcie" dla interpolatora w chwili t=0[s]
 			interpolator.saveState(p, 0.0);
 
 			// zaznacz w odpowiedniej komórce automatu, że którą osobę
-			Cell c = board.get(ix, iy);
+			Cell c = board.get(pos.x, pos.y);
 			c.setPerson(p);
 		}
 
@@ -90,9 +86,9 @@ public final class Model extends AbstractModel<Person> {
 			t += DT;
 
 			// pościągaj aktualną fizykę do komórek
-			for (int ix = 0; ix < numX; ix++)
-				for (int iy = 0; iy < numY; iy++) {
-					Physics physics = world.getPhysicsAt(t, d2cX(ix), d2cY(iy));
+			for (int ix = 0; ix < dim.x; ix++)
+				for (int iy = 0; iy < dim.y; iy++) {
+					Physics physics = world.getPhysicsAt(t, d2c(new Point(ix, iy)));
 					board.get(ix, iy).setPhysics(physics);
 				}
 
@@ -121,33 +117,19 @@ public final class Model extends AbstractModel<Person> {
 	}
 
 	/**
-	 * Discreet to continuous dimensions for OX.
+	 * Discreet (Board) to continuous (World) dimensions.
 	 */
-	private static double d2cX(int ix) {
+	private static Point2D.Double d2c(Point d) {
 		// zwróć pozycję w środku komórki
-		return (0.5 + ix) * DX;
+		return new Point2D.Double((0.5 + d.x) * DX, (0.5 + d.y) * DY);
 	}
 
 	/**
-	 * Discrete to continuous dimensions for OY.
+	 * Continuous (World) to discrete (Board) dimensions.
 	 */
-	private static double d2cY(int iy) {
-		// zwróć pozycję w środku komórki
-		return (0.5 + iy) * DY;
-	}
-
-	/**
-	 * Continuous to discrete dimensions for OX.
-	 */
-	private static int c2dX(double x) {
-		return (int) Math.round(Math.floor(x / DX));
-	}
-
-	/**
-	 * Continuous to discrete dimensions for OY.
-	 */
-	private static int c2dY(double y) {
-		return (int) Math.round(Math.floor(y / DY));
+	private static Point c2d(Point2D.Double c) {
+		return new Point((int) Math.round(Math.floor(c.x / DX)),
+				(int) Math.round(Math.floor(c.y / DY)));
 	}
 
 }

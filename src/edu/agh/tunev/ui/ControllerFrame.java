@@ -66,8 +66,8 @@ final class ControllerFrame extends JInternalFrame {
 
 		setModel(model);
 
-		people = PeopleFactory.random(personClass, 50, world.getXDimension(),
-				world.getYDimension());
+		people = PeopleFactory.random(personClass, 50, world.getDimension().x,
+				world.getDimension().y);
 
 		init();
 		createGLFrame();
