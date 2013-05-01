@@ -1,5 +1,6 @@
 package edu.agh.tunev.ui;
 
+import java.awt.geom.Point2D;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Random;
 import java.util.Vector;
@@ -24,8 +25,8 @@ final class PeopleFactory {
 	static AbstractPerson newAbstractPerson(Class<?> type, double x, double y) {
 		try {
 			return (AbstractPerson) type
-					.getDeclaredConstructor(double.class, double.class)
-					.newInstance(x, y);
+					.getDeclaredConstructor(Point2D.Double.class)
+					.newInstance(new Point2D.Double(x, y));
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException | SecurityException e) {
