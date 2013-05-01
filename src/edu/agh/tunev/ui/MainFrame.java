@@ -85,6 +85,7 @@ public final class MainFrame extends JFrame {
 		setTitle(dataName + " - " + getTitle());
 		setSize(new Dimension(950, 700));
 		setLocationRelativeTo(null);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
 
 		JMenuBar menuBar = new JMenuBar();
