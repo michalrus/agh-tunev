@@ -1,7 +1,5 @@
 package edu.agh.tunev.model;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -39,17 +37,23 @@ public final class Common {
 	static double intersectionArea(Shape s1, Shape s2) {
 		// poniższe liczby definiują wymiary siatki na którą zostanie
 		// przeskalowana (rozciągnięta) część wspólna kształtów s1, s2
+		//
 		// oczywiście im większa siatka, tym dłużej zajmie policzenie tego
+		//
 		// złożoność tej funkcji to O(w*h)
 		final int w = 100;
 		final int h = 100;
 		// dla siatki 5000x5000 i dwóch identycznych elips 200x100:
+		//
 		// Shape e1 = ellipse(250, 250, 200, 100, 0);
 		// Shape e2 = ellipse(250, 250, 200, 100, 0);
+		//
 		// zwrócony wynik to:
 		// 62847.616
+		//
 		// a analityczny wynik:
 		// 200*100*Math.PI == 62831.8530718
+		//
 		// procentowa różnica: -0.0251%
 		//
 		// oczywiście 5000x5000 to zabójcza wielkość, liczy się jakieś 2 sekundy
@@ -75,10 +79,10 @@ public final class Common {
 		java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(
 				w, h, java.awt.image.BufferedImage.TYPE_INT_RGB);
 
-		Graphics2D g = image.createGraphics();
-		g.setPaint(Color.WHITE);
+		java.awt.Graphics2D g = image.createGraphics();
+		g.setPaint(java.awt.Color.WHITE);
 		g.fillRect(0, 0, w, h);
-		g.setPaint(Color.BLACK);
+		g.setPaint(java.awt.Color.BLACK);
 		g.fill(at.createTransformedShape(area));
 
 		int num = 0;
@@ -89,15 +93,6 @@ public final class Common {
 					num++;
 
 		return 4 * dx * dy * num;
-	}
-
-	public static double intersectionAreaRect(Shape shape1, Shape shape2) {
-		Area area1 = new Area(shape1);
-		Area area2 = new Area(shape2);
-		area1.intersect(area2);
-		Rectangle2D rect = area1.getBounds2D();
-
-		return rect.getWidth() * rect.getHeight();
 	}
 
 	private Common() {
