@@ -6,6 +6,12 @@ import edu.agh.tunev.model.AbstractPerson;
 
 public final class Person extends AbstractPerson {
 	
+	public static final class WrongOrientationException extends Exception {
+
+		private static final long serialVersionUID = 1L;
+
+	}
+
 	public enum Orientation{
 		E, NE, N, NW, W, SW, S, SE	
 	}
