@@ -1,5 +1,6 @@
 package edu.agh.tunev.world;
 
+import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,13 +28,8 @@ final class FDSDataSource extends AbstractDataSource {
 	}
 
 	@Override
-	double getXDimension() {
-		return dimensionX;
-	}
-
-	@Override
-	double getYDimension() {
-		return dimensionY;
+	Point2D.Double getDimension() {
+		return dimension;
 	}
 
 	@Override
@@ -47,7 +43,7 @@ final class FDSDataSource extends AbstractDataSource {
 	}
 
 	@Override
-	Physics getPhysicsAt(double t, double x, double y) {
+	Physics getPhysicsAt(double t, Point2D.Double p) {
 		Entry<Double, Vector<Vector<Physics>>> entry;
 
 		// get entry with its t greatest but <= @param t
@@ -60,7 +56,7 @@ final class FDSDataSource extends AbstractDataSource {
 				throw new IllegalArgumentException("physics map is empty");
 		}
 
-		return getPhysicsInGrid(entry.getValue(), x, y);
+		return getPhysicsInGrid(entry.getValue(), p);
 	}
 
 	@Override
@@ -91,9 +87,9 @@ final class FDSDataSource extends AbstractDataSource {
 	private NavigableMap<Double, Vector<Vector<Physics>>> physics;
 	private int progressDone = 0, progressTotal = 2;
 	private double duration = 0;
-	private double dimensionX = 0, dimensionY = 0;
-	private double offsetX = 0, offsetY = 0; // [m]
-	private double dx = 0, dy = 0;
+	private Point2D.Double dimension;
+	private Point2D.Double offset;
+	private Point2D.Double d;
 	private File dataFolder, inputFile;
 	private SortedMap<Integer, Map<Physics.Type, File>> dataFiles;
 	private Vector<Obstacle> obstacles = new Vector<Obstacle>();
@@ -105,7 +101,8 @@ final class FDSDataSource extends AbstractDataSource {
 	 * w pamięci (w {@link #inputFile} i {@link #dataFiles}).
 	 */
 	private void parseFilenames() {
-		Map<Physics.Type, Pattern> patterns = new EnumMap<Physics.Type, Pattern>(Physics.Type.class);
+		Map<Physics.Type, Pattern> patterns = new EnumMap<Physics.Type, Pattern>(
+				Physics.Type.class);
 
 		patterns.put(Physics.Type.TEMPERATURE, Pattern.compile(
 				"^temp_(\\d+)-(\\d+)\\.csv$", Pattern.CASE_INSENSITIVE));
@@ -129,7 +126,8 @@ final class FDSDataSource extends AbstractDataSource {
 
 						Map<Physics.Type, File> files = dataFiles.get(t);
 						if (files == null) {
-							files = new EnumMap<Physics.Type, File>(Physics.Type.class);
+							files = new EnumMap<Physics.Type, File>(
+									Physics.Type.class);
 							dataFiles.put(t, files);
 						}
 
@@ -195,15 +193,15 @@ final class FDSDataSource extends AbstractDataSource {
 						long numCellsX = Long.parseLong(matcher.group(1));
 						long numCellsY = Long.parseLong(matcher.group(2));
 
-						offsetX = Double.parseDouble(matcher.group(3));
-						offsetY = Double.parseDouble(matcher.group(5));
-						dimensionX = Double.parseDouble(matcher.group(4))
-								- offsetX;
-						dimensionY = Double.parseDouble(matcher.group(6))
-								- offsetY;
+						offset = new Point2D.Double(Double.parseDouble(matcher
+								.group(3)),
+								Double.parseDouble(matcher.group(5)));
+						dimension = new Point2D.Double(
+								Double.parseDouble(matcher.group(4)) - offset.x,
+								Double.parseDouble(matcher.group(6)) - offset.y);
 
-						dx = dimensionX / numCellsX;
-						dy = dimensionY / numCellsY;
+						this.d = new Point2D.Double(dimension.x / numCellsX,
+								dimension.y / numCellsY);
 
 						gotDimensions = true;
 						continue;
@@ -229,11 +227,15 @@ final class FDSDataSource extends AbstractDataSource {
 					if (line.contains("PERMIT_HOLE=.TRUE."))
 						continue;
 
-					obstacles.add(new Obstacle(Double.parseDouble(matcher
-							.group(1)) - offsetX, Double.parseDouble(matcher
-							.group(3)) - offsetY, Double.parseDouble(matcher
-							.group(2)) - offsetX, Double.parseDouble(matcher
-							.group(4)) - offsetY));
+					obstacles
+							.add(new Obstacle(new Point2D.Double(Double
+									.parseDouble(matcher.group(1)) - offset.x,
+									Double.parseDouble(matcher.group(3))
+											- offset.y), new Point2D.Double(
+									Double.parseDouble(matcher.group(2))
+											- offset.x, Double
+											.parseDouble(matcher.group(4))
+											- offset.y)));
 
 					continue;
 				}
@@ -244,11 +246,12 @@ final class FDSDataSource extends AbstractDataSource {
 					if (!gotDimensions)
 						throw new RuntimeException("&HOLE before &MESH!");
 
-					exits.add(new Exit(Double.parseDouble(matcher.group(1))
-							- offsetX, Double.parseDouble(matcher.group(3))
-							- offsetY, Double.parseDouble(matcher.group(2))
-							- offsetX, Double.parseDouble(matcher.group(4))
-							- offsetY));
+					exits.add(new Exit(new Point2D.Double(Double
+							.parseDouble(matcher.group(1)) - offset.x, Double
+							.parseDouble(matcher.group(3)) - offset.y),
+							new Point2D.Double(Double.parseDouble(matcher
+									.group(2)) - offset.x, Double
+									.parseDouble(matcher.group(4)) - offset.y)));
 					continue;
 				}
 			}
@@ -270,24 +273,28 @@ final class FDSDataSource extends AbstractDataSource {
 		}
 
 		// TODO: Kasiu, jakoś oznaczamy główne wyjścia w .fds?
-		if (dimensionX > dimensionY) { // poziomy tunel
-			exits.add(new Exit(0, 0, 0, dimensionY));
-			exits.add(new Exit(dimensionX, 0, dimensionX, dimensionY));
+		if (dimension.x > dimension.y) { // poziomy tunel
+			exits.add(new Exit(new Point2D.Double(0, 0), new Point2D.Double(0,
+					dimension.y)));
+			exits.add(new Exit(new Point2D.Double(dimension.x, 0),
+					new Point2D.Double(dimension.y, dimension.y)));
 		} else { // pionowy tunel
-			exits.add(new Exit(0, 0, dimensionX, 0));
-			exits.add(new Exit(0, dimensionY, dimensionX, dimensionY));
+			exits.add(new Exit(new Point2D.Double(0, 0), new Point2D.Double(
+					dimension.x, 0)));
+			exits.add(new Exit(new Point2D.Double(0, dimension.y),
+					new Point2D.Double(dimension.x, dimension.y)));
 		}
 	}
 
-	private Physics getPhysicsInGrid(Vector<Vector<Physics>> grid, double x,
-			double y) {
+	private Physics getPhysicsInGrid(Vector<Vector<Physics>> grid,
+			Point2D.Double p) {
 		// always return *some* value, for all (x,y):
 
-		int row = (int) Math.round(Math.floor(y / dy));
+		int row = (int) Math.round(Math.floor(p.y / d.y));
 		row = Math.max(row, 0);
 		row = Math.min(row, grid.size() - 1);
 
-		int col = (int) Math.round(Math.floor(x / dx));
+		int col = (int) Math.round(Math.floor(p.x / d.x));
 		col = Math.max(col, 0);
 		col = Math.min(col, grid.get(0).size() - 1);
 
@@ -297,8 +304,8 @@ final class FDSDataSource extends AbstractDataSource {
 	private void parseDataFiles(World.ProgressCallback callback) {
 		physics = new ConcurrentSkipListMap<Double, Vector<Vector<Physics>>>();
 
-		long numRows = Math.round(Math.floor(dimensionY / dy)) + 1;
-		long numCols = Math.round(Math.floor(dimensionX / dx)) + 1;
+		long numRows = Math.round(Math.floor(dimension.y / d.y)) + 1;
+		long numCols = Math.round(Math.floor(dimension.x / d.x)) + 1;
 
 		for (Entry<Integer, Map<Physics.Type, File>> e1 : dataFiles.entrySet()) {
 			double t = e1.getKey();
@@ -314,7 +321,7 @@ final class FDSDataSource extends AbstractDataSource {
 			for (Entry<Physics.Type, File> e2 : e1.getValue().entrySet()) {
 				callback.update(progressDone, progressTotal,
 						"Parsing data file: " + e2.getValue().getName() + "...");
-				
+
 				String line;
 				long lineNum = 0;
 				BufferedReader br;
@@ -336,16 +343,18 @@ final class FDSDataSource extends AbstractDataSource {
 						String[] v = line.trim().split("\\s*,\\s*");
 
 						if (v.length != 3) {
-							callback.update(-1, -1, e2.getValue().getPath() + ":"
-									+ lineNum + ": invalid format");
+							callback.update(-1, -1, e2.getValue().getPath()
+									+ ":" + lineNum + ": invalid format");
 							return;
 						}
-						
-						getPhysicsInGrid(grid, Double.parseDouble(v[0]), Double
-								.parseDouble(v[1])).set(e2.getKey(), Double
-											.parseDouble(v[2]));
+
+						getPhysicsInGrid(
+								grid,
+								new Point2D.Double(Double.parseDouble(v[0]),
+										Double.parseDouble(v[1]))).set(
+								e2.getKey(), Double.parseDouble(v[2]));
 					}
-					
+
 					progressDone++;
 				} catch (IOException e) {
 					callback.update(-1, -1, e.toString());
@@ -362,9 +371,8 @@ final class FDSDataSource extends AbstractDataSource {
 
 			physics.put(t, grid);
 		}
-		
-		callback.update(progressDone, progressTotal,
-				"Ready.");
+
+		callback.update(progressDone, progressTotal, "Ready.");
 	}
 
 }

@@ -13,7 +13,7 @@ public class World {
 	}
 
 	public Point2D.Double getDimension() {
-		return new Point2D.Double(data.getXDimension(), data.getYDimension());
+		return data.getDimension();
 	}
 
 	public Vector<Exit> getExits() {
@@ -45,7 +45,7 @@ public class World {
 	 * @return
 	 */
 	public Physics getPhysicsAt(double t, Point2D.Double p) {
-		return data.getPhysicsAt(t, p.x, p.y);
+		return data.getPhysicsAt(t, p);
 	}
 
 	// -- end of world-data access methods
