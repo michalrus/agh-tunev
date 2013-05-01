@@ -4,21 +4,30 @@ import java.awt.geom.Point2D;
 
 import edu.agh.tunev.model.AbstractPerson;
 
-/**
- * Tutaj możesz pamiętać sobie jakieś dane o osobie, które mają znaczenie tylko
- * w implementowanym modelu. Wszystkie cechy "osobnicze", które mają sens poza
- * konkretnym modelem, powinny być dodane do AbstractPerson. Przykład:
- * 
- * Do <code>AbstractPerson</code>: wiek, rasa, orientacja, religious views
- * 
- * Do <code>Person extends AbstractPerson</code>: informacja o tym co osoba
- * sądzi nt. konkretnych pól automatu komórkowego
- * 
- */
 public final class Person extends AbstractPerson {
+	
+	public enum Orientation{
+		E, NE, N, NW, W, SW, S, SE	
+	}
 
 	public Person(Point2D.Double position) {
 		super(position);
+	}
+	
+	public static Double orientToAngle(Orientation orient) throws WrongOrientationException{	
+		//starting at east
+		Double angle = 0.0;
+		Person.Orientation[] orientValues = Person.Orientation.values();
+		
+		//TODO: more sensible error handling
+		for(int i = 0; i < orientValues.length && orient != orientValues[i]; ++i){
+			angle += 45.0;
+		}
+		
+		if(angle > 315)
+			throw new WrongOrientationException();
+		else 
+			return angle;
 	}
 
 }
