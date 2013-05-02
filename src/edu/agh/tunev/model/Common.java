@@ -24,7 +24,8 @@ public final class Common {
 	 * 
 	 * @return Shape representing the ellipse.
 	 */
-	static Shape createEllipse(double x, double y, double w, double h,
+	//TODO: deg should be anti-clockwise
+	public static Shape createEllipse(double x, double y, double w, double h,
 			double deg) {
 		return AffineTransform.getRotateInstance(deg * Math.PI / 180.0, x, y)
 				.createTransformedShape(
@@ -34,7 +35,7 @@ public final class Common {
 	/**
 	 * Zwraca wspólne pole dwóch Shape.
 	 */
-	static double intersectionArea(Shape s1, Shape s2) {
+	public static double intersectionArea(Shape s1, Shape s2) {
 		// poniższe liczby definiują wymiary siatki na którą zostanie
 		// przeskalowana (rozciągnięta) część wspólna kształtów s1, s2
 		//

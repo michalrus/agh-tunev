@@ -129,18 +129,14 @@ class AllowedConfigs {
 			Person.Orientation neighbourOrient)
 			throws WrongOrientationException {
 
+		//TODO: angle calc in createEllipse works in a wrong way
 		Double angle1 = Person.orientToAngle(selfOrient);
 		Double angle2 = Person.orientToAngle(neighbourOrient);
-		Shape ellipse1 = new Ellipse2D.Double(0.0, 0.0, personWidth,
-				personGirth);
-		ellipse1 = ShapeUtilities.rotateShape(ellipse1, angle1, (float) 0.0,
-				(float) 0.0);
-		Shape ellipse2 = new Ellipse2D.Double(neighbourX, neighbourY,
-				personWidth, personGirth);
-		ellipse1 = ShapeUtilities.rotateShape(ellipse1, angle2, new Float(
-				neighbourX), new Float(neighbourY));
-
-		return Common.calculateIntersection(ellipse1, ellipse2);
+		Shape ellipse1 = Common.createEllipse(0.0, 0.0, personWidth, personGirth, angle1);
+		Shape ellipse2 = Common.createEllipse(neighbourX, neighbourY,
+				personWidth, personGirth, angle2);
+		
+		return Common.intersectionArea(ellipse1, ellipse2);
 	}
 
 	// TODO: wyjebać
