@@ -7,9 +7,19 @@ import java.util.NavigableMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import edu.agh.tunev.model.AbstractModel.PersonState;
-
 public final class Interpolator {
+
+	public static class PersonState {
+		public final Point2D.Double position;
+	
+		public PersonState(AbstractPerson person) {
+			position = person.getPosition();
+		}
+		
+		public PersonState(Point2D.Double position) {
+			this.position = position;
+		}
+	}
 
 	/**
 	 * Zapisuje dyskretny stan w interpolatorze. -- m.
@@ -18,22 +28,22 @@ public final class Interpolator {
 	 *            Dana chwila czasu dla jakiej zapisujemy stan.
 	 */
 	public void saveState(AbstractPerson person, double t) {
-		NavigableMap<Double, PersonState> states = data.get(person);
+		NavigableMap<Double, Interpolator.PersonState> states = data.get(person);
 		if (states == null) {
-			states = new ConcurrentSkipListMap<Double, PersonState>();
+			states = new ConcurrentSkipListMap<Double, Interpolator.PersonState>();
 			data.put(person, states);
 		}
 
-		states.put(t, new PersonState(person));
+		states.put(t, new Interpolator.PersonState(person));
 	}
 
-	public PersonState getState(AbstractPerson person, double t) {
-		NavigableMap<Double, PersonState> states = data.get(person);
+	public Interpolator.PersonState getState(AbstractPerson person, double t) {
+		NavigableMap<Double, Interpolator.PersonState> states = data.get(person);
 		if (states == null)
 			return null;
 
-		final Entry<Double, PersonState> prev = states.floorEntry(t);
-		final Entry<Double, PersonState> next = states.ceilingEntry(t);
+		final Entry<Double, Interpolator.PersonState> prev = states.floorEntry(t);
+		final Entry<Double, Interpolator.PersonState> next = states.ceilingEntry(t);
 		
 		if (prev == null && next == null)
 			return null;
@@ -59,13 +69,13 @@ public final class Interpolator {
 		final double x = px + ratio * (nx - px);
 		final double y = py + ratio * (ny - py);
 		
-		return new PersonState(new Point2D.Double(x, y));
+		return new Interpolator.PersonState(new Point2D.Double(x, y));
 	}
 
 	public Interpolator() {
-		data = new ConcurrentHashMap<AbstractPerson, NavigableMap<Double, PersonState>>();
+		data = new ConcurrentHashMap<AbstractPerson, NavigableMap<Double, Interpolator.PersonState>>();
 	}
 
-	private final Map<AbstractPerson, NavigableMap<Double, PersonState>> data;
+	private final Map<AbstractPerson, NavigableMap<Double, Interpolator.PersonState>> data;
 
 }

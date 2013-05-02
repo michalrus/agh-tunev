@@ -3,8 +3,8 @@ package edu.agh.tunev.ui.opengl;
 import javax.media.opengl.GL2;
 
 import edu.agh.tunev.model.AbstractModel;
-import edu.agh.tunev.model.AbstractModel.PersonState;
 import edu.agh.tunev.model.AbstractPerson;
+import edu.agh.tunev.model.Interpolator.PersonState;
 
 final class PersonRenderer implements Renderable {
 	

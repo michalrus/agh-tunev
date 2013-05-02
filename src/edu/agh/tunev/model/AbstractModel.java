@@ -1,6 +1,5 @@
 package edu.agh.tunev.model;
 
-import java.awt.geom.Point2D;
 import java.util.Vector;
 
 import edu.agh.tunev.world.World;
@@ -55,21 +54,10 @@ public abstract class AbstractModel<T extends AbstractPerson> {
 	public abstract void simulate(double duration, Vector<T> people,
 			World.ProgressCallback progressCallback,
 			Statistics.AddCallback addCallback);
-	
-	public final PersonState getPersonState(AbstractPerson person, double t) {
-		return interpolator.getState(person, t);
-	}
 
-	public static class PersonState {
-		public final Point2D.Double position;
-	
-		public PersonState(AbstractPerson person) {
-			position = person.getPosition();
-		}
-		
-		public PersonState(Point2D.Double position) {
-			this.position = position;
-		}
+	public final Interpolator.PersonState getPersonState(AbstractPerson person,
+			double t) {
+		return interpolator.getState(person, t);
 	}
 
 	/** tego nie ruszamy :] tłumaczy Vector<AbstractPerson> -> Vector<T> */
