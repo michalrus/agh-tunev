@@ -4,32 +4,30 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 public final class Common {
 
 	/**
-	 * Tworzy elipsę o zadanym środku i obrocie.
+	 * Creates an ellipse with given center point and rotation angle.
 	 * 
-	 * @param x
-	 *            X środka
-	 * @param y
-	 *            Y środka
-	 * @param w
-	 *            szerokość
-	 * @param h
-	 *            wysokość
+	 * @param center
+	 *            coordinates of the shape's center
+	 * @param a
+	 *            original (pre-rotation) OX dimension
+	 * @param b
+	 *            original (pre-rotation) OY dimension
 	 * @param deg
-	 *            obrót zgodnie z zegarem (CW), przeciwnie do geom. anal.
+	 *            counter-clockwise rotation around the {@param center}
 	 * 
 	 * @return Shape representing the ellipse.
 	 */
-	//TODO: deg should be anti-clockwise
-	public static Shape createEllipse(double x, double y, double w, double h,
+	public static Shape createEllipse(Point2D.Double center, double a, double b,
 			double deg) {
-		return AffineTransform.getRotateInstance(deg * Math.PI / 180.0, x, y)
+		return AffineTransform.getRotateInstance(-deg * Math.PI / 180.0, center.x, center.y)
 				.createTransformedShape(
-						new Ellipse2D.Double(x - w / 2, y - h / 2, w, h));
+						new Ellipse2D.Double(center.x - a / 2, center.y - b / 2, a, b));
 	}
 
 	/**

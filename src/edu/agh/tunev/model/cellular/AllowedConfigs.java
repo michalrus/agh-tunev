@@ -1,15 +1,13 @@
 package edu.agh.tunev.model.cellular;
 
 import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.jfree.util.ShapeUtilities;
 
 import edu.agh.tunev.model.Common;
 import edu.agh.tunev.model.cellular.agent.Person;
@@ -115,7 +113,7 @@ class AllowedConfigs {
 
 	/**
 	 * Calculates an intersection area between two ellipses using
-	 * {@link Common#calculateIntersection}
+	 * {@link Common#intersectionArea}
 	 * 
 	 * @param neighbourX
 	 * @param neighbourY
@@ -132,8 +130,8 @@ class AllowedConfigs {
 		//TODO: angle calc in createEllipse works in a wrong way
 		Double angle1 = Person.orientToAngle(selfOrient);
 		Double angle2 = Person.orientToAngle(neighbourOrient);
-		Shape ellipse1 = Common.createEllipse(0.0, 0.0, personWidth, personGirth, angle1);
-		Shape ellipse2 = Common.createEllipse(neighbourX, neighbourY,
+		Shape ellipse1 = Common.createEllipse(new Point2D.Double(0.0, 0.0), personWidth, personGirth, angle1);
+		Shape ellipse2 = Common.createEllipse(new Point2D.Double(neighbourX, neighbourY),
 				personWidth, personGirth, angle2);
 		
 		return Common.intersectionArea(ellipse1, ellipse2);
@@ -142,7 +140,7 @@ class AllowedConfigs {
 	// TODO: wyjebać
 	public void printIntersectionMap() {
 		int i = 0;
-		for (Entry e : intersectionMap.entrySet()) {
+		for (Entry<ConfigKey, Double> e : intersectionMap.entrySet()) {
 			ConfigKey k = (ConfigKey) e.getKey();
 			Double v = (double) e.getValue();
 			System.out.println("Key: " + k.getSelfOrient() + " | "
