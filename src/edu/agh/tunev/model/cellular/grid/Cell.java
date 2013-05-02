@@ -1,6 +1,7 @@
 package edu.agh.tunev.model.cellular.grid;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.world.Physics;
@@ -25,17 +26,49 @@ public final class Cell {
 		this.position = _position;
 		this.board = _board;
 	}
-	
-	public boolean isOccupied(){
+
+	/**
+	 * Checks if a cell is occupied by any agent.
+	 * 
+	 * @return
+	 */
+	public boolean isOccupied() {
 		return (person != null);
 	}
+	
+	
+	/**
+	 * Discreet to continuous dimensions.
+	 */
+	public static Point2D.Double d2c(Point d) {
+		return new Point2D.Double((0.5 + d.x) * CELL_SIZE, (0.5 + d.y) * CELL_SIZE);
+	}
 
-	public void update(Physics phys){
+	/**
+	 * Continuous to discrete dimensions.
+	 */
+	public static Point c2d(Point2D.Double c) {
+		return new Point((int) Math.round(Math.floor(c.x / CELL_SIZE)),
+				(int) Math.round(Math.floor(c.y / CELL_SIZE)));
+	}
+
+	/**
+	 * <pre>
+	 * Sets new physics data.
+	 *  Calculates distance to the nearest exit.
+	 *  Evaluates the static field value.
+	 * </pre>
+	 * 
+	 * @param phys
+	 *            current physics data for this cell
+	 */
+	public void update(Physics phys) {
 		setPhysics(phys);
 		calculateDistToExit();
-		evaluateStaticFieldVal();	
+		evaluateStaticFieldVal();
 	}
 	
+
 	// TODO: change formula
 	private void evaluateStaticFieldVal() {
 		staticFieldVal = PHYSICS_COEFF

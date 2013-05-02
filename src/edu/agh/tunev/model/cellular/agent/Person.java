@@ -1,5 +1,6 @@
 package edu.agh.tunev.model.cellular.agent;
 
+import java.awt.Point;
 import java.awt.geom.Point2D;
 
 import edu.agh.tunev.model.AbstractPerson;
@@ -24,9 +25,9 @@ public final class Person extends AbstractPerson {
 	
 	private Cell cell;
 	
-
-	public Person(Point2D.Double position) {
-		super(position);
+	public Person(Cell _cell) {
+		super(Cell.d2c(_cell.getPosition()));
+		this.cell = _cell;
 	}
 	
 	

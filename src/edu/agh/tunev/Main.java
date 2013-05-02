@@ -1,9 +1,11 @@
 package edu.agh.tunev;
 
-import edu.agh.tunev.model.cellular.AllowedConfigs;
-import edu.agh.tunev.model.cellular.NeighbourIndexException;
-import edu.agh.tunev.model.cellular.agent.Person;
+import java.awt.Point;
+import java.awt.geom.Point2D;
+import java.util.Vector;
+
 import edu.agh.tunev.model.cellular.agent.WrongOrientationException;
+import edu.agh.tunev.model.cellular.grid.Cell;
 
 public class Main {
 
@@ -18,17 +20,6 @@ public class Main {
 		// MainFrame.register(edu.agh.tunev.model.cellular.Model.class);
 
 		// new MainFrame();
-
-		AllowedConfigs cfgs = null;
-		try {
-			cfgs = new AllowedConfigs(0.45, 0.27, 0.25);
-		} catch (NeighbourIndexException | WrongOrientationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		cfgs.printIntersectionMap();
-		
 		
 	}
 }
