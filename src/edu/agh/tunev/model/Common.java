@@ -1,5 +1,6 @@
 package edu.agh.tunev.model;
 
+import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -135,6 +136,8 @@ public final class Common {
 
 		return dx * dy * num;
 	}
+	
+
 
 	private Common() {
 		// you shall not instantiate ^-^
