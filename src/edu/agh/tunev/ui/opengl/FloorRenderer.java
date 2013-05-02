@@ -15,7 +15,7 @@ final class FloorRenderer implements Renderable {
 	@Override
 	public void render(GL2 gl, double t) {
 		// TODO Auto-generated method stub
-
+		world.getDimension();
 	}
 
 }

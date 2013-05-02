@@ -20,6 +20,7 @@ final class PersonRenderer implements Renderable {
 	public void render(GL2 gl, double t) {
 		// TODO Auto-generated method stub
 		MovableState state = model.getMovableState(person, t);
+		state.position.getX();
 	}
 
 }
