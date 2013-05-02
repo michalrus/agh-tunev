@@ -8,6 +8,15 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 public final class Common {
+	
+	/**
+	 * Normalizuje podany kąt do przedziału [0, 360).
+	 * @param angle
+	 * @return
+	 */
+	public static double normalizeDeg(double angle) {
+		return (360.0 + angle % 360.0) % 360.0;
+	}
 
 	/**
 	 * Creates an ellipse with given center point and rotation angle.
