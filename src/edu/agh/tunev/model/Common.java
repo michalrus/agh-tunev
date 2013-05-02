@@ -25,7 +25,7 @@ public final class Common {
 	 */
 	public static Shape createEllipse(Point2D.Double center, double a, double b,
 			double deg) {
-		return AffineTransform.getRotateInstance(-deg * Math.PI / 180.0, center.x, center.y)
+		return AffineTransform.getRotateInstance(Math.toRadians(deg), center.x, center.y)
 				.createTransformedShape(
 						new Ellipse2D.Double(center.x - a / 2, center.y - b / 2, a, b));
 	}
