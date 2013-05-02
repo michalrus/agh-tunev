@@ -16,7 +16,16 @@ import java.awt.geom.Point2D;
  */
 public abstract class AbstractPerson {
 
-	protected Point2D.Double position;
+	/** Współrzędne osoby. */
+	protected Point2D.Double position;	
+	/** Kąt patrzenia w [deg] (kąt 0 to zwrot i kierunek OX). */
+	protected double orientation = 0;
+	/** Rodzaj ruchu. */
+	protected Movement movement = Movement.STANDING;
+	
+	public static enum Movement {
+		STANDING, SQUATTING, CRAWLING
+	}
 
 	/** Szerokość osoby (OX) [m] */
 	protected double width = 0.5;
@@ -37,6 +46,22 @@ public abstract class AbstractPerson {
 	
 	public void setPosition(Point2D.Double position) {
 		this.position = position;
+	}
+
+	public double getOrientation() {
+		return orientation;
+	}
+
+	public void setOrientation(double orientation) {
+		this.orientation = orientation;
+	}
+
+	public Movement getMovement() {
+		return movement;
+	}
+
+	public void setMovement(Movement movement) {
+		this.movement = movement;
 	}
 
 	public double getWidth() {
