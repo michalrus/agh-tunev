@@ -8,7 +8,17 @@ public final class Person extends AbstractPerson {
 	
 
 	public enum Orientation{
-		E, NE, N, NW, W, SW, S, SE	
+		E, NE, N, NW, W, SW, S, SE;
+		
+		public static int getIndexOf(Orientation orient){
+			Person.Orientation[] values = Person.Orientation.values();
+			int ind;
+
+			for (ind = 0; ind < values.length  && values[ind] != orient; ++ind)
+				;
+			
+			return ind;
+		}
 	}
 
 	public Person(Point2D.Double position) {

@@ -9,6 +9,8 @@ import java.awt.geom.Rectangle2D;
 
 public final class Common {
 
+	private final static int GRID_RESOLUTION = 1000;;
+	
 	/**
 	 * Creates an ellipse with given center point and rotation angle.
 	 * 
@@ -23,11 +25,12 @@ public final class Common {
 	 * 
 	 * @return Shape representing the ellipse.
 	 */
-	public static Shape createEllipse(Point2D.Double center, double a, double b,
-			double deg) {
-		return AffineTransform.getRotateInstance(-deg * Math.PI / 180.0, center.x, center.y)
-				.createTransformedShape(
-						new Ellipse2D.Double(center.x - a / 2, center.y - b / 2, a, b));
+	public static Shape createEllipse(Point2D.Double center, double width,
+			double height, double deg) {
+		return AffineTransform.getRotateInstance(deg * Math.PI / 180.0,
+				center.x, center.y).createTransformedShape(
+				new Ellipse2D.Double(center.x - width / 2, center.y - height
+						/ 2, width, height));
 	}
 
 	/**
@@ -40,8 +43,8 @@ public final class Common {
 		// oczywiście im większa siatka, tym dłużej zajmie policzenie tego
 		//
 		// złożoność tej funkcji to O(w*h)
-		final int w = 100;
-		final int h = 100;
+		final int w = GRID_RESOLUTION;
+		final int h = GRID_RESOLUTION;
 		// dla siatki 5000x5000 i dwóch identycznych elips 200x100:
 		//
 		// Shape e1 = ellipse(250, 250, 200, 100, 0);
@@ -55,10 +58,12 @@ public final class Common {
 		//
 		// procentowa różnica: -0.0251%
 		//
-		// oczywiście 5000x5000 to zabójcza wielkość, liczy się jakieś 2 sekundy
+		// oczywiście 5000x5000 to zabójcza wielkość, liczy się jakieś 2
+		// sekundy
 		// u mnie, nie wspominając o zajętej pamięci
 		//
-		// dla porównania: siatka 100x100 daje błąd 0.66%, więc wciąż spoko
+		// dla porównania: siatka 100x100 daje błąd 0.66%, więc wciąż
+		// spoko
 		//
 		// 10x10 -> 10.87%
 
