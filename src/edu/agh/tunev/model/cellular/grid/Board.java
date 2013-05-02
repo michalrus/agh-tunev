@@ -1,5 +1,6 @@
 package edu.agh.tunev.model.cellular.grid;
 
+import java.awt.Point;
 import java.util.Vector;
 
 public final class Board {
@@ -12,7 +13,7 @@ public final class Board {
 		for (int iy = 0; iy < ny; iy++) {
 			Vector<Cell> row = new Vector<Cell>();
 			for (int ix = 0; ix < nx; ix++)
-				row.add(new Cell());
+				row.add(new Cell(new Point(ix, iy), this));
 			cells.add(row);
 		}
 	}

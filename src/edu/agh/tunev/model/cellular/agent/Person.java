@@ -3,6 +3,7 @@ package edu.agh.tunev.model.cellular.agent;
 import java.awt.geom.Point2D;
 
 import edu.agh.tunev.model.AbstractPerson;
+import edu.agh.tunev.model.cellular.grid.Cell;
 
 public final class Person extends AbstractPerson {
 	
@@ -20,11 +21,22 @@ public final class Person extends AbstractPerson {
 			return ind;
 		}
 	}
+	
+	private Cell cell;
+	
 
 	public Person(Point2D.Double position) {
 		super(position);
 	}
 	
+	
+	/**
+	 * Maps {@code Orientation} to corresponding angle.
+	 * 
+	 * @param orient
+	 * @return
+	 * @throws WrongOrientationException
+	 */
 	public static Double orientToAngle(Orientation orient) throws WrongOrientationException{	
 		//starting at east
 		Double angle = 0.0;
@@ -42,4 +54,12 @@ public final class Person extends AbstractPerson {
 			return angle;
 	}
 
+	
+	private Double evaluateFieldPotential(){
+		return null;
+	}
+	
+	private int positionToIndex(Cell c){
+		return 0;
+	}
 }
