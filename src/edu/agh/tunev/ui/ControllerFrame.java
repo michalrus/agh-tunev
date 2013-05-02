@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -43,6 +44,13 @@ import edu.agh.tunev.ui.opengl.Scene;
 import edu.agh.tunev.world.World;
 
 final class ControllerFrame extends JInternalFrame {
+
+	private static final double minRho = 4; // [m]
+	private static final double maxRho = 30; // [m]
+	private static final double dRho = 0.01; // [m]
+	private static final double dPhi = 0.01; // [deg]
+	private static final double dTheta = 0.01; // [deg]
+	private static final double dxy = 0.01; // [deg]
 
 	static {
 		GLProfile.initSingleton();
@@ -106,6 +114,8 @@ final class ControllerFrame extends JInternalFrame {
 	private JPopupMenu plotMenu;
 	private JSlider slider;
 	private double sliderTime = 0.0, progressTime = 0.0;
+	private double rho = minRho, phi = 30, theta = 45;
+	private Point2D.Double anchor = new Point2D.Double(0, 0);
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
 	Refresher refresher;
 	private GLWindow glwindow;
@@ -123,9 +133,21 @@ final class ControllerFrame extends JInternalFrame {
 				glcanvas = new NewtCanvasAWT(glwindow);
 
 				glwindow.addGLEventListener(new Scene(world, model, people,
-						new Scene.TimeGetter() {
-							public double get() {
+						new Scene.SceneGetter() {
+							public double getTime() {
 								return sliderTime;
+							}
+							public double getRho() {
+								return rho;
+							}
+							public double getPhi() {
+								return phi;
+							}
+							public double getTheta() {
+								return theta;
+							}
+							public Point2D.Double getAnchor() {
+								return anchor;
 							}
 						}));
 
@@ -304,6 +326,163 @@ final class ControllerFrame extends JInternalFrame {
 			}
 		});
 
+		// camera control: rho
+
+		c.gridy++;
+		c.gridx = 0;
+		c.gridwidth = 0;
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		p.add(new JLabel("Camera \u03C1 = "), c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 3;
+		final JSlider rhoSlider = new JSlider((int) Math.round(minRho / dRho),
+				(int) Math.round(maxRho / dRho),
+				(int) Math.round(rho / dRho));
+		p.add(rhoSlider, c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		final JLabel rhoLabel = new JLabel();
+		p.add(rhoLabel, c);
+		
+		rhoSlider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				rho = rhoSlider.getValue() * dRho;
+				rhoLabel.setText(decimalFormat.format(rho) + " [m]");
+				refresh();
+			}
+		});
+		rhoSlider.getChangeListeners()[0].stateChanged(null);
+
+		// camera control: phi
+
+		c.gridy++;
+		c.gridx = 0;
+		c.gridwidth = 0;
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		p.add(new JLabel("Camera \u03D5 = "), c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 3;
+		final JSlider phiSlider = new JSlider((int) Math.round(0 / dPhi),
+				(int) Math.round(90 / dPhi),
+				(int) Math.round(phi / dPhi));
+		p.add(phiSlider, c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		final JLabel phiLabel = new JLabel();
+		p.add(phiLabel, c);
+		
+		phiSlider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				phi = phiSlider.getValue() * dPhi;
+				phiLabel.setText(decimalFormat.format(phi) + "\u00b0");
+				refresh();
+			}
+		});
+		phiSlider.getChangeListeners()[0].stateChanged(null);
+
+		// camera control: theta
+
+		c.gridy++;
+		c.gridx = 0;
+		c.gridwidth = 0;
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		p.add(new JLabel("Camera \u03B8 = "), c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 3;
+		final JSlider thetaSlider = new JSlider((int) Math.round(0 / dTheta),
+				(int) Math.round(360 / dPhi),
+				(int) Math.round(theta / dPhi));
+		p.add(thetaSlider, c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		final JLabel thetaLabel = new JLabel();
+		p.add(thetaLabel, c);
+		
+		thetaSlider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				theta = thetaSlider.getValue() * dTheta;
+				thetaLabel.setText(decimalFormat.format(theta) + "\u00b0");
+				refresh();
+			}
+		});
+		thetaSlider.getChangeListeners()[0].stateChanged(null);
+
+		// camera control: x
+
+		c.gridy++;
+		c.gridx = 0;
+		c.gridwidth = 0;
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		p.add(new JLabel("Camera X = "), c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 3;
+		final JSlider xSlider = new JSlider((int) Math.round(0 / dxy),
+				(int) Math.round(world.getDimension().x / dxy),
+				(int) Math.round(0 / dxy));
+		p.add(xSlider, c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		final JLabel xLabel = new JLabel();
+		p.add(xLabel, c);
+		
+		xSlider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				anchor.x = xSlider.getValue() * dxy;
+				xLabel.setText(decimalFormat.format(anchor.x) + " [m]");
+				refresh();
+			}
+		});
+		xSlider.getChangeListeners()[0].stateChanged(null);
+
+		// camera control: x
+
+		c.gridy++;
+		c.gridx = 0;
+		c.gridwidth = 0;
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		p.add(new JLabel("Camera Y = "), c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 3;
+		final JSlider ySlider = new JSlider((int) Math.round(0 / dxy),
+				(int) Math.round(world.getDimension().y / dxy),
+				(int) Math.round(0 / dxy));
+		p.add(ySlider, c);
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		final JLabel yLabel = new JLabel();
+		p.add(yLabel, c);
+		
+		ySlider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				anchor.y = ySlider.getValue() * dxy;
+				yLabel.setText(decimalFormat.format(anchor.y) + " [m]");
+				refresh();
+			}
+		});
+		ySlider.getChangeListeners()[0].stateChanged(null);
+
+		// show
+
 		setVisible(true);
 		pack();
 		setSize(400, getSize().height);
@@ -328,11 +507,15 @@ final class ControllerFrame extends JInternalFrame {
 				.setText("t = " + decimalFormat.format(sliderTime) + " [s]");
 
 		// refresh visualisation
-		if (refresher != null
-				&& Math.abs(previousSliderTime - sliderTime) > DT / 2) {
+		if (Math.abs(previousSliderTime - sliderTime) > DT / 2) {
 			previousSliderTime = sliderTime;
-			refresher.refresh();
+			refresh();
 		}
+	}
+	
+	private void refresh() {
+		if (refresher != null)
+			refresher.refresh();
 	}
 
 	private void onPlayingFinished() {

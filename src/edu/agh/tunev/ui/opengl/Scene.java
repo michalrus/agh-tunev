@@ -1,5 +1,6 @@
 package edu.agh.tunev.ui.opengl;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -15,44 +16,57 @@ import edu.agh.tunev.world.World;
 
 public class Scene implements GLEventListener {
 
-	public interface TimeGetter {
-		public double get();
+	public interface SceneGetter {
+		public double getTime();
+
+		public double getRho();
+
+		public double getPhi();
+
+		public double getTheta();
+
+		public Point2D.Double getAnchor();
 	}
 
 	private final World world;
-	private final TimeGetter timeGetter;
+	private final SceneGetter sceneGetter;
 	private final List<Renderable> renderers;
 	private final AbstractModel<? extends AbstractPerson> model;
 	private final Vector<AbstractPerson> people;
 
 	public Scene(World world, AbstractModel<? extends AbstractPerson> model,
-			Vector<AbstractPerson> people, TimeGetter timeGetter) {
+			Vector<AbstractPerson> people, SceneGetter timeGetter) {
 		this.world = world;
 		this.model = model;
 		this.people = people;
-		this.timeGetter = timeGetter;
+		this.sceneGetter = timeGetter;
 		renderers = new ArrayList<Renderable>();
 	}
 
 	@Override
 	public void display(GLAutoDrawable drawable) {
-		double t = timeGetter.get();
+		final double t = sceneGetter.getTime();
+		final double rho = sceneGetter.getRho();
+		final double phi = sceneGetter.getPhi();
+		final double theta = sceneGetter.getTheta();
+		final Point2D.Double anchor = sceneGetter.getAnchor();
 
 		GL2 gl = drawable.getGL().getGL2();
 
 		// clear buffer
 		gl.glClear(GL.GL_COLOR_BUFFER_BIT);
-		
+
 		// set camera
-		setCamera(gl);
+		setCamera(gl, rho, phi, theta, anchor);
 
 		// render all
 		for (Renderable r : renderers)
 			r.render(gl, t);
 	}
-	
-	private void setCamera(GL2 gl) {
-		
+
+	private void setCamera(GL2 gl, double rho, double phi, double theta,
+			Point2D.Double anchor) {
+
 	}
 
 	@Override
@@ -66,7 +80,7 @@ public class Scene implements GLEventListener {
 
 		renderers.add(new FloorRenderer(world));
 		renderers.add(new WallsRenderer(world));
-		
+
 		for (AbstractPerson p : people)
 			renderers.add(new PersonRenderer(p, model));
 
