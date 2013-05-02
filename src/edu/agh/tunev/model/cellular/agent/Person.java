@@ -29,13 +29,14 @@ public final class Person extends AbstractPerson {
 		//starting at east
 		Double angle = 0.0;
 		Person.Orientation[] orientValues = Person.Orientation.values();
+		int i;
 		
 		//TODO: more sensible error handling
-		for(int i = 0; i < orientValues.length && orient != orientValues[i]; ++i){
+		for(i = 0; i < orientValues.length && orient != orientValues[i]; ++i){
 			angle += 45.0;
 		}
 		
-		if(angle > 315)
+		if(i > 7)
 			throw new WrongOrientationException();
 		else 
 			return angle;
