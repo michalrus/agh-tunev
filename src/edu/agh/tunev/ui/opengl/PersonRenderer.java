@@ -3,7 +3,7 @@ package edu.agh.tunev.ui.opengl;
 import javax.media.opengl.GL2;
 
 import edu.agh.tunev.model.AbstractModel;
-import edu.agh.tunev.model.AbstractModel.MovableState;
+import edu.agh.tunev.model.AbstractModel.PersonState;
 import edu.agh.tunev.model.AbstractPerson;
 
 final class PersonRenderer implements Renderable {
@@ -19,7 +19,7 @@ final class PersonRenderer implements Renderable {
 	@Override
 	public void render(GL2 gl, double t) {
 		// TODO Auto-generated method stub
-		MovableState state = model.getMovableState(person, t);
+		PersonState state = model.getPersonState(person, t);
 		state.position.getX();
 	}
 

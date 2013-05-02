@@ -14,7 +14,9 @@ import java.awt.geom.Point2D;
  * Do <code>Person extends AbstractPerson</code>: informacja o tym co osoba
  * sądzi nt. konkretnych pól automatu komórkowego
  */
-public abstract class AbstractPerson extends AbstractMovable {
+public abstract class AbstractPerson {
+
+	protected Point2D.Double position;
 
 	/** Szerokość osoby (OX) [m] */
 	protected double width = 0.5;
@@ -26,7 +28,15 @@ public abstract class AbstractPerson extends AbstractMovable {
 	protected double height = 1.7;
 
 	public AbstractPerson(Point2D.Double position) {
-		super(position);
+		this.position = position;
+	}
+	
+	public Point2D.Double getPosition() {
+		return position;
+	}
+	
+	public void setPosition(Point2D.Double position) {
+		this.position = position;
 	}
 
 	public double getWidth() {

@@ -7,7 +7,7 @@ import java.util.NavigableMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import edu.agh.tunev.model.AbstractModel.MovableState;
+import edu.agh.tunev.model.AbstractModel.PersonState;
 
 public final class Interpolator {
 
@@ -17,23 +17,23 @@ public final class Interpolator {
 	 * @param t
 	 *            Dana chwila czasu dla jakiej zapisujemy stan.
 	 */
-	public void saveState(AbstractMovable movable, double t) {
-		NavigableMap<Double, MovableState> states = data.get(movable);
+	public void saveState(AbstractPerson person, double t) {
+		NavigableMap<Double, PersonState> states = data.get(person);
 		if (states == null) {
-			states = new ConcurrentSkipListMap<Double, MovableState>();
-			data.put(movable, states);
+			states = new ConcurrentSkipListMap<Double, PersonState>();
+			data.put(person, states);
 		}
 
-		states.put(t, new MovableState(movable));
+		states.put(t, new PersonState(person));
 	}
 
-	public MovableState getState(AbstractMovable movable, double t) {
-		NavigableMap<Double, MovableState> states = data.get(movable);
+	public PersonState getState(AbstractPerson person, double t) {
+		NavigableMap<Double, PersonState> states = data.get(person);
 		if (states == null)
 			return null;
 
-		final Entry<Double, MovableState> prev = states.floorEntry(t);
-		final Entry<Double, MovableState> next = states.ceilingEntry(t);
+		final Entry<Double, PersonState> prev = states.floorEntry(t);
+		final Entry<Double, PersonState> next = states.ceilingEntry(t);
 		
 		if (prev == null && next == null)
 			return null;
@@ -59,13 +59,13 @@ public final class Interpolator {
 		final double x = px + ratio * (nx - px);
 		final double y = py + ratio * (ny - py);
 		
-		return new MovableState(new Point2D.Double(x, y));
+		return new PersonState(new Point2D.Double(x, y));
 	}
 
 	public Interpolator() {
-		data = new ConcurrentHashMap<AbstractMovable, NavigableMap<Double, MovableState>>();
+		data = new ConcurrentHashMap<AbstractPerson, NavigableMap<Double, PersonState>>();
 	}
 
-	private final Map<AbstractMovable, NavigableMap<Double, MovableState>> data;
+	private final Map<AbstractPerson, NavigableMap<Double, PersonState>> data;
 
 }

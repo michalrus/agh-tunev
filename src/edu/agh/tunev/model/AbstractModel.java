@@ -56,18 +56,18 @@ public abstract class AbstractModel<T extends AbstractPerson> {
 			World.ProgressCallback progressCallback,
 			Statistics.AddCallback addCallback);
 	
-	public final MovableState getMovableState(AbstractMovable movable, double t) {
-		return interpolator.getState(movable, t);
+	public final PersonState getPersonState(AbstractPerson person, double t) {
+		return interpolator.getState(person, t);
 	}
 
-	public static class MovableState {
+	public static class PersonState {
 		public final Point2D.Double position;
 	
-		public MovableState(AbstractMovable movable) {
-			position = movable.getPosition();
+		public PersonState(AbstractPerson person) {
+			position = person.getPosition();
 		}
 		
-		public MovableState(Point2D.Double position) {
+		public PersonState(Point2D.Double position) {
 			this.position = position;
 		}
 	}
