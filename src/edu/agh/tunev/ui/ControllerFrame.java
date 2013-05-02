@@ -45,12 +45,12 @@ import edu.agh.tunev.world.World;
 
 final class ControllerFrame extends JInternalFrame {
 
-	private static final double minRho = 4; // [m]
-	private static final double maxRho = 30; // [m]
-	private static final double dRho = 0.01; // [m]
-	private static final double dPhi = 0.01; // [deg]
-	private static final double dTheta = 0.01; // [deg]
-	private static final double dxy = 0.01; // [deg]
+	private static final double minRho = 5; // [m]
+	private static final double maxRho = 50; // [m]
+	private static final double dRho = 0.1; // [m]
+	private static final double dPhi = 0.1; // [deg]
+	private static final double dTheta = 0.1; // [deg]
+	private static final double dxy = 0.1; // [deg]
 
 	static {
 		GLProfile.initSingleton();
@@ -114,7 +114,7 @@ final class ControllerFrame extends JInternalFrame {
 	private JPopupMenu plotMenu;
 	private JSlider slider;
 	private double sliderTime = 0.0, progressTime = 0.0;
-	private double rho = minRho, phi = 30, theta = 45;
+	private double rho = 25, phi = 20, theta = 80;
 	private Point2D.Double anchor = new Point2D.Double(0, 0);
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
 	Refresher refresher;
@@ -141,10 +141,10 @@ final class ControllerFrame extends JInternalFrame {
 								return rho;
 							}
 							public double getPhi() {
-								return phi;
+								return Math.toRadians(phi);
 							}
 							public double getTheta() {
-								return theta;
+								return Math.toRadians(theta);
 							}
 							public Point2D.Double getAnchor() {
 								return anchor;
@@ -370,7 +370,7 @@ final class ControllerFrame extends JInternalFrame {
 		c.gridx += c.gridwidth;
 		c.gridwidth = 3;
 		final JSlider phiSlider = new JSlider((int) Math.round(0 / dPhi),
-				(int) Math.round(90 / dPhi),
+				(int) Math.round(89.9 / dPhi),
 				(int) Math.round(phi / dPhi));
 		p.add(phiSlider, c);
 
@@ -431,9 +431,10 @@ final class ControllerFrame extends JInternalFrame {
 
 		c.gridx += c.gridwidth;
 		c.gridwidth = 3;
+		anchor.x = world.getDimension().x / 2;
 		final JSlider xSlider = new JSlider((int) Math.round(0 / dxy),
 				(int) Math.round(world.getDimension().x / dxy),
-				(int) Math.round(0 / dxy));
+				(int) Math.round(anchor.x / dxy));
 		p.add(xSlider, c);
 
 		c.gridx += c.gridwidth;
@@ -450,7 +451,7 @@ final class ControllerFrame extends JInternalFrame {
 		});
 		xSlider.getChangeListeners()[0].stateChanged(null);
 
-		// camera control: x
+		// camera control: y
 
 		c.gridy++;
 		c.gridx = 0;
@@ -462,9 +463,10 @@ final class ControllerFrame extends JInternalFrame {
 
 		c.gridx += c.gridwidth;
 		c.gridwidth = 3;
+		anchor.y = world.getDimension().y / 2;
 		final JSlider ySlider = new JSlider((int) Math.round(0 / dxy),
 				(int) Math.round(world.getDimension().y / dxy),
-				(int) Math.round(0 / dxy));
+				(int) Math.round(anchor.y / dxy));
 		p.add(ySlider, c);
 
 		c.gridx += c.gridwidth;
