@@ -19,12 +19,17 @@ public final class Common {
 	}
 
 	/**
-	 * Oblicza kąt w połowie między podanymi kątami. (Po "mniejszej" stronie).
+	 * Oblicza kąt o danym położeniu względnym na odległości między podanymi kątami. (Po węższej stronie).
+	 * 
 	 * @param angle1
 	 * @param angle2
+	 * @param ratio
 	 * @return
 	 */
-	public static double bisectDeg(double angle1, double angle2) {
+	public static double sectDeg(double angle1, double angle2, double ratio) {
+		if (ratio < 0 || ratio > 1)
+			throw new IllegalArgumentException("ratio must belong to [0;1]");
+		
 		final double a1 = normalizeDeg(angle1);
 		final double a2 = normalizeDeg(angle2);
 		
@@ -36,9 +41,9 @@ public final class Common {
 		final double rdiff2 = normalizeDeg(-diff);
 		
 		if (rdiff1 < rdiff2)
-			return normalizeDeg(min + rdiff1 / 2);
+			return normalizeDeg(min + rdiff1 * ratio);
 		else
-			return normalizeDeg(min - rdiff2 / 2);
+			return normalizeDeg(min - rdiff2 * ratio);
 	}
 
 	/**

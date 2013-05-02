@@ -13,14 +13,15 @@ public final class Interpolator {
 		public final Point2D.Double position;
 		public final double orientation;
 		public final AbstractPerson.Movement movement;
-	
+
 		public PersonState(AbstractPerson person) {
 			position = person.getPosition();
 			orientation = person.getOrientation();
 			movement = person.getMovement();
 		}
-		
-		public PersonState(Point2D.Double position, double orientation, AbstractPerson.Movement movement) {
+
+		public PersonState(Point2D.Double position, double orientation,
+				AbstractPerson.Movement movement) {
 			this.position = position;
 			this.orientation = orientation;
 			this.movement = movement;
@@ -34,7 +35,8 @@ public final class Interpolator {
 	 *            Dana chwila czasu dla jakiej zapisujemy stan.
 	 */
 	public void saveState(AbstractPerson person, double t) {
-		NavigableMap<Double, Interpolator.PersonState> states = data.get(person);
+		NavigableMap<Double, Interpolator.PersonState> states = data
+				.get(person);
 		if (states == null) {
 			states = new ConcurrentSkipListMap<Double, Interpolator.PersonState>();
 			data.put(person, states);
@@ -44,13 +46,16 @@ public final class Interpolator {
 	}
 
 	public Interpolator.PersonState getState(AbstractPerson person, double t) {
-		NavigableMap<Double, Interpolator.PersonState> states = data.get(person);
+		NavigableMap<Double, Interpolator.PersonState> states = data
+				.get(person);
 		if (states == null)
 			return null;
 
-		final Entry<Double, Interpolator.PersonState> prevEntry = states.floorEntry(t);
-		final Entry<Double, Interpolator.PersonState> nextEntry = states.ceilingEntry(t);
-		
+		final Entry<Double, Interpolator.PersonState> prevEntry = states
+				.floorEntry(t);
+		final Entry<Double, Interpolator.PersonState> nextEntry = states
+				.ceilingEntry(t);
+
 		if (prevEntry == null && nextEntry == null)
 			return null;
 		else if (prevEntry == null)
@@ -62,13 +67,13 @@ public final class Interpolator {
 
 		final PersonState prev = prevEntry.getValue();
 		final PersonState next = nextEntry.getValue();
-		
+
 		final double prevT = prevEntry.getKey();
 		final double nextT = nextEntry.getKey();
-		
+
 		// splajny 1-go stopnia? będzie git
-		
-		final double ratio = (t - prevEntry.getKey()) / (nextEntry.getKey() - prevEntry.getKey());
+
+		final double ratio = (t - prevT) / (nextT - prevT);
 
 		final Point2D.Double p = prev.position;
 		final Point2D.Double n = next.position;
@@ -77,11 +82,13 @@ public final class Interpolator {
 		final double py = p.getY();
 		final double nx = n.getX();
 		final double ny = n.getY();
-		
+
 		final double x = px + ratio * (nx - px);
 		final double y = py + ratio * (ny - py);
-		
-		return new Interpolator.PersonState(new Point2D.Double(x, y), prev.orientation, prev.movement);
+
+		return new Interpolator.PersonState(new Point2D.Double(x, y),
+				Common.sectDeg(prev.orientation, next.orientation, ratio),
+				prev.movement);
 	}
 
 	public Interpolator() {
