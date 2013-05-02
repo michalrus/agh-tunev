@@ -13,7 +13,7 @@ import edu.agh.tunev.statistics.Statistics.AddCallback;
 import edu.agh.tunev.world.Physics;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
-
+/*
 public final class Model extends AbstractModel<Person> {
 
 	public final static String MODEL_NAME = "wąsowy automat komórkowy";
@@ -116,20 +116,6 @@ public final class Model extends AbstractModel<Person> {
 		// i tyle ^_^
 	}
 
-	/**
-	 * Discreet (Board) to continuous (World) dimensions.
-	 */
-	private static Point2D.Double d2c(Point d) {
-		// zwróć pozycję w środku komórki
-		return new Point2D.Double((0.5 + d.x) * DX, (0.5 + d.y) * DY);
-	}
+	
 
-	/**
-	 * Continuous (World) to discrete (Board) dimensions.
-	 */
-	private static Point c2d(Point2D.Double c) {
-		return new Point((int) Math.round(Math.floor(c.x / DX)),
-				(int) Math.round(Math.floor(c.y / DY)));
-	}
-
-}
+}*/
