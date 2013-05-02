@@ -19,6 +19,29 @@ public final class Common {
 	}
 
 	/**
+	 * Oblicza kąt w połowie między podanymi kątami. (Po "mniejszej" stronie).
+	 * @param angle1
+	 * @param angle2
+	 * @return
+	 */
+	public static double bisectDeg(double angle1, double angle2) {
+		final double a1 = normalizeDeg(angle1);
+		final double a2 = normalizeDeg(angle2);
+		
+		final double min = Math.min(a1, a2);
+		final double max = Math.max(a1, a2);
+
+		final double diff = max - min;
+		final double rdiff1 = normalizeDeg(diff);
+		final double rdiff2 = normalizeDeg(-diff);
+		
+		if (rdiff1 < rdiff2)
+			return normalizeDeg(min + rdiff1 / 2);
+		else
+			return normalizeDeg(min - rdiff2 / 2);
+	}
+
+	/**
 	 * Creates an ellipse with given center point and rotation angle.
 	 * 
 	 * @param center
