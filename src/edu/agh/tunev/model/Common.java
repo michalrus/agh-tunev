@@ -48,10 +48,10 @@ public final class Common {
 		// Shape e2 = ellipse(250, 250, 200, 100, 0);
 		//
 		// zwrócony wynik to:
-		// 62847.616
+		// 15711.904
 		//
 		// a analityczny wynik:
-		// 200*100*Math.PI == 62831.8530718
+		// 200/2*100/2*Math.PI == 15707.9632679489661923
 		//
 		// procentowa różnica: -0.0251%
 		//
@@ -91,7 +91,7 @@ public final class Common {
 				if ((image.getRGB(i, j) & 0x00ffffff) == 0)
 					num++;
 
-		return 4 * dx * dy * num;
+		return dx * dy * num;
 	}
 
 	private Common() {
