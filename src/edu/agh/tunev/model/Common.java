@@ -13,13 +13,13 @@ public final class Common {
 	 * Creates an ellipse with given center point and rotation angle.
 	 * 
 	 * @param center
-	 *            coordinates of the shape's center
+	 *            coordinates of the shape's center.
 	 * @param a
-	 *            original (pre-rotation) OX dimension
+	 *            original (pre-rotation) OX dimension.
 	 * @param b
-	 *            original (pre-rotation) OY dimension
+	 *            original (pre-rotation) OY dimension.
 	 * @param deg
-	 *            counter-clockwise rotation around the {@param center}
+	 *            counter-clockwise rotation around the {@code center}.
 	 * 
 	 * @return Shape representing the ellipse.
 	 */
