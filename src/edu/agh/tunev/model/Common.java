@@ -1,6 +1,5 @@
 package edu.agh.tunev.model;
 
-import java.awt.Point;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -9,20 +8,22 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 public final class Common {
-	
+
 	private final static int INTERSECTION_AREA_GRID_RESOLUTION = 1000;
 
 	/**
 	 * Normalizuje podany kąt do przedziału [0, 360).
+	 * 
 	 * @param angle
 	 * @return
 	 */
 	public static double normalizeDeg(double angle) {
 		return (360.0 + angle % 360.0) % 360.0;
 	}
-	
+
 	/**
-	 * Oblicza kąt o danym położeniu względnym na odległości między podanymi kątami. (Po węższej stronie).
+	 * Oblicza kąt o danym położeniu względnym na odległości między podanymi
+	 * kątami. (Po węższej stronie).
 	 * 
 	 * @param angle1
 	 * @param angle2
@@ -32,17 +33,17 @@ public final class Common {
 	public static double sectDeg(double angle1, double angle2, double ratio) {
 		if (ratio < 0 || ratio > 1)
 			throw new IllegalArgumentException("ratio must belong to [0;1]");
-		
+
 		final double a1 = normalizeDeg(angle1);
 		final double a2 = normalizeDeg(angle2);
-		
+
 		final double min = Math.min(a1, a2);
 		final double max = Math.max(a1, a2);
 
 		final double diff = max - min;
 		final double rdiff1 = normalizeDeg(diff);
 		final double rdiff2 = normalizeDeg(-diff);
-		
+
 		if (rdiff1 < rdiff2)
 			return normalizeDeg(min + rdiff1 * ratio);
 		else
@@ -97,8 +98,7 @@ public final class Common {
 		// procentowa różnica: -0.0251%
 		//
 		// oczywiście 5000x5000 to zabójcza wielkość, liczy się jakieś 2
-		// sekundy
-		// u mnie, nie wspominając o zajętej pamięci
+		// sekundy u mnie, nie wspominając o zajętej pamięci
 		//
 		// dla porównania: siatka 100x100 daje błąd 0.66%, więc wciąż
 		// spoko
@@ -136,8 +136,6 @@ public final class Common {
 
 		return dx * dy * num;
 	}
-	
-
 
 	private Common() {
 		// you shall not instantiate ^-^
