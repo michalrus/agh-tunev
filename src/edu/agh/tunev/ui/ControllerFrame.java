@@ -137,7 +137,7 @@ final class ControllerFrame extends JInternalFrame {
 
 						frame.setTitle(modelNumber + ": " + modelName + " - "
 								+ " visualization");
-						frame.setSize(400, 300);
+						frame.setSize(600, 450);
 						frame.setLocation(modelNumber * 20 + 400,
 								modelNumber * 20);
 						frame.setFrameIcon(null);
