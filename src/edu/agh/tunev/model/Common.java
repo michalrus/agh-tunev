@@ -9,6 +9,8 @@ import java.awt.geom.Rectangle2D;
 
 public final class Common {
 	
+	private final static int INTERSECTION_AREA_GRID_RESOLUTION = 1000;
+
 	/**
 	 * Normalizuje podany kąt do przedziału [0, 360).
 	 * @param angle
@@ -17,8 +19,6 @@ public final class Common {
 	public static double normalizeDeg(double angle) {
 		return (360.0 + angle % 360.0) % 360.0;
 	}
-
-	private final static int GRID_RESOLUTION = 1000;;
 	
 	/**
 	 * Oblicza kąt o danym położeniu względnym na odległości między podanymi kątami. (Po węższej stronie).
@@ -80,8 +80,8 @@ public final class Common {
 		// oczywiście im większa siatka, tym dłużej zajmie policzenie tego
 		//
 		// złożoność tej funkcji to O(w*h)
-		final int w = GRID_RESOLUTION;
-		final int h = GRID_RESOLUTION;
+		final int w = INTERSECTION_AREA_GRID_RESOLUTION;
+		final int h = INTERSECTION_AREA_GRID_RESOLUTION;
 		// dla siatki 5000x5000 i dwóch identycznych elips 200x100:
 		//
 		// Shape e1 = ellipse(250, 250, 200, 100, 0);
