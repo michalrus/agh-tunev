@@ -1,15 +1,12 @@
 package edu.agh.tunev.model.cellular;
 
 import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.jfree.util.ShapeUtilities;
 
 import edu.agh.tunev.model.Common;
 import edu.agh.tunev.model.cellular.agent.Person;
