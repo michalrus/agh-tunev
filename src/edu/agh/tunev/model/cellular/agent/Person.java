@@ -58,32 +58,6 @@ public final class Person extends AbstractPerson {
 	}
 
 	/**
-<<<<<<< OURS
-	 * Checks if desired cell is occupied
-	 * 
-	 * @param c
-	 * @return
-	 * @throws NotANeighbourException
-	 */
-	// TODO: 
-	private boolean checkIfAccessible(Cell c) throws NotANeighbourException {
-		if (c.isOccupied())
-			return false;
-
-		//ArrayList<Cell> neighbours = 
-
-		//if (!fieldViability)
-			//return false;
-
-		return true;
-	}
-
-	// TODO: change cost function
-	private Double evaluateFieldPotential(Cell c) {
-		return c.getStaticFieldVal();
-	}
-
-	/**
 	 * <pre>
 	 * A snippet mapping position to neighbour index required in AllowedCfgs.
 	 * Indexes:
