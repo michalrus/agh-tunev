@@ -61,6 +61,10 @@ public final class Person extends AbstractPerson {
 	}
 	
 	private int positionToIndex(Cell c){
+		Point posOth = c.getPosition();
+		Point posCell = cell.getPosition();
+		
+		//TODO: finish
 		return 0;
 	}
 }

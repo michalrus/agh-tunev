@@ -1,6 +1,7 @@
 package edu.agh.tunev.model.cellular.grid;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import edu.agh.tunev.world.World;
@@ -32,8 +33,34 @@ public final class Board {
 		}
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param p
+	 * @return
+	 */
 	public Cell getCellAt(Point p) {
 		return cells.get(p.y).get(p.x);
+	}
+
+	/**
+	 * Finds neighbours (Moore's neighbourhood) for a given cell.
+	 * 
+	 * @param cell
+	 * @return
+	 */
+	public ArrayList<Cell> getCellNeighbours(Cell cell) {
+		ArrayList<Cell> neighbours = new ArrayList<Cell>();
+		Point position = cell.getPosition();
+
+		for (int i = position.y - 1; i <= position.y + 1; ++i)
+			for (int j = position.x - 1; j < position.x + 1; ++j) {
+				Cell c = getCellAt(new Point(i, j));
+				if (!c.equals(cell))
+					neighbours.add(c);
+			}
+
+		return neighbours;
 	}
 
 	public void update() {
