@@ -47,26 +47,6 @@ public final class Board {
 		return new Point(cells.get(0).size(), cells.size());
 	}
 
-	/**
-	 * Finds neighbours (Moore's neighbourhood) for a given cell.
-	 * 
-	 * @param cell
-	 * @return
-	 */
-	//TODO: OutOfBounds error prone
-	public ArrayList<Cell> getCellNeighbours(Cell cell) {
-		ArrayList<Cell> neighbours = new ArrayList<Cell>();
-		Point position = cell.getPosition();
-
-		for (int i = position.y - 1; i <= position.y + 1; ++i)
-			for (int j = position.x - 1; j < position.x + 1; ++j) {
-				Cell c = getCellAt(new Point(i, j));
-				if (!c.equals(cell))
-					neighbours.add(c);
-			}
-
-		return neighbours;
-	}
 
 	public void update() {
 		// TODO Auto-generated method stub

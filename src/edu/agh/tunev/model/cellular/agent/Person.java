@@ -1,9 +1,10 @@
 package edu.agh.tunev.model.cellular.agent;
 
-import java.awt.Point;
+import java.util.List;
 
 import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.model.PersonState;
+import edu.agh.tunev.model.cellular.AllowedConfigs;
 import edu.agh.tunev.model.cellular.NeighbourIndexException;
 import edu.agh.tunev.model.cellular.grid.Cell;
 
@@ -65,11 +66,16 @@ public final class Person {
 	}
 
 	private Cell cell;
+	private PersonState currentState;
+	private Orientation orientation;
+	private final AllowedConfigs allowedConfigs;
 	public final PersonProfile profile;
 
-	public Person(PersonProfile profile, Cell _cell) {
-		this.profile = profile;
+	public Person(PersonProfile _profile, Cell _cell,
+			AllowedConfigs _allowedConfigs) {
+		this.profile = _profile;
 		this.cell = _cell;
+		this.allowedConfigs = _allowedConfigs;
 	}
 
 	/**
@@ -96,46 +102,54 @@ public final class Person {
 			return angle;
 	}
 
+	/**
+	 * 
+	 * 
+	 * @param cell
+	 * @return
+	 * @throws NeighbourIndexException
+	 */
+	private boolean checkFieldAvailability(Cell cell)
+			throws NeighbourIndexException {
+		if (cell.isOccupied())
+			return false;
+
+		boolean cellAvailability = allowedConfigs.checkCellAvailability(cell,
+				turnTowardCell(cell));
+		
+		if (!cellAvailability)
+			return false;
+		
+		//TODO: check for obstacles
+
+		return true;
+	}
+
 	private Double evaluateFieldPotential() {
 		// <michał> czy to bezpieczne? będziesz pamiętał żeby sprawdzać
 		// wszędzie? może lepiej double i return Double.NaN?
 		return null;
 	}
 
-	/**
-	 * <pre>
-	 * A snippet mapping position to neighbour index required in AllowedCfgs.
-	 * Indexes:
-	 * 
-	 * <pre>
-	 * A snippet mapping position to neighbour index required in AllowedCfgs.
-	 * Indexes:
-	 *  0   1   2
-	 *  3       4
-	 *  5   6   7
-	 * 
-	 * @param c
-	 * @return
-	 */
-	private int positionToIndex(Cell c) {
-		Point posOth = c.getPosition();
-		Point posCell = this.cell.getPosition();
-
-		// <michał> nie rozumiem tego poniżej, skąd te liczby :P
-		return (posOth.x - posCell.x + 2) + 3
-				* Math.abs(posOth.y - posCell.y - 2);
+	private Orientation turnTowardCell(Cell c) throws NeighbourIndexException {
+		int index = Cell.positionToIndex(this.cell, c);
+		return Orientation.neighbourIndexToOrient(index);
 	}
 
 	public Cell getCell() {
 		return cell;
 	}
 
-	public double getOrientation() {
-		return 0; // TODO
+	public Orientation getOrientation() {
+		return orientation;
 	}
 
 	public PersonState.Movement getMovement() {
 		return null; // TODO
+	}
+
+	public PersonState getCurrentState() {
+		return currentState;
 	}
 
 }
