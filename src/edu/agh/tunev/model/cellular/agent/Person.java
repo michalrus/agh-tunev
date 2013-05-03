@@ -37,10 +37,19 @@ public final class Person {
 		 */
 		public static Orientation randomizeOrient() {
 			Orientation[] values = values();
-			int index = (int) Math.random() * 8;
+			int index = (int) (Math.random() * 8);
 			return values[index];
 		}
 
+		/**
+		 * Agent needs to turn toward a cell before he moves. This method maps a
+		 * neighbour index (check {@link Cell#positionToIndex(Cell, Cell)}) of
+		 * that cell to the anticipated orientation of an agent.
+		 * 
+		 * @param index
+		 * @return
+		 * @throws NeighbourIndexException
+		 */
 		public static Orientation neighbourIndexToOrient(int index)
 				throws NeighbourIndexException {
 			switch (index) {
@@ -66,20 +75,21 @@ public final class Person {
 		}
 
 		/**
-		 * Returns orientation laying on the same axis but directed inversly.
+		 * Check if an orientation belongs to {{@code W,SW,S,SE}} and if so -
+		 * maps it to an orientation laying on the same axis but directed
+		 * inversly, eg. S -> N; SW -> NE.
 		 * 
 		 * @param orient
-		 * @return
-		 * 			opposite orientation
+		 * @return opposite orientation
 		 */
 		public static Orientation translateOrient(Orientation orient) {
 			int index = getIndexOf(orient);
 			int translatedIndex = index;
 			Orientation[] values = values();
-			
-			if(index >= values.length/2)
+
+			if (index >= values.length / 2)
 				translatedIndex = (index + (values.length / 2)) % values.length;
-					
+
 			return values[translatedIndex];
 		}
 	}
@@ -92,10 +102,12 @@ public final class Person {
 	public final PersonProfile profile;
 
 	public Person(PersonProfile _profile, Cell _cell,
-			AllowedConfigs _allowedConfigs) {
+			AllowedConfigs _allowedConfigs) throws WrongOrientationException {
 		this.profile = _profile;
 		this.cell = _cell;
 		this.allowedConfigs = _allowedConfigs;
+		this.orientation = Orientation.randomizeOrient();
+		saveState();
 	}
 
 	/**

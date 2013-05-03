@@ -52,8 +52,13 @@ public final class Model extends AbstractModel {
 		// stwórz sobie swoje reprezentacje ludzi:
 		Vector<Person> people = new Vector<Person>();
 		for (PersonProfile profile : profiles)
-			people.add(new Person(profile, board.getCellAt(Cell
-					.c2d(profile.initialPosition)), allowedConfigs));
+			try {
+				people.add(new Person(profile, board.getCellAt(Cell
+						.c2d(profile.initialPosition)), allowedConfigs));
+			} catch (WrongOrientationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		// pozaznaczaj inicjalne (t=0) pozycje osób w interpolatorze (dlatego,
 		// że w niektórych modelach -- w tym też! -- te pozycje mogą się różnić
