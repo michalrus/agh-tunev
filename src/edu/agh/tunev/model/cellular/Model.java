@@ -1,11 +1,9 @@
 package edu.agh.tunev.model.cellular;
 
-import java.awt.Point;
 import java.util.Vector;
 
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.PersonProfile;
-import edu.agh.tunev.model.PersonState;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.model.cellular.agent.WrongOrientationException;
 import edu.agh.tunev.model.cellular.grid.Board;
@@ -93,7 +91,11 @@ public final class Model extends AbstractModel {
 					e.printStackTrace();
 				}
 				interpolator.saveState(p.profile, t, p.getCurrentState());
-				System.out.println(p.getCurrentState());
+				// <michał> wyświetlanie
+				// "edu.agh.tunev.model.PersonState@194cd40" niczego nie daje, a
+				// spowalnia, wykomentowałem :)
+				//
+				// System.out.println(p.getCurrentState());
 			}
 
 			// TODO: uaktualnij wykresy, które mogą być aktualizowane w trakcie
