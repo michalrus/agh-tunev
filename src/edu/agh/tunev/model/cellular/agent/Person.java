@@ -105,6 +105,7 @@ public final class Person {
 			AllowedConfigs _allowedConfigs) throws WrongOrientationException {
 		this.profile = _profile;
 		this.cell = _cell;
+		cell.setPerson(this);
 		this.allowedConfigs = _allowedConfigs;
 		this.orientation = Orientation.randomizeOrient();
 		saveState();
@@ -158,11 +159,11 @@ public final class Person {
 																		// external
 																		// conditions
 
-		PersonState state = new PersonState(position, numOrient, movement);
+		currentState = new PersonState(position, numOrient, movement);
 	}
 
 	private Cell selectField() throws NeighbourIndexException {
-		List<Cell> neighbours = cell.getCellNeighbours();
+		List<Cell> neighbours = cell.getNeighbours();
 		Cell selectedField = this.cell;
 		Double lowestPotential = evaluateCostFunc(this.cell);
 

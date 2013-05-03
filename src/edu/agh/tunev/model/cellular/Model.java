@@ -17,7 +17,6 @@ import edu.agh.tunev.world.World.ProgressCallback;
 
 public final class Model extends AbstractModel {
 
-	// TODO: zmieniiiiiiiiiić!!!111111 bo będzie wstyd
 	public final static String MODEL_NAME = "Social Distances Cellular Automata";
 	private final static double INTERSECTION_TOLERANCE = 0.1;
 
@@ -25,9 +24,6 @@ public final class Model extends AbstractModel {
 		super(world);
 	}
 
-	// przykładowa dyskretyzacja czasu -- czyli co ile czasu nasze osobniki
-	// podejmują decyzję o skoku? inaczej: co ile rzeczywistego czasu
-	// update'ujemy stan naszego automatu -- oczywiście w sekundach -- do zmiany
 	private static final double DT = 0.5;
 
 	private Board board;
@@ -59,22 +55,7 @@ public final class Model extends AbstractModel {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
-		// pozaznaczaj inicjalne (t=0) pozycje osób w interpolatorze (dlatego,
-		// że w niektórych modelach -- w tym też! -- te pozycje mogą się różnić
-		// od tych wyklikanych przez usera (np. być zaokrąglane do rozmiaru
-		// komórki, jak tutaj)
-		for (PersonProfile profile : profiles)
-			interpolator
-					.saveState(
-							profile,
-							0.0,
-							new PersonState(Cell.d2c(Cell
-									.c2d(profile.initialPosition)),
-									profile.initialOrientation,
-									profile.initialMovement));
-		// BTW, nie mam pojęcia dlaczego Eclipse postanowiło w ten sposób to
-		// automatycznie sformatować jak wyżej... -,-
+		
 
 		// TODO: pododawaj jakieś wykresy do UI związane z tym modelem
 		//
@@ -100,20 +81,20 @@ public final class Model extends AbstractModel {
 			// uaktualnij rzeczywisty czas naszej symulacji
 			t += DT;
 
-			// pościągaj aktualną fizykę do komórek
-			Point i = new Point();
-			Point n = board.getDimension();
-			for (i.y = 0; i.y < n.y; i.y++)
-				for (i.x = 0; i.x < n.x; i.x++)
-					board.getCellAt(i).setPhysics(
-							world.getPhysicsAt(t, Cell.d2c(i)));
-
-			// przejdź do następnego stanu automatu
-			board.update();
+			board.update(t);
+			
 
 			// porób zdjęcia osobom w aktualnym rzeczywistym czasie
-			for (Person p : people)
+			for (Person p : people){
+				try {
+					p.update();
+				} catch (NeighbourIndexException | WrongOrientationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				interpolator.saveState(p.profile, t, p.getCurrentState());
+				System.out.println(p.getCurrentState());
+			}
 
 			// TODO: uaktualnij wykresy, które mogą być aktualizowane w trakcie
 			// symulowania

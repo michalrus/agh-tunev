@@ -18,6 +18,9 @@ public final class Cell {
 
 	/** Physics coefficient useful for static field value evaluation */
 	private final static double PHYSICS_COEFF = 0.2; // TODO: set
+	
+	/** Distance coefficient useful for static field value evaluation */
+	private final static double DIST_COEFF = 1; //TODO: set
 
 	private final Board board;
 	private final Point position;
@@ -98,8 +101,8 @@ public final class Cell {
 	 * @return
 	 */
 	public static int positionToIndex(Cell baseCell, Cell neighbourCell) {
-		Point posOth = baseCell.getPosition();
-		Point posCell = neighbourCell.getPosition();
+		Point posCell = baseCell.getPosition();
+		Point posOth = neighbourCell.getPosition();
 
 		// every row index has triple value
 		// abs is to invert indexing (top to bottom)
@@ -119,12 +122,12 @@ public final class Cell {
 	 * @param cell
 	 * @return
 	 */
-	public List<Cell> getCellNeighbours() {
+	public List<Cell> getNeighbours() {
 		List<Cell> neighbours = new ArrayList<Cell>();
 
 		for (int i = position.y - 1; i <= position.y + 1; ++i)
-			for (int j = position.x - 1; j < position.x + 1; ++j) {
-				Cell c = board.getCellAt(new Point(i, j));
+			for (int j = position.x - 1; j <= position.x + 1; ++j) {
+				Cell c = board.getCellAt(new Point(j, i));
 				if (c != null && !c.equals(this))
 					neighbours.add(c);
 			}
@@ -138,7 +141,7 @@ public final class Cell {
 	 * @return
 	 */
 	public List<Cell> getOccupiedNeighbours() {
-		List<Cell> neighbours = getCellNeighbours();
+		List<Cell> neighbours = getNeighbours();
 		List<Cell> occupiedNeighbours = new ArrayList<Cell>();
 
 		for (Cell c : neighbours) {
