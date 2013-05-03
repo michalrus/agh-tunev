@@ -1,5 +1,6 @@
 package edu.agh.tunev.model.cellular.agent;
 
+import java.awt.geom.Point2D;
 import java.util.List;
 
 import edu.agh.tunev.model.PersonProfile;
@@ -65,6 +66,7 @@ public final class Person {
 		}
 	}
 
+	// TODO: discard unnecessary fields
 	private Cell cell;
 	private PersonState currentState;
 	private Orientation orientation;
@@ -102,32 +104,56 @@ public final class Person {
 			return angle;
 	}
 
+	public void update() throws NeighbourIndexException, WrongOrientationException {
+		Cell destination = selectField();
+		Orientation orient = turnTowardCell(destination);
+		orientation = orient;
+		
+		cell.release();
+		cell = destination;
+		cell.setPerson(this);
+		
+		saveState();
+	}
+
+	private void saveState() throws WrongOrientationException {
+		Point2D.Double position = Cell.d2c(cell.getPosition());
+		Double numOrient = orientToAngle(orientation);
+		PersonState.Movement movement = PersonState.Movement.STANDING; // TODO:
+																		// adjusting
+																		// pose
+																		// to
+																		// external
+																		// conditions
+
+		PersonState state = new PersonState(position, numOrient, movement);
+	}
+
 	private Cell selectField() throws NeighbourIndexException {
 		List<Cell> neighbours = cell.getCellNeighbours();
 		Cell selectedField = this.cell;
 		Double lowestPotential = evaluateCostFunc(this.cell);
 
-		for(Cell neighbour : neighbours){
+		for (Cell neighbour : neighbours) {
 			Double neighbourPotential = getFieldPotential(neighbour);
-			if(neighbourPotential < lowestPotential){
+			if (neighbourPotential < lowestPotential) {
 				selectedField = neighbour;
 				lowestPotential = neighbourPotential;
 			}
 		}
-		
+
 		return selectedField;
 	}
 
-	
 	private Double getFieldPotential(Cell c) throws NeighbourIndexException {
 		if (checkFieldAvailability(c))
 			return evaluateCostFunc(c);
 
 		return Double.MAX_VALUE;
 	}
-	
+
 	// TODO:change cost function, adjust to social dist model;
-	private Double evaluateCostFunc(Cell c){
+	private Double evaluateCostFunc(Cell c) {
 		return c.getStaticFieldVal();
 	}
 

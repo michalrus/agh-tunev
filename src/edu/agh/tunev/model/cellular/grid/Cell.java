@@ -39,6 +39,10 @@ public final class Cell {
 	}
 	
 	
+	public void release(){
+		setPerson(null);
+	}
+	
 	/**
 	 * Discreet to continuous dimensions.
 	 */
