@@ -2,15 +2,17 @@ package edu.agh.tunev.ui.opengl;
 
 import javax.media.opengl.GL2;
 
+import com.jogamp.opengl.util.gl2.GLUT;
+
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.model.PersonState;
 
 final class PersonRenderer implements Renderable {
-	
+
 	private final PersonProfile person;
 	private final AbstractModel model;
-	
+
 	public PersonRenderer(PersonProfile person, AbstractModel model) {
 		this.person = person;
 		this.model = model;
@@ -18,13 +20,35 @@ final class PersonRenderer implements Renderable {
 
 	@Override
 	public void render(GL2 gl, double t) {
-		// TODO Auto-generated method stub
 		PersonState state = model.getPersonState(person, t);
-		
 		if (state == null)
 			return;
-		
+
 		state.position.getX();
+
+		gl.glPushMatrix();
+		gl.glTranslated(state.position.x, 0, state.position.y);
+		gl.glRotated(state.orientation, 0, 1, 0);
+		drawStandingPerson(gl);
+		gl.glPopMatrix();
+	}
+
+	private static double relativeHeadSize = 0.3;
+
+	private void drawStandingPerson(GL2 gl) {
+		gl.glPushMatrix();
+
+		gl.glPushMatrix();
+		gl.glTranslated(-PersonProfile.WIDTH / 2, 0, -PersonProfile.GIRTH / 2);
+		Common.drawCuboid(gl, PersonProfile.WIDTH, person.height
+				* (1.0 - relativeHeadSize), PersonProfile.GIRTH);
+		gl.glPopMatrix();
+
+		gl.glTranslated(0, person.height * (1.0 - relativeHeadSize / 2.0), 0);
+		GLUT glut = new GLUT();
+		glut.glutSolidSphere(person.height * relativeHeadSize / 2, 20, 20);
+
+		gl.glPopMatrix();
 	}
 
 }
