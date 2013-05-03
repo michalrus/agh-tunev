@@ -4,6 +4,7 @@ import java.awt.Point;
 
 import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.model.PersonState;
+import edu.agh.tunev.model.cellular.NeighbourIndexException;
 import edu.agh.tunev.model.cellular.grid.Cell;
 
 public final class Person {
@@ -11,6 +12,12 @@ public final class Person {
 	public enum Orientation {
 		E, NE, N, NW, W, SW, S, SE;
 
+		/**
+		 * Returns index of a specific {@code Person.Orienation}
+		 * 
+		 * @param orient
+		 * @return index of orientation
+		 */
 		public static int getIndexOf(Orientation orient) {
 			Person.Orientation[] values = Person.Orientation.values();
 			int ind;
@@ -20,6 +27,41 @@ public final class Person {
 
 			return ind;
 		}
+
+		/**
+		 * Randomizes {@code Person.Orientation}
+		 * 
+		 * @return random orientation
+		 */
+		public static Orientation randomizeOrient() {
+			Orientation[] values = values();
+			int index = (int) Math.random() * 8;
+			return values[index];
+		}
+
+		public static Orientation neighbourIndexToOrient(int index)
+				throws NeighbourIndexException {
+			switch (index) {
+			case 0:
+				return NW;
+			case 1:
+				return N;
+			case 2:
+				return NE;
+			case 3:
+				return W;
+			case 4:
+				return E;
+			case 5:
+				return SW;
+			case 6:
+				return S;
+			case 7:
+				return SE;
+			default:
+				throw new NeighbourIndexException();
+			}
+		}
 	}
 
 	private Cell cell;
@@ -28,18 +70,6 @@ public final class Person {
 	public Person(PersonProfile profile, Cell _cell) {
 		this.profile = profile;
 		this.cell = _cell;
-	}
-	
-	public Cell getCell() {
-		return cell;
-	}
-	
-	public double getOrientation() {
-		return -45.0;
-	}
-	
-	public PersonState.Movement getMovement() {
-		return PersonState.Movement.CRAWLING;
 	}
 
 	/**
@@ -76,10 +106,10 @@ public final class Person {
 	 * <pre>
 	 * A snippet mapping position to neighbour index required in AllowedCfgs.
 	 * Indexes:
-=======
-	 * <pre> A snippet mapping position to neighbour index required in AllowedCfgs.
-	 *	Indexes:
->>>>>>> THEIRS
+	 * 
+	 * <pre>
+	 * A snippet mapping position to neighbour index required in AllowedCfgs.
+	 * Indexes:
 	 *  0   1   2
 	 *  3       4
 	 *  5   6   7
@@ -90,10 +120,22 @@ public final class Person {
 	private int positionToIndex(Cell c) {
 		Point posOth = c.getPosition();
 		Point posCell = this.cell.getPosition();
-		
+
 		// <michał> nie rozumiem tego poniżej, skąd te liczby :P
 		return (posOth.x - posCell.x + 2) + 3
 				* Math.abs(posOth.y - posCell.y - 2);
+	}
+
+	public Cell getCell() {
+		return cell;
+	}
+
+	public double getOrientation() {
+		return 0; // TODO
+	}
+
+	public PersonState.Movement getMovement() {
+		return null; // TODO
 	}
 
 }

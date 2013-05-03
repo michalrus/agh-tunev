@@ -53,6 +53,7 @@ public final class Board {
 	 * @param cell
 	 * @return
 	 */
+	//TODO: OutOfBounds error prone
 	public ArrayList<Cell> getCellNeighbours(Cell cell) {
 		ArrayList<Cell> neighbours = new ArrayList<Cell>();
 		Point position = cell.getPosition();

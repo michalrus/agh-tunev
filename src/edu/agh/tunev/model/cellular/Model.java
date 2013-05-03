@@ -17,7 +17,7 @@ import edu.agh.tunev.world.World.ProgressCallback;
 public final class Model extends AbstractModel {
 
 	// TODO: zmieniiiiiiiiiić!!!111111 bo będzie wstyd
-	public final static String MODEL_NAME = "wąsowy automat komórkowy";
+	public final static String MODEL_NAME = "Social Distances Cellular Automata";
 
 	public Model(World world) {
 		super(world);
