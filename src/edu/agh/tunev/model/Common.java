@@ -136,6 +136,7 @@ public final class Common {
 
 		return dx * dy * num;
 	}
+	
 
 	private Common() {
 		// you shall not instantiate ^-^

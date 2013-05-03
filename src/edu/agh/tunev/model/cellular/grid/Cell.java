@@ -1,12 +1,14 @@
 package edu.agh.tunev.model.cellular.grid;
 
 import java.awt.Point;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.Vector;
 
 import edu.agh.tunev.model.cellular.agent.Person;
+import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.Physics;
 
 public final class Cell {
@@ -22,11 +24,28 @@ public final class Cell {
 	private Person person = null;
 	private Physics physics = null;
 	private Double staticFieldVal;
-	private int distToExit;
+	private Double distToExit;
 
 	public Cell(Point _position, Board _board) {
 		this.position = _position;
 		this.board = _board;
+		calculateDistToExit();
+	}
+
+	/**
+	 * <pre>
+	 * Sets new physics data.
+	 *  Calculates distance to the nearest exit.
+	 *  Evaluates the static field value.
+	 * </pre>
+	 * 
+	 * @param phys
+	 *            current physics data for this cell
+	 */
+	public void update(Physics phys) {
+		setPhysics(phys);
+		calculateDistToExit();
+		evaluateStaticFieldVal();
 	}
 
 	/**
@@ -100,15 +119,13 @@ public final class Cell {
 	 * @param cell
 	 * @return
 	 */
-	// TODO: OutOfBounds error prone
-	// TODO: check for bugs
 	public List<Cell> getCellNeighbours() {
 		List<Cell> neighbours = new ArrayList<Cell>();
 
 		for (int i = position.y - 1; i <= position.y + 1; ++i)
 			for (int j = position.x - 1; j < position.x + 1; ++j) {
 				Cell c = board.getCellAt(new Point(i, j));
-				if (!c.equals(this))
+				if (c != null && !c.equals(this))
 					neighbours.add(c);
 			}
 
@@ -116,7 +133,7 @@ public final class Cell {
 	}
 
 	/**
-	 * Finds cell's neighbours occupied by a person.
+	 * Finds cell's neighbours occupied by a {@code Person}.
 	 * 
 	 * @return
 	 */
@@ -132,30 +149,30 @@ public final class Cell {
 		return occupiedNeighbours;
 	}
 
-	/**
-	 * <pre>
-	 * Sets new physics data.
-	 *  Calculates distance to the nearest exit.
-	 *  Evaluates the static field value.
-	 * </pre>
-	 * 
-	 * @param phys
-	 *            current physics data for this cell
-	 */
-	public void update(Physics phys) {
-		setPhysics(phys);
-		calculateDistToExit();
-		evaluateStaticFieldVal();
-	}
-
 	// TODO: change formula
 	private void evaluateStaticFieldVal() {
 		staticFieldVal = PHYSICS_COEFF
 				* (physics.get(Physics.Type.TEMPERATURE)) + distToExit;
 	}
 
+	/**
+	 * Calculates distance to the nearest exit.
+	 * 
+	 */
 	private void calculateDistToExit() {
-		// TODO:
+		Vector<Exit> exits = board.getExits();
+		Double dist = Double.MAX_VALUE;
+
+		for (Exit e : exits) {
+			Line2D exitSegment = new Line2D.Double(e.p1, e.p2);
+			Double currDist = exitSegment.ptLineDist(d2c(position));
+
+			if (currDist < dist) {
+				dist = currDist;
+			}
+		}
+
+		this.distToExit = dist;
 	}
 
 	public Person getPerson() {

@@ -1,18 +1,21 @@
 package edu.agh.tunev.model.cellular.grid;
 
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.Vector;
 
+import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.World;
 
 public final class Board {
 
 	private Vector<Vector<Cell>> cells;
-	private World world;
+	private final World world;
+	private Vector<Exit> exits;
+	
 
 	public Board(World _world) {
 		this.world = _world;
+		exits = world.getExits();
 		spawnCells();
 
 	}
@@ -34,13 +37,16 @@ public final class Board {
 	}
 
 	/**
-	 * 
+	 * Returns cell with a given index.
 	 * 
 	 * @param p
-	 * @return
+	 * @return {@code Cell} at {@code p}
 	 */
 	public Cell getCellAt(Point p) {
-		return cells.get(p.y).get(p.x);
+		if(p.y >= 0 && p.x >= 0)	
+			return cells.get(p.y).get(p.x);
+		
+		return null;
 	}
 	
 	public Point getDimension() {
@@ -50,6 +56,10 @@ public final class Board {
 
 	public void update() {
 		// TODO Auto-generated method stub
+	}
+	
+	public Vector<Exit> getExits() {
+		return exits;
 	}
 
 }
