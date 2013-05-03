@@ -16,6 +16,9 @@ public final class Interpolator {
 	 *            Dana chwila czasu dla jakiej zapisujemy stan.
 	 */
 	public void saveState(PersonProfile profile, double t, PersonState state) {
+		if (profile == null || state == null)
+			return;
+		
 		NavigableMap<Double, PersonState> states = data.get(profile);
 		if (states == null) {
 			states = new ConcurrentSkipListMap<Double, PersonState>();
