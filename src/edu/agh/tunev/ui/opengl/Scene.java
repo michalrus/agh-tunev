@@ -14,6 +14,7 @@ import javax.media.opengl.glu.GLU;
 
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.PersonProfile;
+import edu.agh.tunev.world.Obstacle;
 import edu.agh.tunev.world.World;
 
 public class Scene implements GLEventListener {
@@ -112,6 +113,9 @@ public class Scene implements GLEventListener {
 		renderers.add(new FloorRenderer(world, sceneGetter));
 		renderers.add(new WallsRenderer(world));
 
+		for (Obstacle o : world.getObstacles())
+			renderers.add(new ObstacleRenderer(o));
+		
 		for (PersonProfile p : people)
 			renderers.add(new PersonRenderer(p, model));
 		
