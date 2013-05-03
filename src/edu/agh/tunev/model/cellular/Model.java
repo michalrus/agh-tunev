@@ -7,6 +7,7 @@ import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.model.PersonState;
 import edu.agh.tunev.model.cellular.agent.Person;
+import edu.agh.tunev.model.cellular.agent.WrongOrientationException;
 import edu.agh.tunev.model.cellular.grid.Board;
 import edu.agh.tunev.model.cellular.grid.Cell;
 import edu.agh.tunev.statistics.KilledStatistics;
@@ -18,6 +19,7 @@ public final class Model extends AbstractModel {
 
 	// TODO: zmieniiiiiiiiiić!!!111111 bo będzie wstyd
 	public final static String MODEL_NAME = "Social Distances Cellular Automata";
+	private final static double INTERSECTION_TOLERANCE = 0.1;
 
 	public Model(World world) {
 		super(world);
@@ -29,6 +31,7 @@ public final class Model extends AbstractModel {
 	private static final double DT = 0.5;
 
 	private Board board;
+	private AllowedConfigs allowedConfigs;
 
 	@Override
 	public void simulate(double duration, Vector<PersonProfile> profiles,
@@ -36,12 +39,21 @@ public final class Model extends AbstractModel {
 
 		// stwórz automat (planszę komórek)
 		board = new Board(world);
+		
+		//TODO: exception handling
+		try {
+			allowedConfigs = new AllowedConfigs(PersonProfile.WIDTH,
+					PersonProfile.GIRTH, Cell.CELL_SIZE, INTERSECTION_TOLERANCE);
+		} catch (NeighbourIndexException | WrongOrientationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		// stwórz sobie swoje reprezentacje ludzi:
 		Vector<Person> people = new Vector<Person>();
 		for (PersonProfile profile : profiles)
 			people.add(new Person(profile, board.getCellAt(Cell
-					.c2d(profile.initialPosition))));
+					.c2d(profile.initialPosition)), allowedConfigs));
 
 		// pozaznaczaj inicjalne (t=0) pozycje osób w interpolatorze (dlatego,
 		// że w niektórych modelach -- w tym też! -- te pozycje mogą się różnić
@@ -96,11 +108,7 @@ public final class Model extends AbstractModel {
 
 			// porób zdjęcia osobom w aktualnym rzeczywistym czasie
 			for (Person p : people)
-				interpolator.saveState(
-						p.profile,
-						t,
-						new PersonState(Cell.d2c(p.getCell().getPosition()), p
-								.getOrientation(), p.getMovement()));
+				interpolator.saveState(p.profile, t, p.getCurrentState());
 
 			// TODO: uaktualnij wykresy, które mogą być aktualizowane w trakcie
 			// symulowania

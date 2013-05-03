@@ -1,9 +1,11 @@
 package edu.agh.tunev.model.cellular.agent;
 
-import java.awt.Point;
+import java.awt.geom.Point2D;
+import java.util.List;
 
 import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.model.PersonState;
+import edu.agh.tunev.model.cellular.AllowedConfigs;
 import edu.agh.tunev.model.cellular.NeighbourIndexException;
 import edu.agh.tunev.model.cellular.grid.Cell;
 
@@ -64,12 +66,18 @@ public final class Person {
 		}
 	}
 
+	// TODO: discard unnecessary fields
 	private Cell cell;
+	private PersonState currentState;
+	private Orientation orientation;
+	private final AllowedConfigs allowedConfigs;
 	public final PersonProfile profile;
 
-	public Person(PersonProfile profile, Cell _cell) {
-		this.profile = profile;
+	public Person(PersonProfile _profile, Cell _cell,
+			AllowedConfigs _allowedConfigs) {
+		this.profile = _profile;
 		this.cell = _cell;
+		this.allowedConfigs = _allowedConfigs;
 	}
 
 	/**
@@ -96,46 +104,101 @@ public final class Person {
 			return angle;
 	}
 
-	private Double evaluateFieldPotential() {
-		// <michał> czy to bezpieczne? będziesz pamiętał żeby sprawdzać
-		// wszędzie? może lepiej double i return Double.NaN?
-		return null;
+	public void update() throws NeighbourIndexException, WrongOrientationException {
+		Cell destination = selectField();
+		Orientation orient = turnTowardCell(destination);
+		orientation = orient;
+		
+		cell.release();
+		cell = destination;
+		cell.setPerson(this);
+		
+		saveState();
+	}
+
+	private void saveState() throws WrongOrientationException {
+		Point2D.Double position = Cell.d2c(cell.getPosition());
+		Double numOrient = orientToAngle(orientation);
+		PersonState.Movement movement = PersonState.Movement.STANDING; // TODO:
+																		// adjusting
+																		// pose
+																		// to
+																		// external
+																		// conditions
+
+		PersonState state = new PersonState(position, numOrient, movement);
+	}
+
+	private Cell selectField() throws NeighbourIndexException {
+		List<Cell> neighbours = cell.getCellNeighbours();
+		Cell selectedField = this.cell;
+		Double lowestPotential = evaluateCostFunc(this.cell);
+
+		for (Cell neighbour : neighbours) {
+			Double neighbourPotential = getFieldPotential(neighbour);
+			if (neighbourPotential < lowestPotential) {
+				selectedField = neighbour;
+				lowestPotential = neighbourPotential;
+			}
+		}
+
+		return selectedField;
+	}
+
+	private Double getFieldPotential(Cell c) throws NeighbourIndexException {
+		if (checkFieldAvailability(c))
+			return evaluateCostFunc(c);
+
+		return Double.MAX_VALUE;
+	}
+
+	// TODO:change cost function, adjust to social dist model;
+	private Double evaluateCostFunc(Cell c) {
+		return c.getStaticFieldVal();
 	}
 
 	/**
-	 * <pre>
-	 * A snippet mapping position to neighbour index required in AllowedCfgs.
-	 * Indexes:
+	 * Checks if coming onto {@code cell} is possible.
 	 * 
-	 * <pre>
-	 * A snippet mapping position to neighbour index required in AllowedCfgs.
-	 * Indexes:
-	 *  0   1   2
-	 *  3       4
-	 *  5   6   7
-	 * 
-	 * @param c
+	 * @param cell
 	 * @return
+	 * @throws NeighbourIndexException
 	 */
-	private int positionToIndex(Cell c) {
-		Point posOth = c.getPosition();
-		Point posCell = this.cell.getPosition();
+	private boolean checkFieldAvailability(Cell cell)
+			throws NeighbourIndexException {
+		if (cell.isOccupied())
+			return false;
 
-		// <michał> nie rozumiem tego poniżej, skąd te liczby :P
-		return (posOth.x - posCell.x + 2) + 3
-				* Math.abs(posOth.y - posCell.y - 2);
+		boolean cellAvailability = allowedConfigs.checkCellAvailability(cell,
+				turnTowardCell(cell));
+
+		if (!cellAvailability)
+			return false;
+
+		// TODO: check for obstacles
+
+		return true;
+	}
+
+	private Orientation turnTowardCell(Cell c) throws NeighbourIndexException {
+		int index = Cell.positionToIndex(this.cell, c);
+		return Orientation.neighbourIndexToOrient(index);
 	}
 
 	public Cell getCell() {
 		return cell;
 	}
 
-	public double getOrientation() {
-		return 0; // TODO
+	public Orientation getOrientation() {
+		return orientation;
 	}
 
 	public PersonState.Movement getMovement() {
 		return null; // TODO
+	}
+
+	public PersonState getCurrentState() {
+		return currentState;
 	}
 
 }

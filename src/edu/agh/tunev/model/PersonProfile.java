@@ -14,6 +14,12 @@ import java.awt.geom.Point2D;
  */
 public final class PersonProfile {
 
+	/** Szerokość osoby (OX) [m] */
+	public final static double WIDTH = 0.45;
+
+	/** Grubość osoby (OY) [m] */
+	public final static double GIRTH = 0.27;
+	
 	/** Pozycja początkowa */
 	public final Point2D.Double initialPosition;
 
@@ -22,12 +28,6 @@ public final class PersonProfile {
 
 	/** Początkowy sposób ruchu */
 	public final PersonState.Movement initialMovement = PersonState.Movement.STANDING;
-
-	/** Szerokość osoby (OX) [m] */
-	public final double width = 0.5;
-
-	/** Grubość osoby (OY) [m] */
-	public final double girth = 0.3;
 
 	/** Wysokość osoby (OZ) [m] */
 	public final double height = 1.7;

@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 import edu.agh.tunev.model.Common;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.model.cellular.agent.WrongOrientationException;
+import edu.agh.tunev.model.cellular.agent.Person.Orientation;
+import edu.agh.tunev.model.cellular.grid.Cell;
 
 /**
  * <pre>
@@ -32,14 +34,16 @@ public class AllowedConfigs {
 	private final Double personWidth;
 	private final Double personGirth;
 	private final Double cellSize;
+	private final Double tolerance;
 
 	public AllowedConfigs(Double _personWidth, Double _personGirth,
-			Double _cellSize) throws NeighbourIndexException,
-			WrongOrientationException {
+			Double _cellSize, Double _tolerance)
+			throws NeighbourIndexException, WrongOrientationException {
 		intersectionMap = new HashMap<ConfigKey, Double>();
 		this.personWidth = _personWidth;
 		this.personGirth = _personGirth;
 		this.cellSize = _cellSize;
+		this.tolerance = _tolerance;
 
 		List<Person.Orientation> orientValues = Arrays
 				.asList(Person.Orientation.values());
@@ -57,6 +61,46 @@ public class AllowedConfigs {
 
 		int[] indexes = { 1, 2 };
 		generateMap(consideredValues, indexes, consideredValues);
+	}
+
+	public boolean checkCellAvailability(Cell cell,
+			Person.Orientation selfOrient) throws NeighbourIndexException {
+
+		List<Cell> occupiedNeighbours = cell.getOccupiedNeighbours();
+
+		for (Cell neighbour : occupiedNeighbours) {
+			int neighbourIndex = Cell.positionToIndex(cell, neighbour);
+			Orientation neighbourOrient = neighbour.getPerson()
+					.getOrientation();
+
+			boolean configFeasibility = checkConfigFeasibility(selfOrient,
+					neighbourIndex, neighbourOrient);
+
+			if (!configFeasibility)
+				return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Checks feasibility of a specific agent configuration.
+	 * 
+	 * @param selfOrient
+	 * @param neighbourIndex
+	 * @param neighbourOrient
+	 * @return true if config possible, false otherwise
+	 */
+	private boolean checkConfigFeasibility(Person.Orientation selfOrient,
+			int neighbourIndex, Person.Orientation neighbourOrient) {
+		ConfigKey key = new ConfigKey(selfOrient, neighbourIndex,
+				neighbourOrient);
+		Double intersection = intersectionMap.get(key);
+
+		if (intersection < tolerance)
+			return true;
+
+		return false;
 	}
 
 	/**
