@@ -1,31 +1,27 @@
 package edu.agh.tunev.model.cellular;
 
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.util.Vector;
 
 import edu.agh.tunev.model.AbstractModel;
+import edu.agh.tunev.model.PersonProfile;
+import edu.agh.tunev.model.PersonState;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.model.cellular.grid.Board;
 import edu.agh.tunev.model.cellular.grid.Cell;
 import edu.agh.tunev.statistics.KilledStatistics;
 import edu.agh.tunev.statistics.Statistics.AddCallback;
-import edu.agh.tunev.world.Physics;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
-/*
-public final class Model extends AbstractModel<Person> {
 
+public final class Model extends AbstractModel {
+
+	// TODO: zmieniiiiiiiiiić!!!111111 bo będzie wstyd
 	public final static String MODEL_NAME = "wąsowy automat komórkowy";
 
 	public Model(World world) {
 		super(world);
 	}
-
-	// przykładowa dyskretyzacja świata -- czyli rozmiar jednej komórki na
-	// planszy -- oczywiście w metrach -- do zmiany
-	private static final double DX = 0.5;
-	private static final double DY = 0.4;
 
 	// przykładowa dyskretyzacja czasu -- czyli co ile czasu nasze osobniki
 	// podejmują decyzję o skoku? inaczej: co ile rzeczywistego czasu
@@ -35,31 +31,33 @@ public final class Model extends AbstractModel<Person> {
 	private Board board;
 
 	@Override
-	public void simulate(double duration, Vector<Person> people,
+	public void simulate(double duration, Vector<PersonProfile> profiles,
 			ProgressCallback progressCallback, AddCallback addCallback) {
-		// jakie są dyskretne wymiary świata? ile komórek w OX i OY?
-		// używa funkcji do tłumaczenia wymiarów z ciągłych na dyskretne z
-		// uwzględnieniem DX i DY. Zobacz poniżej ich definicje.
-		Point dim = c2d(world.getDimension());
-		dim.x += 1; dim.y += 1;
 
-		// stwórz automat (planszę komórek) o obliczonych dyskretnych wymiarach;
-		board = new Board(dim.x, dim.y);
+		// stwórz automat (planszę komórek)
+		board = new Board(world);
 
-		// pozaznaczaj osoby na naszej modelowej, wewnętrznej, planszy
-		for (Person p : people) {
-			// w której komórce jest ta osoba?
-			Point pos = c2d(p.getPosition());
+		// stwórz sobie swoje reprezentacje ludzi:
+		Vector<Person> people = new Vector<Person>();
+		for (PersonProfile profile : profiles)
+			people.add(new Person(profile, board.getCellAt(Cell
+					.c2d(profile.initialPosition))));
 
-			// przesuń ją dokładnie na środek tej komórki...
-			p.setPosition(d2c(pos));
-			// ... i zrób jej tam "zdjęcie" dla interpolatora w chwili t=0[s]
-			interpolator.saveState(p, 0.0);
-
-			// zaznacz w odpowiedniej komórce automatu, że którą osobę
-			Cell c = board.get(pos.x, pos.y);
-			c.setPerson(p);
-		}
+		// pozaznaczaj inicjalne (t=0) pozycje osób w interpolatorze (dlatego,
+		// że w niektórych modelach -- w tym też! -- te pozycje mogą się różnić
+		// od tych wyklikanych przez usera (np. być zaokrąglane do rozmiaru
+		// komórki, jak tutaj)
+		for (PersonProfile profile : profiles)
+			interpolator
+					.saveState(
+							profile,
+							0.0,
+							new PersonState(Cell.d2c(Cell
+									.c2d(profile.initialPosition)),
+									profile.initialOrientation,
+									profile.initialMovement));
+		// BTW, nie mam pojęcia dlaczego Eclipse postanowiło w ten sposób to
+		// automatycznie sformatować jak wyżej... -,-
 
 		// TODO: pododawaj jakieś wykresy do UI związane z tym modelem
 		//
@@ -81,41 +79,44 @@ public final class Model extends AbstractModel<Person> {
 		// się policzył)
 		int num = (int) Math.round(Math.ceil(world.getDuration() / DT));
 		double t = 0;
-		for (int i = 1; i <= num; i++) {
+		for (int iteration = 1; iteration <= num; iteration++) {
 			// uaktualnij rzeczywisty czas naszej symulacji
 			t += DT;
 
 			// pościągaj aktualną fizykę do komórek
-			for (int ix = 0; ix < dim.x; ix++)
-				for (int iy = 0; iy < dim.y; iy++) {
-					Physics physics = world.getPhysicsAt(t, d2c(new Point(ix, iy)));
-					board.get(ix, iy).setPhysics(physics);
-				}
+			Point i = new Point();
+			Point n = board.getDimension();
+			for (i.y = 0; i.y < n.y; i.y++)
+				for (i.x = 0; i.x < n.x; i.x++)
+					board.getCellAt(i).setPhysics(
+							world.getPhysicsAt(t, Cell.d2c(i)));
 
 			// przejdź do następnego stanu automatu
 			board.update();
 
 			// porób zdjęcia osobom w aktualnym rzeczywistym czasie
 			for (Person p : people)
-				interpolator.saveState(p, t);
+				interpolator.saveState(
+						p.profile,
+						t,
+						new PersonState(Cell.d2c(p.getCell().getPosition()), p
+								.getOrientation(), p.getMovement()));
 
 			// TODO: uaktualnij wykresy, które mogą być aktualizowane w trakcie
-			// iteracji
+			// symulowania
 			int currentNumDead = 123; // prawdopodobnie ta dana ustawiana
 										// gdzie indziej ;p~
 			killedStatistics.add(t, currentNumDead);
 
 			// grzeczność: zwiększ ProgressBar w UI
-			progressCallback.update(i, num, (i < num ? "Wciąż liczę..."
-					: "Gotowe!"));
+			progressCallback.update(iteration, num,
+					(iteration < num ? "Still simulating..." : "Ready!"));
 		}
 
 		// TODO: ew. wypełnij wykresy, które mogą być wypełnione dopiero po
-		// zakończeniu symulacji
+		// zakończeniu całej symulacji
 
 		// i tyle ^_^
 	}
 
-	
-
-}*/
+}

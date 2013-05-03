@@ -9,52 +9,29 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 public final class Interpolator {
 
-	public static class PersonState {
-		public final Point2D.Double position;
-		public final double orientation;
-		public final AbstractPerson.Movement movement;
-
-		public PersonState(AbstractPerson person) {
-			position = person.getPosition();
-			orientation = person.getOrientation();
-			movement = person.getMovement();
-		}
-
-		public PersonState(Point2D.Double position, double orientation,
-				AbstractPerson.Movement movement) {
-			this.position = position;
-			this.orientation = orientation;
-			this.movement = movement;
-		}
-	}
-
 	/**
 	 * Zapisuje dyskretny stan w interpolatorze. -- m.
 	 * 
 	 * @param t
 	 *            Dana chwila czasu dla jakiej zapisujemy stan.
 	 */
-	public void saveState(AbstractPerson person, double t) {
-		NavigableMap<Double, Interpolator.PersonState> states = data
-				.get(person);
+	public void saveState(PersonProfile profile, double t, PersonState state) {
+		NavigableMap<Double, PersonState> states = data.get(profile);
 		if (states == null) {
-			states = new ConcurrentSkipListMap<Double, Interpolator.PersonState>();
-			data.put(person, states);
+			states = new ConcurrentSkipListMap<Double, PersonState>();
+			data.put(profile, states);
 		}
 
-		states.put(t, new Interpolator.PersonState(person));
+		states.put(t, state);
 	}
 
-	public Interpolator.PersonState getState(AbstractPerson person, double t) {
-		NavigableMap<Double, Interpolator.PersonState> states = data
-				.get(person);
+	public PersonState getState(PersonProfile person, double t) {
+		NavigableMap<Double, PersonState> states = data.get(person);
 		if (states == null)
 			return null;
 
-		final Entry<Double, Interpolator.PersonState> prevEntry = states
-				.floorEntry(t);
-		final Entry<Double, Interpolator.PersonState> nextEntry = states
-				.ceilingEntry(t);
+		final Entry<Double, PersonState> prevEntry = states.floorEntry(t);
+		final Entry<Double, PersonState> nextEntry = states.ceilingEntry(t);
 
 		if (prevEntry == null && nextEntry == null)
 			return null;
@@ -86,15 +63,14 @@ public final class Interpolator {
 		final double x = px + ratio * (nx - px);
 		final double y = py + ratio * (ny - py);
 
-		return new Interpolator.PersonState(new Point2D.Double(x, y),
-				Common.sectDeg(prev.orientation, next.orientation, ratio),
-				prev.movement);
+		return new PersonState(new Point2D.Double(x, y), Common.sectDeg(
+				prev.orientation, next.orientation, ratio), prev.movement);
 	}
 
 	public Interpolator() {
-		data = new ConcurrentHashMap<AbstractPerson, NavigableMap<Double, Interpolator.PersonState>>();
+		data = new ConcurrentHashMap<PersonProfile, NavigableMap<Double, PersonState>>();
 	}
 
-	private final Map<AbstractPerson, NavigableMap<Double, Interpolator.PersonState>> data;
+	private final Map<PersonProfile, NavigableMap<Double, PersonState>> data;
 
 }

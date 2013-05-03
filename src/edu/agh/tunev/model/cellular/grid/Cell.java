@@ -5,7 +5,6 @@ import java.awt.geom.Point2D;
 
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.world.Physics;
-import edu.agh.tunev.world.Physics.Type;
 
 public final class Cell {
 

@@ -1,12 +1,12 @@
 package edu.agh.tunev.model.cellular.agent;
 
 import java.awt.Point;
-import java.awt.geom.Point2D;
 
-import edu.agh.tunev.model.AbstractPerson;
+import edu.agh.tunev.model.PersonProfile;
+import edu.agh.tunev.model.PersonState;
 import edu.agh.tunev.model.cellular.grid.Cell;
 
-public final class Person extends AbstractPerson {
+public final class Person {
 
 	public enum Orientation {
 		E, NE, N, NW, W, SW, S, SE;
@@ -23,10 +23,23 @@ public final class Person extends AbstractPerson {
 	}
 
 	private Cell cell;
+	public final PersonProfile profile;
 
-	public Person(Cell _cell) {
-		super(Cell.d2c(_cell.getPosition()));
+	public Person(PersonProfile profile, Cell _cell) {
+		this.profile = profile;
 		this.cell = _cell;
+	}
+	
+	public Cell getCell() {
+		return cell;
+	}
+	
+	public double getOrientation() {
+		return -45.0;
+	}
+	
+	public PersonState.Movement getMovement() {
+		return PersonState.Movement.CRAWLING;
 	}
 
 	/**
@@ -54,6 +67,8 @@ public final class Person extends AbstractPerson {
 	}
 
 	private Double evaluateFieldPotential() {
+		// <michał> czy to bezpieczne? będziesz pamiętał żeby sprawdzać
+		// wszędzie? może lepiej double i return Double.NaN?
 		return null;
 	}
 
@@ -76,6 +91,7 @@ public final class Person extends AbstractPerson {
 		Point posOth = c.getPosition();
 		Point posCell = this.cell.getPosition();
 		
+		// <michał> nie rozumiem tego poniżej, skąd te liczby :P
 		return (posOth.x - posCell.x + 2) + 3
 				* Math.abs(posOth.y - posCell.y - 2);
 	}

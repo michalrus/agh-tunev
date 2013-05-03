@@ -6,16 +6,13 @@ import edu.agh.tunev.world.World;
 import edu.agh.tunev.statistics.Statistics;
 
 /**
- * Po tym dziedziczy klasa główna każdego modelu. -- m.
+ * Po tym dziedziczy klasa główna każdego modelu.
  * 
  * Żeby "zarejestrować" nowy model, żeby był widoczny w UI, trzeba dodać linijkę
- * z nazwą jego klasy do <code>edu.agh.tunev.Main.main()</code>.
+ * z nazwą jego klasy do funkcji wejścia <code>edu.agh.tunev.Main.main()</code>.
  * 
- * @param <T>
- *            mówi o tym, która klasa reprezentuje osobę w danym modelu (musi
- *            dziedziczyć po AbstractPerson).
  */
-public abstract class AbstractModel<T extends AbstractPerson> {
+public abstract class AbstractModel {
 
 	final protected World world;
 	final protected Interpolator interpolator;
@@ -36,8 +33,8 @@ public abstract class AbstractModel<T extends AbstractPerson> {
 	 * 
 	 * @param duration
 	 *            Czas trwania symulacji.
-	 * @param people
-	 *            Lista osób w danym świecie.
+	 * @param profiles
+	 *            Lista profili osób stworzona przez użytkownika.
 	 * @param progressCallback
 	 *            Wywołujemy po każdej iteracji
 	 *            <code>callback.update(done, total,
@@ -51,24 +48,13 @@ public abstract class AbstractModel<T extends AbstractPerson> {
 	 *            momencie. Może być na początku i uaktualniamy w trakcie, może
 	 *            być na końcu, jak już się wszystko policzy.
 	 */
-	public abstract void simulate(double duration, Vector<T> people,
+	public abstract void simulate(double duration,
+			Vector<PersonProfile> profiles,
 			World.ProgressCallback progressCallback,
 			Statistics.AddCallback addCallback);
 
-	public final Interpolator.PersonState getPersonState(AbstractPerson person,
-			double t) {
+	public final PersonState getPersonState(PersonProfile person, double t) {
 		return interpolator.getState(person, t);
 	}
 
-	/** tego nie ruszamy :] tłumaczy Vector<AbstractPerson> -> Vector<T> */
-	@SuppressWarnings("unchecked")
-	public final void simulateWrapper(double duration,
-			Vector<AbstractPerson> people,
-			World.ProgressCallback progressCallback,
-			Statistics.AddCallback addCallback) {
-		Vector<T> castedPeople = new Vector<T>();
-		for (AbstractPerson p : people)
-			castedPeople.add((T) p);
-		simulate(duration, castedPeople, progressCallback, addCallback);
-	}
 }

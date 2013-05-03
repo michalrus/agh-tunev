@@ -42,6 +42,10 @@ public final class Board {
 	public Cell getCellAt(Point p) {
 		return cells.get(p.y).get(p.x);
 	}
+	
+	public Point getDimension() {
+		return new Point(cells.get(0).size(), cells.size());
+	}
 
 	/**
 	 * Finds neighbours (Moore's neighbourhood) for a given cell.
@@ -65,17 +69,6 @@ public final class Board {
 
 	public void update() {
 		// TODO Auto-generated method stub
-
-		// uwaga -- w funkcji przejścia, gdy zmieniasz komórkę osoby,
-		// pamiętaj, żeby w samej osobie uaktualnić jej rzeczywistą
-		// pozycję:
-		// Person.setPosition(x,y) -- ale (x,y) są rzeczywiste, więc musisz
-		// użyć
-		// Model.d2cX() i Model.d2cY() =)
-		//
-		// a potem, żeby przeiterować po osobach i zrobić
-		// interpolator.saveState, ale to już chyba w Model.simulate, tak jak
-		// jest teraz?
 	}
 
 }

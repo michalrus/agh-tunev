@@ -35,16 +35,14 @@ public final class MainFrame extends JFrame {
 	private static Map<String, Class<?>> models = new HashMap<String, Class<?>>();
 
 	public static void register(Class<?> thing) {
-		boolean model = AbstractModel.class.isAssignableFrom(thing);
-
 		try {
-			if (model)
+			if (AbstractModel.class.isAssignableFrom(thing))
 				models.put(
 						(String) thing.getDeclaredField("MODEL_NAME").get(null),
 						thing);
 			else
 				throw new IllegalArgumentException(thing.getName()
-						+ " is neither an AbstractModel nor an AbstractPlot");
+						+ " is not an AbstractModel");
 		} catch (IllegalArgumentException | IllegalAccessException
 				| NoSuchFieldException | SecurityException e) {
 			e.printStackTrace();

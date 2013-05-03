@@ -4,8 +4,6 @@ import java.awt.geom.Point2D;
 
 import javax.media.opengl.GL2;
 
-import com.jogamp.opengl.util.gl2.GLUT;
-
 import edu.agh.tunev.world.World;
 
 final class FloorRenderer implements Renderable {

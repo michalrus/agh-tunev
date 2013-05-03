@@ -1,17 +1,17 @@
 package edu.agh.tunev.model.example;
 
-import java.awt.geom.Point2D;
-
-import edu.agh.tunev.model.AbstractPerson;
+import edu.agh.tunev.model.PersonProfile;
 
 /**
  * Przykładowa implementacja osoby w przykładowym modelu.
  * 
  */
-public final class Person extends AbstractPerson {
+public final class Person {
+	
+	public final PersonProfile profile;
 
-	public Person(Point2D.Double position) {
-		super(position);
+	public Person(PersonProfile profile) {
+		this.profile = profile;
 	}
 
 }

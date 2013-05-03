@@ -7,14 +7,13 @@ import java.util.Vector;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
-import javax.media.opengl.GL3;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.fixedfunc.GLLightingFunc;
 import javax.media.opengl.glu.GLU;
 
 import edu.agh.tunev.model.AbstractModel;
-import edu.agh.tunev.model.AbstractPerson;
+import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.world.World;
 
 public class Scene implements GLEventListener {
@@ -34,11 +33,11 @@ public class Scene implements GLEventListener {
 	private final World world;
 	private final SceneGetter sceneGetter;
 	private final List<Renderable> renderers;
-	private final AbstractModel<? extends AbstractPerson> model;
-	private final Vector<AbstractPerson> people;
+	private final AbstractModel model;
+	private final Vector<PersonProfile> people;
 
-	public Scene(World world, AbstractModel<? extends AbstractPerson> model,
-			Vector<AbstractPerson> people, SceneGetter timeGetter) {
+	public Scene(World world, AbstractModel model,
+			Vector<PersonProfile> people, SceneGetter timeGetter) {
 		this.world = world;
 		this.model = model;
 		this.people = people;
@@ -111,7 +110,7 @@ public class Scene implements GLEventListener {
 		renderers.add(new FloorRenderer(world));
 		renderers.add(new WallsRenderer(world));
 
-		for (AbstractPerson p : people)
+		for (PersonProfile p : people)
 			renderers.add(new PersonRenderer(p, model));
 
 		// turn on antialiasing

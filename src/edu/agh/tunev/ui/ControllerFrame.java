@@ -11,8 +11,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.beans.PropertyVetoException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.text.DecimalFormat;
 import java.util.Vector;
 
@@ -37,7 +35,7 @@ import com.jogamp.newt.awt.NewtCanvasAWT;
 import com.jogamp.newt.opengl.GLWindow;
 
 import edu.agh.tunev.model.AbstractModel;
-import edu.agh.tunev.model.AbstractPerson;
+import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.statistics.Statistics;
 import edu.agh.tunev.ui.opengl.Refresher;
 import edu.agh.tunev.ui.opengl.Scene;
@@ -58,9 +56,8 @@ final class ControllerFrame extends JInternalFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	private AbstractModel<? extends AbstractPerson> model;
-	private Class<?> personClass;
-	private Vector<AbstractPerson> people;
+	private AbstractModel model;
+	private Vector<PersonProfile> people;
 	private World world;
 
 	private int modelNumber;
@@ -74,28 +71,16 @@ final class ControllerFrame extends JInternalFrame {
 
 		setModel(model);
 
-		people = PeopleFactory.random(personClass, 50, world.getDimension());
+		people = PeopleFactory.random(50, world.getDimension());
 
 		init();
 		createGLFrame();
 	}
 
-	@SuppressWarnings("unchecked")
 	void setModel(Class<?> model) {
 		try {
-			Type personType = ((ParameterizedType) model.getGenericSuperclass())
-					.getActualTypeArguments()[0];
-			if (!Class.class.isInstance(personType))
-				throw new IllegalArgumentException(model.getName()
-						+ "'s generic parameter is not a class.");
-			Class<?> personClass = (Class<?>) personType;
-			if (!AbstractPerson.class.isAssignableFrom(personClass))
-				throw new IllegalArgumentException(model.getName()
-						+ "'s generic parameter is not an AbstractPerson.");
-			this.personClass = personClass;
-
-			this.model = (AbstractModel<? extends AbstractPerson>) model
-					.getDeclaredConstructor(World.class).newInstance(world);
+			this.model = (AbstractModel) model.getDeclaredConstructor(
+					World.class).newInstance(world);
 		} catch (InstantiationException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException e) {
@@ -137,15 +122,19 @@ final class ControllerFrame extends JInternalFrame {
 							public double getTime() {
 								return sliderTime;
 							}
+
 							public double getRho() {
 								return rho;
 							}
+
 							public double getPhi() {
 								return Math.toRadians(phi);
 							}
+
 							public double getTheta() {
 								return Math.toRadians(theta);
 							}
+
 							public Point2D.Double getAnchor() {
 								return anchor;
 							}
@@ -339,15 +328,14 @@ final class ControllerFrame extends JInternalFrame {
 		c.gridx += c.gridwidth;
 		c.gridwidth = 3;
 		final JSlider rhoSlider = new JSlider((int) Math.round(minRho / dRho),
-				(int) Math.round(maxRho / dRho),
-				(int) Math.round(rho / dRho));
+				(int) Math.round(maxRho / dRho), (int) Math.round(rho / dRho));
 		p.add(rhoSlider, c);
 
 		c.gridx += c.gridwidth;
 		c.gridwidth = 1;
 		final JLabel rhoLabel = new JLabel();
 		p.add(rhoLabel, c);
-		
+
 		rhoSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				rho = rhoSlider.getValue() * dRho;
@@ -369,16 +357,15 @@ final class ControllerFrame extends JInternalFrame {
 
 		c.gridx += c.gridwidth;
 		c.gridwidth = 3;
-		final JSlider phiSlider = new JSlider((int) Math.round(0 / dPhi),
-				(int) Math.round(89.9 / dPhi),
-				(int) Math.round(phi / dPhi));
+		final JSlider phiSlider = new JSlider((int) Math.round(0.1 / dPhi),
+				(int) Math.round(89.9 / dPhi), (int) Math.round(phi / dPhi));
 		p.add(phiSlider, c);
 
 		c.gridx += c.gridwidth;
 		c.gridwidth = 1;
 		final JLabel phiLabel = new JLabel();
 		p.add(phiLabel, c);
-		
+
 		phiSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				phi = phiSlider.getValue() * dPhi;
@@ -401,15 +388,14 @@ final class ControllerFrame extends JInternalFrame {
 		c.gridx += c.gridwidth;
 		c.gridwidth = 3;
 		final JSlider thetaSlider = new JSlider((int) Math.round(0 / dTheta),
-				(int) Math.round(360 / dPhi),
-				(int) Math.round(theta / dPhi));
+				(int) Math.round(360 / dPhi), (int) Math.round(theta / dPhi));
 		p.add(thetaSlider, c);
 
 		c.gridx += c.gridwidth;
 		c.gridwidth = 1;
 		final JLabel thetaLabel = new JLabel();
 		p.add(thetaLabel, c);
-		
+
 		thetaSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				theta = thetaSlider.getValue() * dTheta;
@@ -441,7 +427,7 @@ final class ControllerFrame extends JInternalFrame {
 		c.gridwidth = 1;
 		final JLabel xLabel = new JLabel();
 		p.add(xLabel, c);
-		
+
 		xSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				anchor.x = xSlider.getValue() * dxy;
@@ -473,7 +459,7 @@ final class ControllerFrame extends JInternalFrame {
 		c.gridwidth = 1;
 		final JLabel yLabel = new JLabel();
 		p.add(yLabel, c);
-		
+
 		ySlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				anchor.y = ySlider.getValue() * dxy;
@@ -514,7 +500,7 @@ final class ControllerFrame extends JInternalFrame {
 			refresh();
 		}
 	}
-	
+
 	private void refresh() {
 		if (refresher != null)
 			refresher.refresh();
@@ -529,7 +515,7 @@ final class ControllerFrame extends JInternalFrame {
 	private void simulate() {
 		new Thread(new Runnable() {
 			public void run() {
-				model.simulateWrapper(world.getDuration(), people,
+				model.simulate(world.getDuration(), people,
 						new World.ProgressCallback() {
 							public void update(final int done, final int total,
 									final String msg) {
