@@ -1,5 +1,6 @@
 package edu.agh.tunev.ui.opengl;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -14,8 +15,11 @@ public class Refresher {
 	private final Lock lock;
 	private final Condition condition;
 	private boolean refresh;
+	private final AtomicBoolean forceRefresh;
 
 	public Refresher(GLAutoDrawable drawable) {
+		forceRefresh = new AtomicBoolean(false);
+
 		this.drawable = drawable;
 
 		lock = new ReentrantLock();
@@ -44,6 +48,10 @@ public class Refresher {
 		}
 	}
 
+	public void forceRefresh() {
+		forceRefresh.set(true);
+	}
+
 	private void loop() {
 		lock.lock();
 		try {
@@ -55,6 +63,8 @@ public class Refresher {
 					}
 				refresh = false;
 				drawable.display();
+				if (forceRefresh.compareAndSet(true, false))
+					drawable.display();
 			}
 		} finally {
 			lock.unlock();
