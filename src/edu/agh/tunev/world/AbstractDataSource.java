@@ -12,7 +12,9 @@ abstract class AbstractDataSource {
 	
 	abstract Vector<Exit> getExits();
 	abstract Vector<Obstacle> getObstacles();
+	
 	abstract Physics getPhysicsAt(double t, Point2D.Double p);
+	abstract Point2D.Double getPhysicsGranularity();
 	
 	abstract void readData(File from, World.ProgressCallback callback);
 

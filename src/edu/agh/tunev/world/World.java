@@ -47,6 +47,11 @@ public class World {
 	public Physics getPhysicsAt(double t, Point2D.Double p) {
 		return data.getPhysicsAt(t, p);
 	}
+	
+	/** zwraca dyskretyzację fizyki */
+	public Point2D.Double getPhysicsGranularity() {
+		return data.getPhysicsGranularity();
+	}
 
 	// -- end of world-data access methods
 

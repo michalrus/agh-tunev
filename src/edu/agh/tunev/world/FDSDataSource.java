@@ -60,6 +60,11 @@ final class FDSDataSource extends AbstractDataSource {
 	}
 
 	@Override
+	Point2D.Double getPhysicsGranularity() {
+		return d;
+	}
+
+	@Override
 	void readData(File from, ProgressCallback callback) {
 		if (dataFolder != null)
 			throw new IllegalArgumentException(

@@ -19,6 +19,7 @@ import javax.media.opengl.GLProfile;
 import javax.swing.AbstractAction;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -100,6 +101,7 @@ final class ControllerFrame extends JInternalFrame {
 	private JSlider slider;
 	private double sliderTime = 0.0, progressTime = 0.0;
 	private double rho = 25, phi = 20, theta = 80;
+	private boolean paintTemp;
 	private Point2D.Double anchor = new Point2D.Double(0, 0);
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
 	Refresher refresher;
@@ -137,6 +139,10 @@ final class ControllerFrame extends JInternalFrame {
 
 							public Point2D.Double getAnchor() {
 								return anchor;
+							}
+
+							public boolean getPaintTemp() {
+								return paintTemp;
 							}
 						}));
 
@@ -285,6 +291,13 @@ final class ControllerFrame extends JInternalFrame {
 		buttonStop.setEnabled(false);
 		p.add(buttonStop, c);
 
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		final JCheckBox checkPaintTemp = new JCheckBox("paint T");
+		paintTemp = true;
+		checkPaintTemp.setSelected(paintTemp);
+		p.add(checkPaintTemp, c);
+
 		buttonPlay.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				buttonPlay.setEnabled(false);
@@ -299,6 +312,12 @@ final class ControllerFrame extends JInternalFrame {
 					playThread.interrupt();
 				} catch (Exception e) {
 				}
+			}
+		});
+		checkPaintTemp.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				paintTemp = checkPaintTemp.isSelected();
+				refresh();
 			}
 		});
 

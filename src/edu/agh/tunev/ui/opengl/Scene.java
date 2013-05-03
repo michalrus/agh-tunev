@@ -28,6 +28,8 @@ public class Scene implements GLEventListener {
 		public double getTheta();
 
 		public Point2D.Double getAnchor();
+		
+		public boolean getPaintTemp();
 	}
 
 	private final World world;
@@ -66,9 +68,12 @@ public class Scene implements GLEventListener {
 			r.render(gl, t);
 	}
 
-	private final static float[] lightAmbient = { 0.2f, 0.2f, 0.2f, 1.0f };
-	private final static float[] lightDiffuse = { 0.8f, 0.8f, 0.8f, 1.0f };
-	private final static float[] lightSpecular = { 0.5f, 0.5f, 0.5f, 1.0f };
+//	private final static float[] lightAmbient = { 0.2f, 0.2f, 0.2f, 1.0f };
+//	private final static float[] lightDiffuse = { 0.8f, 0.8f, 0.8f, 1.0f };
+//	private final static float[] lightSpecular = { 0.5f, 0.5f, 0.5f, 1.0f };
+	private final static float[] lightAmbient = { 0.4f, 0.4f, 0.4f, 1.0f };
+	private final static float[] lightDiffuse = { 1f, 1f, 1f, 1.0f };
+	private final static float[] lightSpecular = { 0.7f, 0.7f, 0.7f, 1.0f };
 
 	private final static double lightThetaOffset = Math.toRadians(0);
 	private final static double lightPhiOffset = Math.toRadians(0);
@@ -107,7 +112,7 @@ public class Scene implements GLEventListener {
 		// init all renderers
 		// renderers.add(new TestRenderer());
 
-		renderers.add(new FloorRenderer(world));
+		renderers.add(new FloorRenderer(world, sceneGetter));
 		renderers.add(new WallsRenderer(world));
 
 		for (PersonProfile p : people)
