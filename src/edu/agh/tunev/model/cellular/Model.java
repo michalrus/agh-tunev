@@ -30,6 +30,10 @@ public final class Model extends AbstractModel {
 	@Override
 	public void simulate(double duration, Vector<PersonProfile> profiles,
 			ProgressCallback progressCallback, AddCallback addCallback) {
+		// pokaż info o inicjalizacji w ui, bo trwa zanim zacznie iterować i nie
+		// wiadomo ocb :b
+		int num = (int) Math.round(Math.ceil(world.getDuration() / DT));
+		progressCallback.update(0, num, "Initializing...");
 
 		// stwórz automat (planszę komórek)
 		board = new Board(world);
@@ -73,7 +77,6 @@ public final class Model extends AbstractModel {
 		// wyświetlanie "filmu" z symulacji jest niezależne od obliczania (no,
 		// tyle tylko zależne, że możemy wyświetlać tylko do momentu, który już
 		// się policzył)
-		int num = (int) Math.round(Math.ceil(world.getDuration() / DT));
 		double t = 0;
 		for (int iteration = 1; iteration <= num; iteration++) {
 			// uaktualnij rzeczywisty czas naszej symulacji
@@ -106,7 +109,7 @@ public final class Model extends AbstractModel {
 
 			// grzeczność: zwiększ ProgressBar w UI
 			progressCallback.update(iteration, num,
-					(iteration < num ? "Still simulating..." : "Ready!"));
+					(iteration < num ? "Simulating..." : "Done."));
 		}
 
 		// TODO: ew. wypełnij wykresy, które mogą być wypełnione dopiero po
