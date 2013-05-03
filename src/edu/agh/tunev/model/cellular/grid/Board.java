@@ -24,11 +24,11 @@ public final class Board {
 		cells = new Vector<Vector<Cell>>();
 		Point worldDimension = Cell.c2d(world.getDimension());
 
-		for (int i = 0; i < worldDimension.y; ++i) {
+		for (int iy = 0; iy < worldDimension.y; ++iy) {
 			cells.add(new Vector<Cell>());
-			for (int j = 0; j < worldDimension.x; ++j) {
-				Cell c = new Cell(new Point(i, j), this);
-				cells.get(i).add(c);
+			for (int ix = 0; ix < worldDimension.x; ++ix) {
+				Cell c = new Cell(new Point(ix, iy), this);
+				cells.get(iy).add(c);
 			}
 		}
 	}

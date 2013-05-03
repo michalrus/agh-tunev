@@ -30,34 +30,43 @@ public final class Cell {
 	}
 
 	/**
-	 * Checks if a cell is occupied by any agent.
+	 * Checks if a cell is occupied by {@code Person}.
 	 * 
 	 * @return
 	 */
 	public boolean isOccupied() {
 		return (person != null);
 	}
-	
-	
-	public void release(){
+
+	/**
+	 * Removes {@code Person} reference.
+	 */
+	public void release() {
 		setPerson(null);
 	}
-	
+
 	/**
 	 * Discreet to continuous dimensions.
+	 * 
+	 * @param d
+	 * @return continuous dimensions based on a cell index
 	 */
 	public static Point2D.Double d2c(Point d) {
-		return new Point2D.Double((0.5 + d.x) * CELL_SIZE, (0.5 + d.y) * CELL_SIZE);
+		return new Point2D.Double((0.5 + d.x) * CELL_SIZE, (0.5 + d.y)
+				* CELL_SIZE);
 	}
 
 	/**
 	 * Continuous to discrete dimensions.
+	 * 
+	 * @param c
+	 * @return index of a cell based on continuous dimensions
 	 */
 	public static Point c2d(Point2D.Double c) {
 		return new Point((int) Math.round(Math.floor(c.x / CELL_SIZE)),
 				(int) Math.round(Math.floor(c.y / CELL_SIZE)));
 	}
-	
+
 	/**
 	 * <pre>
 	 * A snippet mapping position to neighbour index required in AllowedCfgs.
@@ -72,10 +81,17 @@ public final class Cell {
 	public static int positionToIndex(Cell baseCell, Cell neighbourCell) {
 		Point posOth = baseCell.getPosition();
 		Point posCell = neighbourCell.getPosition();
-	
-		
-		return (posOth.x - posCell.x + 2) + 3
-				* Math.abs(posOth.y - posCell.y - 2);
+
+		// every row index has triple value
+		// abs is to invert indexing (top to bottom)
+		int index = (posOth.x - posCell.x + 1) + 3
+				* Math.abs(posOth.y - posCell.y - 1);
+
+		// omits the central cell
+		if (index >= 5)
+			--index;
+
+		return index;
 	}
 
 	/**
@@ -84,8 +100,8 @@ public final class Cell {
 	 * @param cell
 	 * @return
 	 */
-	//TODO: OutOfBounds error prone
-	//TODO: check for bugs
+	// TODO: OutOfBounds error prone
+	// TODO: check for bugs
 	public List<Cell> getCellNeighbours() {
 		List<Cell> neighbours = new ArrayList<Cell>();
 
@@ -98,21 +114,21 @@ public final class Cell {
 
 		return neighbours;
 	}
-	
+
 	/**
 	 * Finds cell's neighbours occupied by a person.
 	 * 
 	 * @return
 	 */
-	public List<Cell> getOccupiedNeighbours(){
+	public List<Cell> getOccupiedNeighbours() {
 		List<Cell> neighbours = getCellNeighbours();
 		List<Cell> occupiedNeighbours = new ArrayList<Cell>();
-		
-		for(Cell c : neighbours){
-			if(c.isOccupied())
+
+		for (Cell c : neighbours) {
+			if (c.isOccupied())
 				occupiedNeighbours.add(c);
 		}
-		
+
 		return occupiedNeighbours;
 	}
 
@@ -131,7 +147,6 @@ public final class Cell {
 		calculateDistToExit();
 		evaluateStaticFieldVal();
 	}
-	
 
 	// TODO: change formula
 	private void evaluateStaticFieldVal() {
