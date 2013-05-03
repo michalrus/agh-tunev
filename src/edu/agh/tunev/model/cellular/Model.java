@@ -3,8 +3,6 @@ package edu.agh.tunev.model.cellular;
 import java.awt.Point;
 import java.util.Vector;
 
-import sun.java2d.cmm.ProfileActivator;
-
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.model.PersonState;

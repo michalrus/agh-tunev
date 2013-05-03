@@ -102,8 +102,37 @@ public final class Person {
 			return angle;
 	}
 
+	private Cell selectField() throws NeighbourIndexException {
+		List<Cell> neighbours = cell.getCellNeighbours();
+		Cell selectedField = this.cell;
+		Double lowestPotential = evaluateCostFunc(this.cell);
+
+		for(Cell neighbour : neighbours){
+			Double neighbourPotential = getFieldPotential(neighbour);
+			if(neighbourPotential < lowestPotential){
+				selectedField = neighbour;
+				lowestPotential = neighbourPotential;
+			}
+		}
+		
+		return selectedField;
+	}
+
+	
+	private Double getFieldPotential(Cell c) throws NeighbourIndexException {
+		if (checkFieldAvailability(c))
+			return evaluateCostFunc(c);
+
+		return Double.MAX_VALUE;
+	}
+	
+	// TODO:change cost function, adjust to social dist model;
+	private Double evaluateCostFunc(Cell c){
+		return c.getStaticFieldVal();
+	}
+
 	/**
-	 * 
+	 * Checks if coming onto {@code cell} is possible.
 	 * 
 	 * @param cell
 	 * @return
@@ -116,19 +145,13 @@ public final class Person {
 
 		boolean cellAvailability = allowedConfigs.checkCellAvailability(cell,
 				turnTowardCell(cell));
-		
+
 		if (!cellAvailability)
 			return false;
-		
-		//TODO: check for obstacles
+
+		// TODO: check for obstacles
 
 		return true;
-	}
-
-	private Double evaluateFieldPotential() {
-		// <michał> czy to bezpieczne? będziesz pamiętał żeby sprawdzać
-		// wszędzie? może lepiej double i return Double.NaN?
-		return null;
 	}
 
 	private Orientation turnTowardCell(Cell c) throws NeighbourIndexException {
