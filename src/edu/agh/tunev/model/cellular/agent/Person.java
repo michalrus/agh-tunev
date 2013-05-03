@@ -64,6 +64,24 @@ public final class Person {
 				throw new NeighbourIndexException();
 			}
 		}
+
+		/**
+		 * Returns orientation laying on the same axis but directed inversly.
+		 * 
+		 * @param orient
+		 * @return
+		 * 			opposite orientation
+		 */
+		public static Orientation translateOrient(Orientation orient) {
+			int index = getIndexOf(orient);
+			int translatedIndex = index;
+			Orientation[] values = values();
+			
+			if(index >= values.length/2)
+				translatedIndex = (index + (values.length / 2)) % values.length;
+					
+			return values[translatedIndex];
+		}
 	}
 
 	// TODO: discard unnecessary fields
@@ -104,15 +122,16 @@ public final class Person {
 			return angle;
 	}
 
-	public void update() throws NeighbourIndexException, WrongOrientationException {
+	public void update() throws NeighbourIndexException,
+			WrongOrientationException {
 		Cell destination = selectField();
 		Orientation orient = turnTowardCell(destination);
 		orientation = orient;
-		
+
 		cell.release();
 		cell = destination;
 		cell.setPerson(this);
-		
+
 		saveState();
 	}
 

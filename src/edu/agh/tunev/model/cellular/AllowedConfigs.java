@@ -67,11 +67,13 @@ public class AllowedConfigs {
 			Person.Orientation selfOrient) throws NeighbourIndexException {
 
 		List<Cell> occupiedNeighbours = cell.getOccupiedNeighbours();
+		selfOrient = Person.Orientation.translateOrient(selfOrient);
 
 		for (Cell neighbour : occupiedNeighbours) {
 			int neighbourIndex = Cell.positionToIndex(cell, neighbour);
 			Orientation neighbourOrient = neighbour.getPerson()
 					.getOrientation();
+			neighbourOrient = Person.Orientation.translateOrient(neighbourOrient);
 
 			boolean configFeasibility = checkConfigFeasibility(selfOrient,
 					neighbourIndex, neighbourOrient);
@@ -82,6 +84,7 @@ public class AllowedConfigs {
 
 		return true;
 	}
+	
 
 	/**
 	 * Checks feasibility of a specific agent configuration.
