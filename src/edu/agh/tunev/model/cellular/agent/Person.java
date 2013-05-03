@@ -147,6 +147,7 @@ public final class Person {
 		saveState();
 	}
 
+	//TODO: remove currentState field, refactor function below
 	private void saveState() throws WrongOrientationException {
 		Point2D.Double position = Cell.d2c(cell.getPosition());
 		Double numOrient = orientToAngle(orientation);

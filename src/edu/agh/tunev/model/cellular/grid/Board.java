@@ -1,18 +1,21 @@
 package edu.agh.tunev.model.cellular.grid;
 
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.Vector;
 
+import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.World;
 
 public final class Board {
 
 	private Vector<Vector<Cell>> cells;
-	private World world;
+	private final World world;
+	private Vector<Exit> exits;
+	
 
 	public Board(World _world) {
 		this.world = _world;
+		exits = world.getExits();
 		spawnCells();
 
 	}
@@ -24,23 +27,26 @@ public final class Board {
 		cells = new Vector<Vector<Cell>>();
 		Point worldDimension = Cell.c2d(world.getDimension());
 
-		for (int i = 0; i < worldDimension.y; ++i) {
+		for (int iy = 0; iy < worldDimension.y; ++iy) {
 			cells.add(new Vector<Cell>());
-			for (int j = 0; j < worldDimension.x; ++j) {
-				Cell c = new Cell(new Point(i, j), this);
-				cells.get(i).add(c);
+			for (int ix = 0; ix < worldDimension.x; ++ix) {
+				Cell c = new Cell(new Point(ix, iy), this);
+				cells.get(iy).add(c);
 			}
 		}
 	}
 
 	/**
-	 * 
+	 * Returns cell with a given index.
 	 * 
 	 * @param p
-	 * @return
+	 * @return {@code Cell} at {@code p}
 	 */
 	public Cell getCellAt(Point p) {
-		return cells.get(p.y).get(p.x);
+		if(p.y >= 0 && p.x >= 0)	
+			return cells.get(p.y).get(p.x);
+		
+		return null;
 	}
 	
 	public Point getDimension() {
@@ -50,6 +56,10 @@ public final class Board {
 
 	public void update() {
 		// TODO Auto-generated method stub
+	}
+	
+	public Vector<Exit> getExits() {
+		return exits;
 	}
 
 }
