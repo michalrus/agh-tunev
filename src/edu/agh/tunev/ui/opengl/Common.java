@@ -10,8 +10,14 @@ public final class Common {
 
 	// -- bryły
 
-	public static void drawCuboid(GL2 gl, double lx, int nx, double ly, int ny,
-			double lz, int nz) {
+	public static void drawCuboid(GL2 gl, double lx, double ly, double lz) {
+		drawCuboid(gl, lx, (int) Math.round(Math.ceil(lx)), ly,
+				(int) Math.round(Math.ceil(ly)), lz,
+				(int) Math.round(Math.ceil(lz)));
+	}
+
+	private static void drawCuboid(GL2 gl, double lx, int nx, double ly,
+			int ny, double lz, int nz) {
 		double x, x2, y, y2, z, z2;
 		final double dx = lx / nx;
 		final double dy = ly / ny;
@@ -22,6 +28,7 @@ public final class Common {
 		y = 0;
 		for (int i = 0; i < nx; i++) {
 			x2 = x + dx;
+			y = 0;
 			for (int j = 0; j < ny; j++) {
 				y2 = y + dy;
 				gl.glBegin(GL2.GL_QUADS);
@@ -49,6 +56,7 @@ public final class Common {
 		z = 0;
 		for (int i = 0; i < nx; i++) {
 			x2 = x + dx;
+			z = 0;
 			for (int j = 0; j < nz; j++) {
 				z2 = z + dz;
 				gl.glBegin(GL2.GL_QUADS);
@@ -75,6 +83,7 @@ public final class Common {
 		z = 0;
 		for (int i = 0; i < ny; i++) {
 			y2 = y + dy;
+			z = 0;
 			for (int j = 0; j < nz; j++) {
 				z2 = z + dz;
 				gl.glBegin(GL2.GL_QUADS);

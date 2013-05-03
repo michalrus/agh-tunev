@@ -25,17 +25,15 @@ final class WallsRenderer implements Renderable {
 		gl.glColor4d(1, 1, 1, 1);
 
 		Point2D.Double dim = world.getDimension();
-		
-		int numseg = (int)Math.round(Math.ceil(dim.y));
 
 		gl.glPushMatrix();
 		gl.glTranslated(-thickness * (1 - overlap), 0, 0);
-		Common.drawCuboid(gl, thickness, 1, height, 1, dim.y, numseg);
+		Common.drawCuboid(gl, thickness, height, dim.y);
 		gl.glPopMatrix();
 
 		gl.glPushMatrix();
 		gl.glTranslated(dim.x - thickness * overlap, 0, 0);
-		Common.drawCuboid(gl, thickness, 1, height, 1, dim.y, numseg);
+		Common.drawCuboid(gl, thickness, height, dim.y);
 		gl.glPopMatrix();
 
 		gl.glPopMatrix();
