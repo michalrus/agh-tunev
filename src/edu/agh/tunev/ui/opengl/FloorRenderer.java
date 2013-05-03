@@ -38,6 +38,8 @@ final class FloorRenderer implements Renderable {
 
 	@Override
 	public void render(GL2 gl, double t) {
+		gl.glPushMatrix();
+		
 		paintTemp = sceneGetter.getPaintTemp();
 		
 		Point2D.Double dim = world.getDimension();
@@ -52,7 +54,6 @@ final class FloorRenderer implements Renderable {
 				final double x2 = (ix < nx - 1 ? x1 + d.x : dim.x);
 				final double y2 = (iy < ny - 1 ? y1 + d.y : dim.y);
 
-				gl.glPushMatrix();
 				gl.glBegin(GL2.GL_QUADS);
 				gl.glNormal3d(0, 1, 0);
 
@@ -62,9 +63,9 @@ final class FloorRenderer implements Renderable {
 				colorVertex(gl, t, x2, y1);
 
 				gl.glEnd();
-				gl.glPopMatrix();
 			}
 
+		gl.glPopMatrix();
 	}
 
 }

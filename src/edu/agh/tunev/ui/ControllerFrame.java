@@ -46,10 +46,10 @@ final class ControllerFrame extends JInternalFrame {
 
 	private static final double minRho = 5; // [m]
 	private static final double maxRho = 50; // [m]
-	private static final double dRho = 0.1; // [m]
-	private static final double dPhi = 0.1; // [deg]
-	private static final double dTheta = 0.1; // [deg]
-	private static final double dxy = 0.1; // [deg]
+	private static final double dRho = 0.2; // [m]
+	private static final double dPhi = 0.2; // [deg]
+	private static final double dTheta = 0.2; // [deg]
+	private static final double dxy = 1.0; // [m]
 
 	static {
 		GLProfile.initSingleton();
@@ -314,7 +314,7 @@ final class ControllerFrame extends JInternalFrame {
 				}
 			}
 		});
-		checkPaintTemp.addActionListener(new ActionListener(){
+		checkPaintTemp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				paintTemp = checkPaintTemp.isSelected();
 				refresh();
@@ -360,6 +360,9 @@ final class ControllerFrame extends JInternalFrame {
 				rho = rhoSlider.getValue() * dRho;
 				rhoLabel.setText(decimalFormat.format(rho) + " [m]");
 				refresh();
+				if (rhoSlider.getValue() == rhoSlider.getMaximum()
+						|| rhoSlider.getValue() == rhoSlider.getMinimum())
+					forceRefresh();
 			}
 		});
 		rhoSlider.getChangeListeners()[0].stateChanged(null);
@@ -376,8 +379,8 @@ final class ControllerFrame extends JInternalFrame {
 
 		c.gridx += c.gridwidth;
 		c.gridwidth = 3;
-		final JSlider phiSlider = new JSlider((int) Math.round(0.1 / dPhi),
-				(int) Math.round(89.9 / dPhi), (int) Math.round(phi / dPhi));
+		final JSlider phiSlider = new JSlider((int) Math.round(dPhi / dPhi),
+				(int) Math.round((90.0 - dPhi) / dPhi), (int) Math.round(phi / dPhi));
 		p.add(phiSlider, c);
 
 		c.gridx += c.gridwidth;
@@ -390,6 +393,9 @@ final class ControllerFrame extends JInternalFrame {
 				phi = phiSlider.getValue() * dPhi;
 				phiLabel.setText(decimalFormat.format(phi) + "\u00b0");
 				refresh();
+				if (phiSlider.getValue() == phiSlider.getMaximum()
+						|| phiSlider.getValue() == phiSlider.getMinimum())
+					forceRefresh();
 			}
 		});
 		phiSlider.getChangeListeners()[0].stateChanged(null);
@@ -420,6 +426,9 @@ final class ControllerFrame extends JInternalFrame {
 				theta = thetaSlider.getValue() * dTheta;
 				thetaLabel.setText(decimalFormat.format(theta) + "\u00b0");
 				refresh();
+				if (thetaSlider.getValue() == thetaSlider.getMaximum()
+						|| thetaSlider.getValue() == thetaSlider.getMinimum())
+					forceRefresh();
 			}
 		});
 		thetaSlider.getChangeListeners()[0].stateChanged(null);
@@ -452,6 +461,9 @@ final class ControllerFrame extends JInternalFrame {
 				anchor.x = xSlider.getValue() * dxy;
 				xLabel.setText(decimalFormat.format(anchor.x) + " [m]");
 				refresh();
+				if (xSlider.getValue() == xSlider.getMaximum()
+						|| xSlider.getValue() == xSlider.getMinimum())
+					forceRefresh();
 			}
 		});
 		xSlider.getChangeListeners()[0].stateChanged(null);
@@ -484,6 +496,9 @@ final class ControllerFrame extends JInternalFrame {
 				anchor.y = ySlider.getValue() * dxy;
 				yLabel.setText(decimalFormat.format(anchor.y) + " [m]");
 				refresh();
+				if (ySlider.getValue() == ySlider.getMaximum()
+						|| ySlider.getValue() == ySlider.getMinimum())
+					forceRefresh();
 			}
 		});
 		ySlider.getChangeListeners()[0].stateChanged(null);
@@ -517,12 +532,19 @@ final class ControllerFrame extends JInternalFrame {
 		if (Math.abs(previousSliderTime - sliderTime) > DT / 2) {
 			previousSliderTime = sliderTime;
 			refresh();
+			if (slider.getValue() == slider.getMaximum())
+				forceRefresh();
 		}
 	}
 
 	private void refresh() {
 		if (refresher != null)
 			refresher.refresh();
+	}
+
+	private void forceRefresh() {
+		if (refresher != null)
+			refresher.forceRefresh();
 	}
 
 	private void onPlayingFinished() {
