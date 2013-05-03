@@ -68,15 +68,12 @@ public class Scene implements GLEventListener {
 			r.render(gl, t);
 	}
 
-//	private final static float[] lightAmbient = { 0.2f, 0.2f, 0.2f, 1.0f };
-//	private final static float[] lightDiffuse = { 0.8f, 0.8f, 0.8f, 1.0f };
-//	private final static float[] lightSpecular = { 0.5f, 0.5f, 0.5f, 1.0f };
-	private final static float[] lightAmbient = { 0.4f, 0.4f, 0.4f, 1.0f };
-	private final static float[] lightDiffuse = { 1f, 1f, 1f, 1.0f };
-	private final static float[] lightSpecular = { 0.7f, 0.7f, 0.7f, 1.0f };
+	private final static float[] lightAmbient = { 0.2f, 0.2f, 0.2f, 1.0f };
+	private final static float[] lightDiffuse = { 0.8f, 0.8f, 0.8f, 1.0f };
+	private final static float[] lightSpecular = { 0.5f, 0.5f, 0.5f, 1.0f };
 
 	private final static double lightThetaOffset = Math.toRadians(0);
-	private final static double lightPhiOffset = Math.toRadians(0);
+	private final static double lightPhiOffset = Math.toRadians(30);
 
 	private void setCamera(GL2 gl, double rho, double phi, double theta,
 			Point2D.Double anchor) {
@@ -117,12 +114,20 @@ public class Scene implements GLEventListener {
 
 		for (PersonProfile p : people)
 			renderers.add(new PersonRenderer(p, model));
-
-		// turn on antialiasing
+		
+		// init GL
 		GL2 gl = drawable.getGL().getGL2();
+		gl.glEnable(GL.GL_DEPTH_TEST);
+		gl.glShadeModel(GL2.GL_SMOOTH);
+		gl.glClearColor(0, 0, 0, 0.5f);
+		gl.glClearDepth(1.0);
+
 		gl.glEnable(GL2.GL_LINE_SMOOTH);
 		gl.glEnable(GL2.GL_POLYGON_SMOOTH);
 		gl.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
+		gl.glHint(GL2.GL_LINE_SMOOTH, GL2.GL_NICEST);
+		gl.glEnable(GL.GL_BLEND);
+		gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 
 		// lighting
 		gl.glEnable(GLLightingFunc.GL_LIGHTING);

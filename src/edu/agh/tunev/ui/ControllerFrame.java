@@ -100,7 +100,7 @@ final class ControllerFrame extends JInternalFrame {
 	private JPopupMenu plotMenu;
 	private JSlider slider;
 	private double sliderTime = 0.0, progressTime = 0.0;
-	private double rho = 25, phi = 20, theta = 80;
+	private double rho = 25, phi = 20, theta = 81;
 	private boolean paintTemp;
 	private Point2D.Double anchor = new Point2D.Double(0, 0);
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
