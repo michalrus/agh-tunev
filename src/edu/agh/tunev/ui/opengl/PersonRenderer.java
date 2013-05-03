@@ -20,16 +20,14 @@ final class PersonRenderer implements Renderable {
 
 	@Override
 	public void render(GL2 gl, double t) {
-		PersonState state = model.getPersonState(person, t);
-		if (state == null)
-			return;
-
-		state.position.getX();
-
 		gl.glPushMatrix();
+
+		PersonState state = model.getPersonState(person, t);
+
 		gl.glTranslated(state.position.x, 0, state.position.y);
 		gl.glRotated(state.orientation, 0, 1, 0);
 		drawStandingPerson(gl);
+
 		gl.glPopMatrix();
 	}
 

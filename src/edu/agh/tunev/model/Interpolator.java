@@ -18,7 +18,7 @@ public final class Interpolator {
 	public void saveState(PersonProfile profile, double t, PersonState state) {
 		if (profile == null || state == null)
 			return;
-		
+
 		NavigableMap<Double, PersonState> states = data.get(profile);
 		if (states == null) {
 			states = new ConcurrentSkipListMap<Double, PersonState>();
@@ -31,25 +31,30 @@ public final class Interpolator {
 	public PersonState getState(PersonProfile person, double t) {
 		NavigableMap<Double, PersonState> states = data.get(person);
 		if (states == null)
-			return null;
+			return new PersonState(person.initialPosition,
+					person.initialOrientation, person.initialMovement);
 
 		final Entry<Double, PersonState> prevEntry = states.floorEntry(t);
 		final Entry<Double, PersonState> nextEntry = states.ceilingEntry(t);
 
 		if (prevEntry == null && nextEntry == null)
-			return null;
+			return new PersonState(person.initialPosition,
+					person.initialOrientation, person.initialMovement);
 		else if (prevEntry == null)
 			return nextEntry.getValue();
 		else if (nextEntry == null)
 			return prevEntry.getValue();
-		else if (prevEntry == nextEntry)
-			return prevEntry.getValue();
-
+		
 		final PersonState prev = prevEntry.getValue();
 		final PersonState next = nextEntry.getValue();
-
 		final double prevT = prevEntry.getKey();
 		final double nextT = nextEntry.getKey();
+		
+		// smallest difference in time-keys that makes them considered equal
+		final double epsilon = 0.0001;
+
+		if (Math.abs(nextT - prevT) < epsilon)
+			return next;
 
 		// splajny 1-go stopnia? będzie git
 
