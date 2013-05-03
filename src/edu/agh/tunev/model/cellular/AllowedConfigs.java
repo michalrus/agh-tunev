@@ -53,12 +53,6 @@ public class AllowedConfigs {
 		ArrayList<Person.Orientation> consideredValues = new ArrayList<Person.Orientation>(
 				orientValues.subList(0, (int) valuesLength / 2));
 
-		// the rest of them
-		/*
-		 * ArrayList<Person.Orientation> cloneableValues = new ArrayList(
-		 * orientValues.subList((int) valuesLength / 2 + 1, valuesLength - 1));
-		 */
-
 		int[] indexes = { 1, 2 };
 		generateMap(consideredValues, indexes, consideredValues);
 	}
@@ -67,11 +61,13 @@ public class AllowedConfigs {
 			Person.Orientation selfOrient) throws NeighbourIndexException {
 
 		List<Cell> occupiedNeighbours = cell.getOccupiedNeighbours();
+		selfOrient = Person.Orientation.translateOrient(selfOrient);
 
 		for (Cell neighbour : occupiedNeighbours) {
 			int neighbourIndex = Cell.positionToIndex(cell, neighbour);
 			Orientation neighbourOrient = neighbour.getPerson()
 					.getOrientation();
+			neighbourOrient = Person.Orientation.translateOrient(neighbourOrient);
 
 			boolean configFeasibility = checkConfigFeasibility(selfOrient,
 					neighbourIndex, neighbourOrient);
@@ -82,6 +78,7 @@ public class AllowedConfigs {
 
 		return true;
 	}
+	
 
 	/**
 	 * Checks feasibility of a specific agent configuration.
