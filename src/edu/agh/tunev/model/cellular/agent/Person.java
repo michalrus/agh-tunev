@@ -8,12 +8,12 @@ import edu.agh.tunev.model.PersonState;
 import edu.agh.tunev.model.cellular.AllowedConfigs;
 import edu.agh.tunev.model.cellular.NeighbourIndexException;
 import edu.agh.tunev.model.cellular.grid.Cell;
-import edu.agh.tunev.model.kkm.Board.Physics;
 import edu.agh.tunev.world.Physics.Type;
+import edu.agh.tunev.world.Physics;
 
 public final class Person {
 
-	private final static int PERCEPTION_RANGE = 5;
+	private final static int PERCEPTION_RANGE = 20;
 
 	/** Physics coefficient useful for field value evaluation */
 	private final static double PHYSICS_COEFF = 1.0; // TODO: set
@@ -220,13 +220,18 @@ public final class Person {
 			throws NeighbourIndexException {
 		int neighbourIndex = Cell.positionToIndex(this.cell, neighbour);
 		List<Cell> row = neighbour.getRow(neighbourIndex, PERCEPTION_RANGE);
-		int sum = 0;
+		Double sum = 0.0;
+		Double acc = 0.0;
 
 		for (Cell c : row) {
-			sum += c.getPhysics().get(Type.TEMPERATURE);
+			Physics phys = c.getPhysics();
+			if(phys != null){
+				sum += c.getPhysics().get(Type.TEMPERATURE);
+				++acc;
+			}
 		}
 
-		return sum / new Double(row.size());
+		return sum / acc;
 	}
 
 	/**

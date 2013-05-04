@@ -5,18 +5,22 @@ import java.awt.geom.Point2D;
 import java.util.Vector;
 
 import edu.agh.tunev.world.Exit;
+import edu.agh.tunev.world.Obstacle;
 import edu.agh.tunev.world.World;
 
 public final class Board {
 
 	private Vector<Vector<Cell>> cells;
 	private final World world;
-	private Vector<Exit> exits;
+	private final Vector<Exit> exits;
+	private final Vector<Obstacle> obstacles;
 
 	public Board(World _world) {
 		this.world = _world;
 		exits = world.getExits();
+		obstacles = world.getObstacles();
 		spawnCells();
+		assignObstacles();
 
 	}
 
@@ -57,6 +61,25 @@ public final class Board {
 			}
 		}
 	}
+	
+	private void assignExits(){
+		
+	}
+	
+	private void assignObstacles(){
+		for(Obstacle ob : obstacles){
+			Point p1 = Cell.c2d(ob.p1);
+			Point p2 = Cell.c2d(ob.p2);
+			//TODO: p1 < p2 (?)  <- this should be checked
+			
+			for(int iy = p1.y; iy <= p2.y; ++iy)
+				for(int ix = p1.x; ix <= p2.x; ++ix){
+					Cell c = getCellAt(new Point(ix, iy));
+					c.setObstacle(ob);
+				}
+		}
+			
+	}
 
 	public Point getDimension() {
 		return new Point(cells.get(0).size(), cells.size());
@@ -65,5 +88,6 @@ public final class Board {
 	public Vector<Exit> getExits() {
 		return exits;
 	}
+	
 
 }

@@ -10,6 +10,7 @@ import edu.agh.tunev.model.Common;
 import edu.agh.tunev.model.cellular.NeighbourIndexException;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.world.Exit;
+import edu.agh.tunev.world.Obstacle;
 import edu.agh.tunev.world.Physics;
 
 public final class Cell {
@@ -19,10 +20,12 @@ public final class Cell {
 
 	private final Board board;
 	private final Point position;
-	private Person person = null;
-	private Physics physics = null;
+	private Person person;
+	private Physics physics;
 	private Double staticFieldVal;
 	private Double distToExit;
+	private Obstacle obstacle;
+	private Exit exit;
 
 	public Cell(Point _position, Board _board) {
 		this.position = _position;
@@ -52,7 +55,7 @@ public final class Cell {
 	 * @return
 	 */
 	public boolean isOccupied() {
-		return (person != null);
+		return (person != null && obstacle != null);
 	}
 
 	/**
@@ -166,7 +169,7 @@ public final class Cell {
 		for (int i = 1; i <= range; ++i) {
 			int dx = xIncSign * i;
 			int dy = yIncSign * i;
-			
+
 			Point pos = new Point(position.x + dx, position.y + dy);
 			Cell rowCell = board.getCellAt(pos);
 
@@ -269,6 +272,22 @@ public final class Cell {
 
 	public Double getStaticFieldVal() {
 		return staticFieldVal;
+	}
+
+	public Obstacle getObstacle() {
+		return obstacle;
+	}
+
+	public void setObstacle(Obstacle obstacle) {
+		this.obstacle = obstacle;
+	}
+
+	public Exit getExit() {
+		return exit;
+	}
+
+	public void setExit(Exit exit) {
+		this.exit = exit;
 	}
 
 }
