@@ -18,6 +18,8 @@ final class PersonRenderer implements Renderable {
 		this.model = model;
 	}
 
+	private static double relativeHeadSize = 0.3;
+
 	@Override
 	public void render(GL2 gl, double t) {
 		gl.glPushMatrix();
@@ -27,8 +29,9 @@ final class PersonRenderer implements Renderable {
 		gl.glTranslated(state.position.x, 0, state.position.y);
 		gl.glRotated(state.orientation, 0, 1, 0);
 		gl.glColor4d(1, 1, 1, 1);
-		
-		switch (state.movement) {
+
+		PersonState.Movement test = PersonState.Movement.STANDING;
+		switch (test) {
 		case HIDDEN:
 			break;
 		case DEAD:
@@ -37,43 +40,44 @@ final class PersonRenderer implements Renderable {
 			drawCrawlingPerson(gl);
 			break;
 		case SQUATTING:
-			drawSquattingPerson(gl);
+			drawBasicPerson(gl, person.height * (0.5 - relativeHeadSize),
+					person.height * relativeHeadSize / 2);
 			break;
 		case STANDING:
 		default:
-			drawStandingPerson(gl);
+			drawBasicPerson(gl, person.height * (1.0 - relativeHeadSize),
+					person.height * relativeHeadSize / 2);
 			break;
 		}
 
 		gl.glPopMatrix();
 	}
 
-	private static double relativeHeadSize = 0.3;
-
-	private void drawStandingPerson(GL2 gl) {
+	private void drawBasicPerson(GL2 gl, double bodyHeight, double headRadius) {
 		gl.glPushMatrix();
 
-		gl.glPushMatrix();
-		gl.glTranslated(-PersonProfile.WIDTH / 2, 0, -PersonProfile.GIRTH / 2);
-		Common.drawCuboid(gl, PersonProfile.WIDTH, person.height
-				* (1.0 - relativeHeadSize), PersonProfile.GIRTH);
-		gl.glPopMatrix();
-
-		gl.glTranslated(0, person.height * (1.0 - relativeHeadSize / 2.0), 0);
-		GLUT glut = new GLUT();
-		final double radius = person.height * relativeHeadSize / 2;
-		glut.glutSolidSphere(radius, 20, 20);
-		gl.glColor4d(1, 0, 0, 1);
-		glut.glutSolidCone(radius/2, radius * 4, 20, 20);
+		drawBody(gl, bodyHeight);
+		gl.glTranslated(0, bodyHeight + headRadius, 0);
+		drawHead(gl, headRadius);
 
 		gl.glPopMatrix();
 	}
 
 	private void drawCrawlingPerson(GL2 gl) {
-		drawStandingPerson(gl);
+		//drawStandingPerson(gl);
 	}
 
-	private void drawSquattingPerson(GL2 gl) {
-		drawStandingPerson(gl);
+	private void drawBody(GL2 gl, double height) {
+		gl.glPushMatrix();
+		gl.glTranslated(-PersonProfile.WIDTH / 2, 0, -PersonProfile.GIRTH / 2);
+		Common.drawCuboid(gl, PersonProfile.WIDTH, height, PersonProfile.GIRTH);
+		gl.glPopMatrix();
+	}
+
+	private void drawHead(GL2 gl, double radius) {
+		GLUT glut = new GLUT();
+		glut.glutSolidSphere(radius, 20, 20);
+		gl.glColor4d(1, 0, 0, 1);
+		glut.glutSolidCone(radius / 2, radius * 4, 20, 20);
 	}
 }
