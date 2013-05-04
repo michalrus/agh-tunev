@@ -17,12 +17,6 @@ public final class Cell {
 	/** side of a cell represented by square */
 	public final static double CELL_SIZE = 0.25;
 
-	/** Physics coefficient useful for static field value evaluation */
-	private final static double PHYSICS_COEFF = 0.0; // TODO: set
-
-	/** Distance coefficient useful for static field value evaluation */
-	private final static double DIST_COEFF = 1; // TODO: set
-
 	private final Board board;
 	private final Point position;
 	private Person person = null;
@@ -153,26 +147,45 @@ public final class Cell {
 		return occupiedNeighbours;
 	}
 
-	public List<Cell> getRow(int neighbourIndex, int range) throws NeighbourIndexException {
+	/**
+	 * Gets a row of neighbouring cells in {@code range}. Direction depends on
+	 * {@code neighbourIndex}.
+	 * 
+	 * @param neighbourIndex
+	 * @param range
+	 * @return
+	 * @throws NeighbourIndexException
+	 */
+	public List<Cell> getRow(int neighbourIndex, int range)
+			throws NeighbourIndexException {
 		List<Cell> row = new ArrayList<Cell>();
 		row.add(this);
 		int yIncSign = getYAxisIncSign(neighbourIndex);
 		int xIncSign = getXAxisIncSign(neighbourIndex);
-		
-		for(int iy = 1; iy <= range; iy += yIncSign * 1)
-			for(int ix = 1; ix <= range; ix += xIncSign * 1){
-				Point pos = new Point(position.x + ix, position.y + iy);
-				Cell rowCell = board.getCellAt(pos);
-				
-				if(rowCell != null)
-					row.add(rowCell);
-			}
-		
-		return row;
 
+		for (int i = 1; i <= range; ++i) {
+			int dx = xIncSign * i;
+			int dy = yIncSign * i;
+			
+			Point pos = new Point(position.x + dx, position.y + dy);
+			Cell rowCell = board.getCellAt(pos);
+
+			if (rowCell != null)
+				row.add(rowCell);
+		}
+
+		return row;
 	}
 
-	public static int getYAxisIncSign(int neighbourIndex)
+	/**
+	 * Supplementary method to get row of cells in given direction. Responsible
+	 * for y-axis indexes.
+	 * 
+	 * @param neighbourIndex
+	 * @return -1 for {0,1,2}, 0 {3,4}, 1 for {5,6,7}
+	 * @throws NeighbourIndexException
+	 */
+	private int getYAxisIncSign(int neighbourIndex)
 			throws NeighbourIndexException {
 		if (0 > neighbourIndex && neighbourIndex > 7)
 			throw new NeighbourIndexException();
@@ -180,20 +193,28 @@ public final class Cell {
 		return (int) Math.signum(Math.floor(2 - (neighbourIndex / 2.0)));
 	}
 
-	public static int getXAxisIncSign(int neighbourIndex) throws NeighbourIndexException {
+	/**
+	 * Supplementary method to get row of cells in given direction. Responsible
+	 * for x-axis indexes.
+	 * 
+	 * @param neighbourIndex
+	 * @return -1 for {0,3,5}, 0 {1,6}, 1 for {2,4,7}
+	 * @throws NeighbourIndexException
+	 */
+	private int getXAxisIncSign(int neighbourIndex)
+			throws NeighbourIndexException {
 		if (0 > neighbourIndex && neighbourIndex > 7)
 			throw new NeighbourIndexException();
-		
-		if(neighbourIndex >= 4)
+
+		if (neighbourIndex >= 4)
 			++neighbourIndex;
-		
+
 		return (neighbourIndex % 3) - 1;
 	}
 
 	// TODO: change formula
 	private void evaluateStaticFieldVal() {
-		staticFieldVal = PHYSICS_COEFF
-				* (physics.get(Physics.Type.TEMPERATURE)) + distToExit;
+		staticFieldVal = distToExit;
 	}
 
 	/**
