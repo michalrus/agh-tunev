@@ -199,10 +199,11 @@ public final class Common {
 			// równanie ogólne Ax+By+C=0
 			final double A = (vertical ? 1 : (p2.y - p1.y) / (p2.x - p1.x));
 			final double B = (vertical ? 0 : -1);
-			final double C = (vertical ? p1.x : (p2.x*p1.y - p1.x*p2.y) / (p2.x - p1.x));
+			final double C = (vertical ? -p1.x : (p2.x*p1.y - p1.x*p2.y) / (p2.x - p1.x));
 			
 			// równanie normalne x cosphi + y sinphi - r = 0
 			final double r = Math.abs(C) / Math.sqrt(A * A + B * B);
+			//final double phi = (C < 0 ? Math.atan2(B, A) : Math.atan2(-B, -A));
 			final double phi = (C < 0 ? Math.atan2(B, A) : Math.atan2(-B, -A));
 			
 			return new LineNorm(r, phi);
