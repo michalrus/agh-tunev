@@ -52,8 +52,8 @@ final class FDSDataSource extends AbstractDataSource {
 		// if there's no such entry, return the first entry
 		if (entry == null) {
 			entry = physics.firstEntry();
-			if (entry == null) // or throw empty-map exception
-				throw new IllegalArgumentException("physics map is empty");
+			if (entry == null) // or there's no physics data at all
+				return new Physics();
 		}
 
 		return getPhysicsInGrid(entry.getValue(), p);
