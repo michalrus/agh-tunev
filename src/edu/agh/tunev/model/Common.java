@@ -137,6 +137,11 @@ public final class Common {
 
 		return dx * dy * num;
 	}
+	
+	public static double ellipseArea(double width, double height){
+		Shape ellipse = createEllipse(new Point2D.Double(0.0, 0.0), width, height, 0.0);
+		return intersectionArea(ellipse, ellipse);
+	}
 
 	/**
 	 * Finds the closest point on a line segment.

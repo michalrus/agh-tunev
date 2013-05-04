@@ -15,7 +15,7 @@ import edu.agh.tunev.world.Physics;
 public final class Cell {
 
 	/** side of a cell represented by square */
-	public final static double CELL_SIZE = 0.25;
+	public final static double CELL_SIZE = 0.1;
 
 	/** Physics coefficient useful for static field value evaluation */
 	private final static double PHYSICS_COEFF = 0.0; // TODO: set

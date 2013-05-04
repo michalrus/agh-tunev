@@ -11,8 +11,8 @@ import java.util.Map.Entry;
 
 import edu.agh.tunev.model.Common;
 import edu.agh.tunev.model.cellular.agent.Person;
-import edu.agh.tunev.model.cellular.agent.WrongOrientationException;
 import edu.agh.tunev.model.cellular.agent.Person.Orientation;
+import edu.agh.tunev.model.cellular.agent.WrongOrientationException;
 import edu.agh.tunev.model.cellular.grid.Cell;
 
 /**
@@ -36,6 +36,19 @@ public class AllowedConfigs {
 	private final Double cellSize;
 	private final Double tolerance;
 
+	/**
+	 * Maps agent configurations and respective intersection areas.
+	 * 
+	 * @param _personWidth
+	 *            average width of {@code Person}
+	 * @param _personGirth
+	 *            averge girth of {@code Person}
+	 * @param _cellSize
+	 * @param _tolerance
+	 *            maximum allowed (are of intersection / area of ellipse) ratio
+	 * @throws NeighbourIndexException
+	 * @throws WrongOrientationException
+	 */
 	public AllowedConfigs(Double _personWidth, Double _personGirth,
 			Double _cellSize, Double _tolerance)
 			throws NeighbourIndexException, WrongOrientationException {
@@ -43,7 +56,8 @@ public class AllowedConfigs {
 		this.personWidth = _personWidth;
 		this.personGirth = _personGirth;
 		this.cellSize = _cellSize;
-		this.tolerance = _tolerance;
+		this.tolerance = _tolerance
+				* Common.ellipseArea(personWidth, personGirth);
 
 		List<Person.Orientation> orientValues = Arrays
 				.asList(Person.Orientation.values());
@@ -67,7 +81,8 @@ public class AllowedConfigs {
 			int neighbourIndex = Cell.positionToIndex(cell, neighbour);
 			Orientation neighbourOrient = neighbour.getPerson()
 					.getOrientation();
-			neighbourOrient = Person.Orientation.translateOrient(neighbourOrient);
+			neighbourOrient = Person.Orientation
+					.translateOrient(neighbourOrient);
 
 			boolean configFeasibility = checkConfigFeasibility(selfOrient,
 					neighbourIndex, neighbourOrient);
@@ -78,7 +93,6 @@ public class AllowedConfigs {
 
 		return true;
 	}
-	
 
 	/**
 	 * Checks feasibility of a specific agent configuration.
@@ -296,7 +310,7 @@ public class AllowedConfigs {
 		int i = 0;
 		for (Entry<ConfigKey, Double> e : intersectionMap.entrySet()) {
 			ConfigKey k = (ConfigKey) e.getKey();
-			Double v = (double) e.getValue();
+			Double v = (double) e.getValue() / tolerance;
 			System.out.println("Key: " + k.getSelfOrient() + " | "
 					+ k.getNeighbourIndex() + " | " + k.getNeighbourOrient());
 			System.out.println(v);
