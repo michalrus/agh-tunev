@@ -172,15 +172,15 @@ public final class Cell {
 
 	}
 
-	private int getYAxisIncSign(int neighbourIndex)
+	public static int getYAxisIncSign(int neighbourIndex)
 			throws NeighbourIndexException {
 		if (0 > neighbourIndex && neighbourIndex > 7)
 			throw new NeighbourIndexException();
 
-		return (int) Math.signum(2 - (neighbourIndex / 2));
+		return (int) Math.signum(Math.floor(2 - (neighbourIndex / 2.0)));
 	}
 
-	private int getXAxisIncSign(int neighbourIndex) throws NeighbourIndexException {
+	public static int getXAxisIncSign(int neighbourIndex) throws NeighbourIndexException {
 		if (0 > neighbourIndex && neighbourIndex > 7)
 			throw new NeighbourIndexException();
 		
