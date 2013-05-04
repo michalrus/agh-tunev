@@ -8,11 +8,22 @@ import edu.agh.tunev.model.PersonState;
 import edu.agh.tunev.model.cellular.AllowedConfigs;
 import edu.agh.tunev.model.cellular.NeighbourIndexException;
 import edu.agh.tunev.model.cellular.grid.Cell;
+import edu.agh.tunev.world.Physics.Type;
+import edu.agh.tunev.world.Physics;
 
 public final class Person {
+
+	private final static int PERCEPTION_RANGE = 20;
+
+	/** Physics coefficient useful for field value evaluation */
+	private final static double PHYSICS_COEFF = 1.0; // TODO: set
+
+	/** Distance coefficient useful for field value evaluation */
+	private final static double DIST_COEFF = 0.0; // TODO: set
 	
+	private final static double STATIC_COEFF = 0.0; //TODO:
 	
-	public final static int PERCEPTION_RANGE = 5;
+	private final static double DYNAMIC_COEFF = 1.0; //TODO:
 
 	public enum Orientation {
 		E, NE, N, NW, W, SW, S, SE;
@@ -78,7 +89,7 @@ public final class Person {
 		}
 
 		/**
-		 * Check if an orientation belongs to {{@code W,SW,S,SE}} and if so -
+		 * Check if an orientation belongs to {{@code W,SW,S,SE} and if so -
 		 * maps it to an orientation laying on the same axis but directed
 		 * inversly, eg. S -> N; SW -> NE.
 		 * 
@@ -151,7 +162,7 @@ public final class Person {
 		saveState();
 	}
 
-	//TODO: remove currentState field, refactor function below
+	// TODO: remove currentState field, refactor function below
 	private void saveState() throws WrongOrientationException {
 		Point2D.Double position = Cell.d2c(cell.getPosition());
 		Double numOrient = 0.0;// = orientToAngle(orientation);
@@ -189,21 +200,55 @@ public final class Person {
 	}
 
 	// TODO:change cost function, adjust to social dist model;
-	private Double evaluateCostFunc(Cell neighbour) {
-		Double dist = evaluateDistComponent(neighbour);	
-		return neighbour.getStaticFieldVal() + dist;
+	private Double evaluateCostFunc(Cell neighbour)
+			throws NeighbourIndexException {
+		Double dist = evaluateDistComponent(neighbour);
+		Double heat = evaluateHeatComponent(neighbour);
+		return STATIC_COEFF * neighbour.getStaticFieldVal() + DYNAMIC_COEFF
+				* (DIST_COEFF * dist + PHYSICS_COEFF * heat);
 	}
-	
-	private Double evaluateDistComponent(Cell neighbour){
+
+	/**
+	 * Calculates heat component of a neighbouring cell. Component is an average
+	 * temperature in row of cells.
+	 * 
+	 * @param neighbour
+	 * @return heat component
+	 * @throws NeighbourIndexException
+	 */
+	private Double evaluateHeatComponent(Cell neighbour)
+			throws NeighbourIndexException {
+		int neighbourIndex = Cell.positionToIndex(this.cell, neighbour);
+		List<Cell> row = neighbour.getRow(neighbourIndex, PERCEPTION_RANGE);
+		Double sum = 0.0;
+		Double acc = 0.0;
+
+		for (Cell c : row) {
+			Physics phys = c.getPhysics();
+			if(phys != null){
+				sum += c.getPhysics().get(Type.TEMPERATURE);
+				++acc;
+			}
+		}
+
+		return sum / acc;
+	}
+
+	/**
+	 * 
+	 * @param neighbour
+	 * @return
+	 */
+	private Double evaluateDistComponent(Cell neighbour) {
 		Double dist = 0.0;
-		
-		if(!neighbour.equals(this.cell)){
+
+		if (!neighbour.equals(this.cell)) {
 			Point2D.Double neighbourRealPosition = neighbour.getRealPosition();
 			Point2D.Double baseRealPosition = this.cell.getRealPosition();
 			dist = baseRealPosition.distance(neighbourRealPosition);
 		} else
-			dist = Math.sqrt(2)*Cell.CELL_SIZE;
-		
+			dist = Math.sqrt(2) * Cell.CELL_SIZE;
+
 		return dist;
 	}
 
