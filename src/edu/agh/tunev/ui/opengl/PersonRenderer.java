@@ -61,7 +61,10 @@ final class PersonRenderer implements Renderable {
 
 		gl.glTranslated(0, person.height * (1.0 - relativeHeadSize / 2.0), 0);
 		GLUT glut = new GLUT();
-		glut.glutSolidSphere(person.height * relativeHeadSize / 2, 20, 20);
+		final double radius = person.height * relativeHeadSize / 2;
+		glut.glutSolidSphere(radius, 20, 20);
+		gl.glColor4d(1, 0, 0, 1);
+		glut.glutSolidCone(radius/2, radius * 4, 20, 20);
 
 		gl.glPopMatrix();
 	}
