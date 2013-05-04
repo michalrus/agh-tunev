@@ -1,13 +1,13 @@
 package edu.agh.tunev.model.cellular.grid;
 
 import java.awt.Point;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
 import edu.agh.tunev.model.Common;
+import edu.agh.tunev.model.cellular.NeighbourIndexException;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.Physics;
@@ -15,13 +15,13 @@ import edu.agh.tunev.world.Physics;
 public final class Cell {
 
 	/** side of a cell represented by square */
-	public final static double CELL_SIZE = 0.1;
+	public final static double CELL_SIZE = 0.25;
 
 	/** Physics coefficient useful for static field value evaluation */
 	private final static double PHYSICS_COEFF = 0.0; // TODO: set
-	
+
 	/** Distance coefficient useful for static field value evaluation */
-	private final static double DIST_COEFF = 1; //TODO: set
+	private final static double DIST_COEFF = 1; // TODO: set
 
 	private final Board board;
 	private final Point position;
@@ -153,6 +153,43 @@ public final class Cell {
 		return occupiedNeighbours;
 	}
 
+	public List<Cell> getRow(int neighbourIndex, int range) throws NeighbourIndexException {
+		List<Cell> row = new ArrayList<Cell>();
+		row.add(this);
+		int yIncSign = getYAxisIncSign(neighbourIndex);
+		int xIncSign = getXAxisIncSign(neighbourIndex);
+		
+		for(int iy = 1; iy <= range; iy += yIncSign * 1)
+			for(int ix = 1; ix <= range; ix += xIncSign * 1){
+				Point pos = new Point(position.x + ix, position.y + iy);
+				Cell rowCell = board.getCellAt(pos);
+				
+				if(rowCell != null)
+					row.add(rowCell);
+			}
+		
+		return row;
+
+	}
+
+	private int getYAxisIncSign(int neighbourIndex)
+			throws NeighbourIndexException {
+		if (0 > neighbourIndex && neighbourIndex > 7)
+			throw new NeighbourIndexException();
+
+		return (int) Math.signum(2 - (neighbourIndex / 2));
+	}
+
+	private int getXAxisIncSign(int neighbourIndex) throws NeighbourIndexException {
+		if (0 > neighbourIndex && neighbourIndex > 7)
+			throw new NeighbourIndexException();
+		
+		if(neighbourIndex >= 4)
+			++neighbourIndex;
+		
+		return (neighbourIndex % 3) - 1;
+	}
+
 	// TODO: change formula
 	private void evaluateStaticFieldVal() {
 		staticFieldVal = PHYSICS_COEFF
@@ -169,7 +206,8 @@ public final class Cell {
 		Point2D.Double realPosition = getRealPosition();
 
 		for (Exit e : exits) {
-			Point2D closestPoint = Common.getClosestPointOnSegment(e.p1, e.p2, realPosition);
+			Point2D closestPoint = Common.getClosestPointOnSegment(e.p1, e.p2,
+					realPosition);
 			Double currDist = realPosition.distance(closestPoint);
 
 			if (currDist < dist) {
@@ -179,8 +217,8 @@ public final class Cell {
 
 		this.distToExit = dist;
 	}
-	
-	public Point2D.Double getRealPosition(){
+
+	public Point2D.Double getRealPosition() {
 		return d2c(position);
 	}
 
