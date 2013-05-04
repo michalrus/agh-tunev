@@ -10,6 +10,9 @@ import edu.agh.tunev.model.cellular.NeighbourIndexException;
 import edu.agh.tunev.model.cellular.grid.Cell;
 
 public final class Person {
+	
+	
+	public final static int PERCEPTION_RANGE = 5;
 
 	public enum Orientation {
 		E, NE, N, NW, W, SW, S, SE;
@@ -151,7 +154,7 @@ public final class Person {
 	//TODO: remove currentState field, refactor function below
 	private void saveState() throws WrongOrientationException {
 		Point2D.Double position = Cell.d2c(cell.getPosition());
-		Double numOrient = orientToAngle(orientation);
+		Double numOrient = 0.0;// = orientToAngle(orientation);
 		PersonState.Movement movement = PersonState.Movement.STANDING; // TODO:
 																		// adjusting
 																		// pose
