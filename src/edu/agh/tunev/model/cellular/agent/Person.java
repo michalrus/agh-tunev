@@ -13,17 +13,17 @@ import edu.agh.tunev.world.Physics;
 
 public final class Person {
 
-	private final static int PERCEPTION_RANGE = 20;
+	private final static int PERCEPTION_RANGE = 10;
 
 	/** Physics coefficient useful for field value evaluation */
 	private final static double PHYSICS_COEFF = 1.0; // TODO: set
 
 	/** Distance coefficient useful for field value evaluation */
 	private final static double DIST_COEFF = 0.0; // TODO: set
-	
-	private final static double STATIC_COEFF = 0.0; //TODO:
-	
-	private final static double DYNAMIC_COEFF = 1.0; //TODO:
+
+	private final static double STATIC_COEFF = 0.0; // TODO:
+
+	private final static double DYNAMIC_COEFF = 1.0; // TODO:
 
 	public enum Orientation {
 		E, NE, N, NW, W, SW, S, SE;
@@ -150,7 +150,7 @@ public final class Person {
 	}
 
 	public void update() throws NeighbourIndexException,
-			WrongOrientationException {
+			WrongOrientationException, NotANeighbourException {
 		Cell destination = selectField();
 		Orientation orient = turnTowardCell(destination);
 		orientation = orient;
@@ -176,7 +176,8 @@ public final class Person {
 		currentState = new PersonState(position, numOrient, movement);
 	}
 
-	private Cell selectField() throws NeighbourIndexException {
+	private Cell selectField() throws NeighbourIndexException,
+			NotANeighbourException {
 		List<Cell> neighbours = cell.getNeighbours();
 		Cell selectedField = this.cell;
 		Double lowestPotential = evaluateCostFunc(this.cell);
@@ -192,16 +193,17 @@ public final class Person {
 		return selectedField;
 	}
 
-	private Double getFieldPotential(Cell c) throws NeighbourIndexException {
+	private Double getFieldPotential(Cell c) throws NeighbourIndexException,
+			NotANeighbourException {
 		if (checkFieldAvailability(c))
 			return evaluateCostFunc(c);
 
-		return Double.MAX_VALUE;
+		return Double.POSITIVE_INFINITY;
 	}
 
 	// TODO:change cost function, adjust to social dist model;
 	private Double evaluateCostFunc(Cell neighbour)
-			throws NeighbourIndexException {
+			throws NeighbourIndexException, NotANeighbourException {
 		Double dist = evaluateDistComponent(neighbour);
 		Double heat = evaluateHeatComponent(neighbour);
 		return STATIC_COEFF * neighbour.getStaticFieldVal() + DYNAMIC_COEFF
@@ -215,22 +217,31 @@ public final class Person {
 	 * @param neighbour
 	 * @return heat component
 	 * @throws NeighbourIndexException
+	 * @throws NotANeighbourException
 	 */
 	private Double evaluateHeatComponent(Cell neighbour)
-			throws NeighbourIndexException {
+			throws NeighbourIndexException, NotANeighbourException {
+		Physics phys = null;
+
+		if (neighbour.equals(this.cell)) {
+			phys = this.cell.getPhysics();
+			return phys.get(Type.TEMPERATURE);
+		}
+
 		int neighbourIndex = Cell.positionToIndex(this.cell, neighbour);
 		List<Cell> row = neighbour.getRow(neighbourIndex, PERCEPTION_RANGE);
 		Double sum = 0.0;
 		Double acc = 0.0;
 
 		for (Cell c : row) {
-			Physics phys = c.getPhysics();
-			if(phys != null){
+			phys = c.getPhysics();
+			if (phys != null) {
 				sum += c.getPhysics().get(Type.TEMPERATURE);
 				++acc;
 			}
 		}
-
+		
+		//TODO: sticky walls
 		return sum / acc;
 	}
 
@@ -258,24 +269,24 @@ public final class Person {
 	 * @param c
 	 * @return
 	 * @throws NeighbourIndexException
+	 * @throws NotANeighbourException
 	 */
 	private boolean checkFieldAvailability(Cell c)
-			throws NeighbourIndexException {
-		if (c.isOccupied())
+			throws NeighbourIndexException, NotANeighbourException {
+		if (c.isOccupied() || c.isBlocked())
 			return false;
 
 		boolean cellAvailability = allowedConfigs.checkCellAvailability(c,
 				turnTowardCell(c));
 
-		if (!cellAvailability)
-			return false;
-
-		// TODO: check for obstacles
-
-		return true;
+		return cellAvailability;
 	}
 
-	private Orientation turnTowardCell(Cell c) throws NeighbourIndexException {
+	private Orientation turnTowardCell(Cell c) throws NeighbourIndexException,
+			NotANeighbourException {
+		if (c.equals(this.cell))
+			return orientation;
+
 		int index = Cell.positionToIndex(this.cell, c);
 		return Orientation.neighbourIndexToOrient(index);
 	}

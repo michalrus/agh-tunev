@@ -8,6 +8,7 @@ import java.util.Vector;
 
 import edu.agh.tunev.model.Common;
 import edu.agh.tunev.model.cellular.NeighbourIndexException;
+import edu.agh.tunev.model.cellular.agent.NotANeighbourException;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.Obstacle;
@@ -55,7 +56,11 @@ public final class Cell {
 	 * @return
 	 */
 	public boolean isOccupied() {
-		return (person != null && obstacle != null);
+		return (person != null);
+	}
+	
+	public boolean isBlocked(){
+		return (obstacle != null);
 	}
 
 	/**
@@ -97,8 +102,12 @@ public final class Cell {
 	 * 
 	 * @param c
 	 * @return
+	 * @throws NotANeighbourException 
 	 */
-	public static int positionToIndex(Cell baseCell, Cell neighbourCell) {
+	public static int positionToIndex(Cell baseCell, Cell neighbourCell) throws NotANeighbourException {
+		if(baseCell.equals(neighbourCell))
+			throw new NotANeighbourException();
+		
 		Point posCell = baseCell.getPosition();
 		Point posOth = neighbourCell.getPosition();
 

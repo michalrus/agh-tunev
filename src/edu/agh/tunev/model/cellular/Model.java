@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.PersonProfile;
+import edu.agh.tunev.model.cellular.agent.NotANeighbourException;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.model.cellular.agent.WrongOrientationException;
 import edu.agh.tunev.model.cellular.grid.Board;
@@ -88,7 +89,12 @@ public final class Model extends AbstractModel {
 			// porób zdjęcia osobom w aktualnym rzeczywistym czasie
 			for (Person p : people) {
 				try {
-					p.update();
+					try {
+						p.update();
+					} catch (NotANeighbourException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				} catch (NeighbourIndexException | WrongOrientationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

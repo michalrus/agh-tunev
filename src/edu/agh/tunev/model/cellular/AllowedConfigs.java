@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import edu.agh.tunev.model.Common;
+import edu.agh.tunev.model.cellular.agent.NotANeighbourException;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.model.cellular.agent.Person.Orientation;
 import edu.agh.tunev.model.cellular.agent.WrongOrientationException;
@@ -72,7 +73,8 @@ public class AllowedConfigs {
 	}
 
 	public boolean checkCellAvailability(Cell cell,
-			Person.Orientation selfOrient) throws NeighbourIndexException {
+			Person.Orientation selfOrient) throws NeighbourIndexException,
+			NotANeighbourException {
 
 		List<Cell> occupiedNeighbours = cell.getOccupiedNeighbours();
 		selfOrient = Person.Orientation.translateOrient(selfOrient);

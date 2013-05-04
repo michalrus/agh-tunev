@@ -72,10 +72,12 @@ public final class Board {
 			Point p2 = Cell.c2d(ob.p2);
 			//TODO: p1 < p2 (?)  <- this should be checked
 			
-			for(int iy = p1.y; iy <= p2.y; ++iy)
-				for(int ix = p1.x; ix <= p2.x; ++ix){
+			for(int iy = p1.y - 1; iy <= p2.y + 1; ++iy)
+				for(int ix = p1.x - 1; ix <= p2.x + 1; ++ix){
 					Cell c = getCellAt(new Point(ix, iy));
-					c.setObstacle(ob);
+					
+					if(c != null)
+						c.setObstacle(ob);
 				}
 		}
 			
