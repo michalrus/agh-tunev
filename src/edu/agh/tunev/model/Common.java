@@ -214,8 +214,8 @@ public final class Common {
 		}
 	}
 
+	public static final double epsilon = 0.000001;
 	/** stwierdza czy dwa double są równe z dokładnością do epsilon */
-	public static double epsilon = 0.000001;
 	public static boolean equal(double a, double b) {
 		if (Math.abs(a - b) < epsilon)
 			return true;
