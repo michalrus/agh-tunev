@@ -21,8 +21,8 @@ public final class Board {
 	}
 
 	public void update(Double t) {
-		for(Vector<Cell> v : cells)
-			for(Cell c : v){
+		for (Vector<Cell> v : cells)
+			for (Cell c : v) {
 				Point2D.Double position = Cell.d2c(c.getPosition());
 				c.update(world.getPhysicsAt(t, position));
 			}
@@ -54,6 +54,7 @@ public final class Board {
 			for (int ix = 0; ix < worldDimension.x; ++ix) {
 				Cell c = new Cell(new Point(ix, iy), this);
 				cells.get(iy).add(c);
+				System.out.println(ix + "," + iy);
 			}
 		}
 	}

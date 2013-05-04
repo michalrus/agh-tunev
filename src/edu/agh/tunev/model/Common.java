@@ -6,6 +6,7 @@ import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Point2D.Double;
 
 public final class Common {
 
@@ -136,7 +137,43 @@ public final class Common {
 
 		return dx * dy * num;
 	}
-	
+
+	/**
+	 * Finds the closest point on a line segment.
+	 * 
+	 * @param start
+	 *            segment start point
+	 * @param end
+	 *            segment end point
+	 * @param point
+	 *            point to found the closest point on segment
+	 * @return the closes point on a segment
+	 */
+	public static Point2D.Double getClosestPointOnSegment(Point2D.Double start,
+			Point2D.Double end, Point2D.Double point) {
+		double xDelta = end.x - start.x;
+		double yDelta = end.y - start.y;
+
+		if ((xDelta == 0) && (yDelta == 0)) {
+			throw new IllegalArgumentException(
+					"Segment start equals segment end");
+		}
+
+		double u = ((point.x - start.x) * xDelta + (point.y - start.y) * yDelta)
+				/ (xDelta * xDelta + yDelta * yDelta);
+
+		final Point2D.Double closestPoint;
+		if (u < 0) {
+			closestPoint = new Point2D.Double(start.x, start.y);
+		} else if (u > 1) {
+			closestPoint = new Point2D.Double(end.x, end.y);
+		} else {
+			closestPoint = new Point2D.Double(start.x + u * xDelta, start.y + u
+					* yDelta);
+		}
+
+		return closestPoint;
+	}
 
 	private Common() {
 		// you shall not instantiate ^-^

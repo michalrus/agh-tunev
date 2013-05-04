@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+import edu.agh.tunev.model.Common;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.Physics;
@@ -165,10 +166,11 @@ public final class Cell {
 	private void calculateDistToExit() {
 		Vector<Exit> exits = board.getExits();
 		Double dist = Double.MAX_VALUE;
+		Point2D.Double realPosition = d2c(position);
 
 		for (Exit e : exits) {
-			Line2D exitSegment = new Line2D.Double(e.p1, e.p2);
-			Double currDist = exitSegment.ptLineDist(d2c(position));
+			Point2D closestPoint = Common.getClosestPointOnSegment(e.p1, e.p2, realPosition);
+			Double currDist = realPosition.distance(closestPoint);
 
 			if (currDist < dist) {
 				dist = currDist;

@@ -10,6 +10,7 @@ import edu.agh.tunev.model.cellular.grid.Board;
 import edu.agh.tunev.model.cellular.grid.Cell;
 import edu.agh.tunev.statistics.KilledStatistics;
 import edu.agh.tunev.statistics.Statistics.AddCallback;
+import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
 
@@ -37,8 +38,8 @@ public final class Model extends AbstractModel {
 
 		// stwórz automat (planszę komórek)
 		board = new Board(world);
-		
-		//TODO: exception handling
+
+		// TODO: exception handling
 		try {
 			allowedConfigs = new AllowedConfigs(PersonProfile.WIDTH,
 					PersonProfile.GIRTH, Cell.CELL_SIZE, INTERSECTION_TOLERANCE);
@@ -57,7 +58,6 @@ public final class Model extends AbstractModel {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		
 
 		// TODO: pododawaj jakieś wykresy do UI związane z tym modelem
 		//
@@ -86,7 +86,7 @@ public final class Model extends AbstractModel {
 			
 
 			// porób zdjęcia osobom w aktualnym rzeczywistym czasie
-			for (Person p : people){
+			for (Person p : people) {
 				try {
 					p.update();
 				} catch (NeighbourIndexException | WrongOrientationException e) {
@@ -94,11 +94,6 @@ public final class Model extends AbstractModel {
 					e.printStackTrace();
 				}
 				interpolator.saveState(p.profile, t, p.getCurrentState());
-				// <michał> wyświetlanie
-				// "edu.agh.tunev.model.PersonState@194cd40" niczego nie daje, a
-				// spowalnia, wykomentowałem :)
-				//
-				// System.out.println(p.getCurrentState());
 			}
 
 			// TODO: uaktualnij wykresy, które mogą być aktualizowane w trakcie
