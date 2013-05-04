@@ -532,7 +532,8 @@ final class ControllerFrame extends JInternalFrame {
 		if (Math.abs(previousSliderTime - sliderTime) > DT / 2) {
 			previousSliderTime = sliderTime;
 			refresh();
-			if (slider.getValue() == slider.getMaximum())
+			if (slider.getValue() == slider.getMaximum()
+					|| slider.getValue() == slider.getMinimum())
 				forceRefresh();
 		}
 	}
