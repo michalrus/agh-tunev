@@ -27,7 +27,23 @@ final class PersonRenderer implements Renderable {
 		gl.glTranslated(state.position.x, 0, state.position.y);
 		gl.glRotated(state.orientation, 0, 1, 0);
 		gl.glColor4d(1, 1, 1, 1);
-		drawStandingPerson(gl);
+		
+		switch (state.movement) {
+		case HIDDEN:
+			break;
+		case DEAD:
+			gl.glColor4d(1, 0, 0, 1);
+		case CRAWLING:
+			drawCrawlingPerson(gl);
+			break;
+		case SQUATTING:
+			drawSquattingPerson(gl);
+			break;
+		case STANDING:
+		default:
+			drawStandingPerson(gl);
+			break;
+		}
 
 		gl.glPopMatrix();
 	}
@@ -50,4 +66,11 @@ final class PersonRenderer implements Renderable {
 		gl.glPopMatrix();
 	}
 
+	private void drawCrawlingPerson(GL2 gl) {
+		drawStandingPerson(gl);
+	}
+
+	private void drawSquattingPerson(GL2 gl) {
+		drawStandingPerson(gl);
+	}
 }
