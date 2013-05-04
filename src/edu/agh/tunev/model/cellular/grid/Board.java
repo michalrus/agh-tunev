@@ -54,7 +54,6 @@ public final class Board {
 			for (int ix = 0; ix < worldDimension.x; ++ix) {
 				Cell c = new Cell(new Point(ix, iy), this);
 				cells.get(iy).add(c);
-				System.out.println(ix + "," + iy);
 			}
 		}
 	}

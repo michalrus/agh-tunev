@@ -147,7 +147,7 @@ public final class Common {
 	 *            segment end point
 	 * @param point
 	 *            point to found the closest point on segment
-	 * @return the closes point on a segment
+	 * @return the closest point on a segment
 	 */
 	public static Point2D.Double getClosestPointOnSegment(Point2D.Double start,
 			Point2D.Double end, Point2D.Double point) {

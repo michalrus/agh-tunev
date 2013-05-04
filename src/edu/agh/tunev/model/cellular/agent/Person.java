@@ -186,24 +186,38 @@ public final class Person {
 	}
 
 	// TODO:change cost function, adjust to social dist model;
-	private Double evaluateCostFunc(Cell c) {
-		return c.getStaticFieldVal();
+	private Double evaluateCostFunc(Cell neighbour) {
+		Double dist = evaluateDistComponent(neighbour);	
+		return neighbour.getStaticFieldVal() + dist;
+	}
+	
+	private Double evaluateDistComponent(Cell neighbour){
+		Double dist = 0.0;
+		
+		if(!neighbour.equals(this.cell)){
+			Point2D.Double neighbourRealPosition = neighbour.getRealPosition();
+			Point2D.Double baseRealPosition = this.cell.getRealPosition();
+			dist = baseRealPosition.distance(neighbourRealPosition);
+		} else
+			dist = Math.sqrt(2)*Cell.CELL_SIZE;
+		
+		return dist;
 	}
 
 	/**
 	 * Checks if coming onto {@code cell} is possible.
 	 * 
-	 * @param cell
+	 * @param c
 	 * @return
 	 * @throws NeighbourIndexException
 	 */
-	private boolean checkFieldAvailability(Cell cell)
+	private boolean checkFieldAvailability(Cell c)
 			throws NeighbourIndexException {
-		if (cell.isOccupied())
+		if (c.isOccupied())
 			return false;
 
-		boolean cellAvailability = allowedConfigs.checkCellAvailability(cell,
-				turnTowardCell(cell));
+		boolean cellAvailability = allowedConfigs.checkCellAvailability(c,
+				turnTowardCell(c));
 
 		if (!cellAvailability)
 			return false;

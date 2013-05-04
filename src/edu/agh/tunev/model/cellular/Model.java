@@ -23,7 +23,7 @@ public final class Model extends AbstractModel {
 		super(world);
 	}
 
-	private static final double DT = 0.5;
+	private static final double DT = 0.05;
 
 	private Board board;
 	private AllowedConfigs allowedConfigs;
@@ -38,6 +38,7 @@ public final class Model extends AbstractModel {
 
 		// stwórz automat (planszę komórek)
 		board = new Board(world);
+
 
 		// TODO: exception handling
 		try {
@@ -83,7 +84,6 @@ public final class Model extends AbstractModel {
 			t += DT;
 
 			board.update(t);
-			
 
 			// porób zdjęcia osobom w aktualnym rzeczywistym czasie
 			for (Person p : people) {

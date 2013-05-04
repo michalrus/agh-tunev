@@ -18,7 +18,7 @@ public final class Cell {
 	public final static double CELL_SIZE = 0.25;
 
 	/** Physics coefficient useful for static field value evaluation */
-	private final static double PHYSICS_COEFF = 0.2; // TODO: set
+	private final static double PHYSICS_COEFF = 0.0; // TODO: set
 	
 	/** Distance coefficient useful for static field value evaluation */
 	private final static double DIST_COEFF = 1; //TODO: set
@@ -166,7 +166,7 @@ public final class Cell {
 	private void calculateDistToExit() {
 		Vector<Exit> exits = board.getExits();
 		Double dist = Double.MAX_VALUE;
-		Point2D.Double realPosition = d2c(position);
+		Point2D.Double realPosition = getRealPosition();
 
 		for (Exit e : exits) {
 			Point2D closestPoint = Common.getClosestPointOnSegment(e.p1, e.p2, realPosition);
@@ -178,6 +178,10 @@ public final class Cell {
 		}
 
 		this.distToExit = dist;
+	}
+	
+	public Point2D.Double getRealPosition(){
+		return d2c(position);
 	}
 
 	public Person getPerson() {
