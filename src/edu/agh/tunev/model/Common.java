@@ -203,7 +203,6 @@ public final class Common {
 			
 			// równanie normalne x cosphi + y sinphi - r = 0
 			final double r = Math.abs(C) / Math.sqrt(A * A + B * B);
-			//final double phi = (C < 0 ? Math.atan2(B, A) : Math.atan2(-B, -A));
 			final double phi = (C < 0 ? Math.atan2(B, A) : Math.atan2(-B, -A));
 			
 			return new LineNorm(r, phi);
