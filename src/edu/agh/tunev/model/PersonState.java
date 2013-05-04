@@ -17,7 +17,7 @@ import java.awt.geom.Point2D;
 public final class PersonState {
 
 	public static enum Movement {
-		STANDING, SQUATTING, CRAWLING
+		STANDING, SQUATTING, CRAWLING, DEAD, HIDDEN
 	}
 
 	public final Point2D.Double position;
