@@ -30,14 +30,14 @@ final class PersonRenderer implements Renderable {
 		gl.glRotated(state.orientation, 0, 1, 0);
 		gl.glColor4d(1, 1, 1, 1);
 
-		PersonState.Movement test = PersonState.Movement.STANDING;
-		switch (test) {
+		switch (state.movement) {
 		case HIDDEN:
 			break;
 		case DEAD:
 			gl.glColor4d(1, 0, 0, 1);
 		case CRAWLING:
-			drawCrawlingPerson(gl);
+			drawCrawlingPerson(gl, person.height * (1.0 - relativeHeadSize),
+					person.height * relativeHeadSize / 2);
 			break;
 		case SQUATTING:
 			drawBasicPerson(gl, person.height * (0.5 - relativeHeadSize),
@@ -63,8 +63,16 @@ final class PersonRenderer implements Renderable {
 		gl.glPopMatrix();
 	}
 
-	private void drawCrawlingPerson(GL2 gl) {
-		//drawStandingPerson(gl);
+	private void drawCrawlingPerson(GL2 gl, double bodyHeight, double headRadius) {
+		gl.glPushMatrix();
+
+		final double height = bodyHeight + 2 * headRadius;
+		gl.glTranslated(-PersonProfile.WIDTH / 2, 0, -height/2);
+		Common.drawCuboid(gl, PersonProfile.WIDTH, PersonProfile.GIRTH, bodyHeight);
+		gl.glTranslated(+PersonProfile.WIDTH / 2, PersonProfile.GIRTH / 2, bodyHeight+headRadius);
+		drawHead(gl, headRadius);
+
+		gl.glPopMatrix();
 	}
 
 	private void drawBody(GL2 gl, double height) {
