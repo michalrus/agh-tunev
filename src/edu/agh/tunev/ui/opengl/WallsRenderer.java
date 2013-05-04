@@ -1,17 +1,121 @@
 package edu.agh.tunev.ui.opengl;
 
 import java.awt.geom.Point2D;
+import java.util.Vector;
 
 import javax.media.opengl.GL2;
 
+import edu.agh.tunev.model.Common.LineNorm;
+import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.World;
 
 final class WallsRenderer implements Renderable {
 
-	private final World world;
+	private Vector<Wall> walls = new Vector<Wall>();
+
+	private class Wall {
+		public final LineNorm line;
+		public final double length;
+		public final Point2D.Double p1, p2;
+
+		public Wall(Point2D.Double p1, Point2D.Double p2) {
+			this.line = LineNorm.create(p1, p2);
+			this.p1 = p1;
+			this.p2 = p2;
+			length = p1.distance(p2);
+		}
+
+		// tworzy nową ścianę jako wycinek ze starej (start i end na długości
+		// starej)
+		public Wall(Wall init, double start, double end) {
+			this.line = init.line;
+			this.p1 = new Point2D.Double(init.p1.x + start/init.length * (init.p2.x - init.p1.x),
+					init.p1.y + start/init.length * (init.p2.y - init.p1.y));
+			this.p2 = new Point2D.Double(init.p1.x + end/init.length * (init.p2.x - init.p1.x),
+					init.p1.y + end/init.length * (init.p2.y - init.p1.y));
+			this.length = Math.abs(end - start);
+		}
+
+		public Vector<Wall> cutout(Exit exit) {
+			Vector<Wall> walls = new Vector<Wall>();
+
+			if (!LineNorm.create(exit.p1, exit.p2).liesOn(line, 0.01, 0.01)) {
+				// if the exit and the line are not on the same line
+				walls.add(this);
+				return walls;
+			}
+
+			// translate exit by -wall.p1
+			// and rotate by -(wall.phi-90*)
+			final double angle = -(line.phi - Math.toRadians(90));
+			// the exit will lie on OX then			
+			final Point2D.Double tep1 = new Point2D.Double(
+					exit.p1.x - p1.x, exit.p1.y - p1.y);
+			final Point2D.Double rep1 = Common.rotate(tep1, angle);
+			final Point2D.Double tep2 = new Point2D.Double(
+					exit.p2.x - p1.x, exit.p2.y - p1.y);
+			final Point2D.Double rep2 = Common.rotate(tep2, angle);
+			
+			// do the same thing with the wall
+			//final Point2D.Double twp1 = new Point2D.Double(
+			//		0, 0);
+			//final Point2D.Double rwp1 = Common.rotate(twp1, angle);
+			final Point2D.Double twp2 = new Point2D.Double(
+					p2.x - p1.x, p2.y - p1.y);
+			final Point2D.Double rwp2 = Common.rotate(twp2, angle);
+
+			final double tmpx1 = (rwp2.x > 0 ? rep1.x : -rep1.x);
+			final double tmpx2 = (rwp2.x > 0 ? rep2.x : -rep2.x);
+			final double ex1 = Math.min(tmpx1, tmpx2);
+			final double ex2 = Math.max(tmpx1, tmpx2);
+
+			// lewy i prawy koniec ściany (umownie)
+			final double lx = 0 + Common.epsilon;
+			final double rx = Math.abs(rwp2.x) - Common.epsilon;
+
+			if (ex1 < lx) { // 1. pierwszy punkt drzwi przed ściana
+				if (ex2 < lx) // 1.a. drugi punkt drzwi przed ścianą
+					walls.add(this);
+				else if (ex2 < rx) // 1.b. drugi punkt drzwi w ścianie
+					walls.add(new Wall(this, ex2, length));
+				else // 1.c. drugi za ścianą, całkowite wycięcie
+					;
+			}
+			else if (ex1 < rx) { // 2. pierwszy punkt w ścianie
+				if (ex2 < rx) { // 2.a. drugi w ścianie
+					walls.add(new Wall(this, 0, ex1));
+					walls.add(new Wall(this, ex2, length));
+				}
+				else // 2.b. drugi za ścianą
+					walls.add(new Wall(this, 0, ex1));
+			}
+			else // 3. oba za ścianą
+				walls.add(this);
+
+			return walls;
+		}
+	}
 
 	public WallsRenderer(World world) {
-		this.world = world;
+		final Point2D.Double dim = world.getDimension();
+
+		// initial walls
+		walls.add(new Wall(new Point2D.Double(0, 0), new Point2D.Double(0,
+				dim.y)));
+		walls.add(new Wall(new Point2D.Double(0, dim.y), new Point2D.Double(
+				dim.x, dim.y)));
+		walls.add(new Wall(new Point2D.Double(dim.x, dim.y),
+				new Point2D.Double(dim.x, 0)));
+		walls.add(new Wall(new Point2D.Double(dim.x, 0), new Point2D.Double(0,
+				0)));
+
+		// cut the exits out
+		for (Exit exit : world.getExits()) {
+			Vector<Wall> newWalls = new Vector<Wall>();
+			for (Wall wall : walls)
+				newWalls.addAll(wall.cutout(exit));
+			walls = newWalls;
+		}
 	}
 
 	private static final double thickness = 0.3;
@@ -24,17 +128,21 @@ final class WallsRenderer implements Renderable {
 		gl.glPushMatrix();
 		gl.glColor4d(1, 1, 1, 1);
 
-		Point2D.Double dim = world.getDimension();
+		for (Wall wall : walls)
+			drawWall(gl, wall.p1, wall.p2);
 
+		gl.glPopMatrix();
+	}
+
+	/** rysuje ścianę między dwoma Worldowymi punktami (x,y) */
+	private void drawWall(GL2 gl, Point2D.Double a, Point2D.Double b) {
 		gl.glPushMatrix();
+
+		gl.glTranslated(a.x, 0, a.y);
+		final Point2D.Double r = new Point2D.Double(b.x - a.x, b.y - a.y);
+		gl.glRotated(Math.toDegrees(Math.atan2(r.x, r.y)), 0, 1, 0);
 		gl.glTranslated(-thickness * (1 - overlap), 0, 0);
-		Common.drawCuboid(gl, thickness, height, dim.y);
-		gl.glPopMatrix();
-
-		gl.glPushMatrix();
-		gl.glTranslated(dim.x - thickness * overlap, 0, 0);
-		Common.drawCuboid(gl, thickness, height, dim.y);
-		gl.glPopMatrix();
+		Common.drawCuboid(gl, thickness, height, r.distance(0, 0));
 
 		gl.glPopMatrix();
 	}

@@ -20,6 +20,10 @@ public final class Common {
 	public static double normalizeDeg(double angle) {
 		return (360.0 + angle % 360.0) % 360.0;
 	}
+	
+	public static double normalizeRad(double angle) {
+		return Math.toRadians(normalizeDeg(Math.toDegrees(angle)));
+	}
 
 	/**
 	 * Oblicza kąt o danym położeniu względnym na odległości między podanymi
@@ -211,6 +215,33 @@ public final class Common {
 			final double phi = (C < 0 ? Math.atan2(B, A) : Math.atan2(-B, -A));
 			
 			return new LineNorm(r, phi);
+		}
+		
+		public boolean liesOn(LineNorm rhs, double rTolerance, double phiTolerance) {
+			// czy ta sama odległość prostej od środka?
+			final boolean sameR = Math.abs(rhs.r - r) < rTolerance;
+			
+			if (!sameR)
+				return false;
+			
+			// policz znormalizowane kąty obu prostych
+			final double phi1n = normalizeRad(phi);
+			final double phi2n = normalizeRad(rhs.phi);
+
+			// czy ten sam kąt z OY?
+			final double phiDiff = Math.abs(phi1n - phi2n);
+			final boolean samePhi = phiDiff < phiTolerance;
+			
+			if (samePhi)
+				return true;
+			
+			// jeśli proste nie mają tego samego phi, ale przechodzą przez (0,0)... 
+			if (equal(r, 0))
+				// sprawdź czy aby kąty nie różnią się o 180*
+				if (Math.abs(phiDiff - Math.PI) < phiTolerance)
+					return true;
+			
+			return false;
 		}
 	}
 

@@ -1,5 +1,6 @@
 package edu.agh.tunev.ui.opengl;
 
+import java.awt.geom.Point2D;
 import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -7,6 +8,20 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import javax.media.opengl.GL2;
 
 public final class Common {
+
+	public static final double epsilon = edu.agh.tunev.model.Common.epsilon;
+	
+	public static boolean equal(double a, double b) {
+		return edu.agh.tunev.model.Common.equal(a, b);
+	}
+
+	// -- translacje, rotacje, wiatr *.*
+
+	public static Point2D.Double rotate(Point2D.Double vec, double angle) {
+		return new Point2D.Double(vec.x * Math.cos(angle) - vec.y
+				* Math.sin(angle), vec.x * Math.sin(angle) + vec.y
+				* Math.cos(angle));
+	}
 
 	// -- bryły
 
