@@ -20,6 +20,7 @@ final class ObstacleRenderer implements Renderable {
 		final double ymin = Math.min(obstacle.p1.y, obstacle.p2.y);
 		final double ymax = Math.max(obstacle.p1.y, obstacle.p2.y);
 		gl.glTranslated(xmin, 0, ymin);
+		gl.glColor4d(1, 1, 1, 1);
 		Common.drawCuboid(gl, xmax - xmin, obstacle.height, ymax - ymin);
 		gl.glPopMatrix();
 	}

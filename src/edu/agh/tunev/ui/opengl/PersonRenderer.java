@@ -26,6 +26,7 @@ final class PersonRenderer implements Renderable {
 
 		gl.glTranslated(state.position.x, 0, state.position.y);
 		gl.glRotated(state.orientation, 0, 1, 0);
+		gl.glColor4d(1, 1, 1, 1);
 		drawStandingPerson(gl);
 
 		gl.glPopMatrix();
