@@ -6,7 +6,6 @@ import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Point2D.Double;
 
 public final class Common {
 
@@ -178,6 +177,48 @@ public final class Common {
 		}
 
 		return closestPoint;
+	}
+
+	/**
+	 * postać normalna prostej na OXY (czyli tak jak widzą prostą ludzie) zob.
+	 * https://pl.wikipedia.org/wiki/Prosta#R.C3.B3wnanie_normalne
+	 */
+	public static class LineNorm {
+		/** odległość prostej od (0,0) */
+		public final double r;
+		/** kąt między prostą a OY (czyli między r i OY) */
+		public final double phi;
+
+		public LineNorm(double r, double phi) {
+			this.r = r;
+			this.phi = phi;
+		}
+
+		// to można by napisać w Scali:
+		// `case class LineNorm(phi: Double, r: Double)'
+		// bez żadnych konstruktorów, niczego... :p
+		/** postać normalna prostej przechodzącej przez punkty p2, p2 */
+		public static LineNorm create(Point2D.Double p1, Point2D.Double p2) {
+			final boolean vertical = equal(p1.x, p2.x);
+			
+			// równanie ogólne Ax+By+C=0
+			final double A = (vertical ? 1 : (p2.y - p1.y) / (p2.x - p1.x));
+			final double B = (vertical ? 0 : -1);
+			final double C = (vertical ? -p1.x : (p2.x*p1.y - p1.x*p2.y) / (p2.x - p1.x));
+			
+			// równanie normalne x cosphi + y sinphi - r = 0
+			final double r = Math.abs(C) / Math.sqrt(A * A + B * B);
+			final double phi = (C < 0 ? Math.atan2(B, A) : Math.atan2(-B, -A));
+			
+			return new LineNorm(r, phi);
+		}
+	}
+
+	/** stwierdza czy dwa double są równe z względną dokładnością 0.1% */
+	public static boolean equal(double a, double b) {
+		if (Math.abs(a - b) / Math.abs(a) < 0.001)
+			return true;
+		return false;
 	}
 
 	private Common() {

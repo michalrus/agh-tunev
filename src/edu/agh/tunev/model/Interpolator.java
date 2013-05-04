@@ -50,10 +50,7 @@ public final class Interpolator {
 		final double prevT = prevEntry.getKey();
 		final double nextT = nextEntry.getKey();
 		
-		// smallest difference in time-keys that makes them considered equal
-		final double epsilon = 0.0001;
-
-		if (Math.abs(nextT - prevT) < epsilon)
+		if (Common.equal(nextT, prevT))
 			return next;
 
 		// splajny 1-go stopnia? będzie git
