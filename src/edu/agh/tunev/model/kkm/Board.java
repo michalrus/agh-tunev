@@ -139,7 +139,7 @@ public class Board {
 	}
 
 	public boolean isOutOfBounds(Point2D.Double p) {
-		return (p.x >= 0 && p.y >= 0 && p.x <= dimension.x && p.y <= dimension.y);
+		return !(p.x >= 0 && p.y >= 0 && p.x <= dimension.x && p.y <= dimension.y);
 	}
 
 }
