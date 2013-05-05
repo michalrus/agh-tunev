@@ -11,7 +11,7 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		MainFrame.register(edu.agh.tunev.model.cellular.Model.class);
-		MainFrame.register(edu.agh.tunev.model.kkm.Model.class);
+		MainFrame.register(edu.agh.tunev.model.jrakoczy.Model.class);
 
 		new MainFrame();
 	}

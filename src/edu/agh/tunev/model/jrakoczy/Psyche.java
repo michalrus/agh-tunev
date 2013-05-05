@@ -1,4 +1,4 @@
-package edu.agh.tunev.model.kkm;
+package edu.agh.tunev.model.jrakoczy;
 
 import java.util.Random;
 
