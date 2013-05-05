@@ -90,7 +90,7 @@ public final class Agent {
 	private static final double MOL_TO_PPM = 1E11;
 
 	/** Współczynnik funkcji przekształcającej odległość na czas reakcji */
-	private static final double REACTION_COEFF = 0.3 * 1000; // wspolczynnik *
+	private static final double REACTION_COEFF = 0.3; // wspolczynnik *
 																// [s/ms]
 
 	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
@@ -302,7 +302,7 @@ public final class Agent {
 		if (hbco > dt * CLEANSING_VELOCITY)
 			hbco -= dt * CLEANSING_VELOCITY;
 
-		hbco += (dt/1000) * LETHAL_HbCO_CONCN * (curr_co / LETHAL_CO_CONCN);
+		hbco += dt * LETHAL_HbCO_CONCN * (curr_co / LETHAL_CO_CONCN);
 	}
 
 	/**

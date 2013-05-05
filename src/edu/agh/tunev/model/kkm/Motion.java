@@ -22,7 +22,7 @@ class Motion {
 	private final static double SMOKE_CRAWL_DENSITY = 20800;
 
 	/** Standardowa, poczatkowa predkosc ruchu */
-	private final static double AVG_MOVING_SPEED = 1.6 / 1000;
+	private final static double AVG_MOVING_SPEED = 1.6;
 
 	/** Aktualna postawa agenta */
 	PersonState.Movement stance;
