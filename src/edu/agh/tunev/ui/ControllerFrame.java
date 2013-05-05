@@ -291,13 +291,6 @@ final class ControllerFrame extends JInternalFrame {
 		buttonStop.setEnabled(false);
 		p.add(buttonStop, c);
 
-		c.gridx += c.gridwidth;
-		c.gridwidth = 1;
-		final JCheckBox checkPaintTemp = new JCheckBox("paint T");
-		paintTemp = true;
-		checkPaintTemp.setSelected(paintTemp);
-		p.add(checkPaintTemp, c);
-
 		buttonPlay.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				buttonPlay.setEnabled(false);
@@ -314,12 +307,6 @@ final class ControllerFrame extends JInternalFrame {
 				}
 			}
 		});
-		checkPaintTemp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				paintTemp = checkPaintTemp.isSelected();
-				refresh();
-			}
-		});
 
 		c.gridx += c.gridwidth;
 		c.gridwidth = 1;
@@ -331,6 +318,19 @@ final class ControllerFrame extends JInternalFrame {
 		buttonPlot.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
 				plotMenu.show(buttonPlot, 0, buttonPlot.getHeight());
+			}
+		});
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		final JCheckBox checkPaintTemp = new JCheckBox("paint T");
+		paintTemp = true;
+		checkPaintTemp.setSelected(paintTemp);
+		p.add(checkPaintTemp, c);
+		checkPaintTemp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				paintTemp = checkPaintTemp.isSelected();
+				refresh();
 			}
 		});
 
