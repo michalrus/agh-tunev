@@ -1,16 +1,14 @@
 package edu.agh.tunev.model.kkm;
 
-import edu.agh.tunev.model.kkm.Board.Barrier;
-import edu.agh.tunev.model.kkm.Board.Exit;
-import edu.agh.tunev.model.kkm.Board.NoPhysicsDataException;
-import edu.agh.tunev.model.kkm.Board.Obstacle;
-import edu.agh.tunev.model.kkm.Board.Physics;
+import java.awt.geom.Point2D;
+
+import edu.agh.tunev.model.PersonProfile;
+import edu.agh.tunev.model.PersonState;
+import edu.agh.tunev.world.Exit;
+import edu.agh.tunev.world.Obstacle;
+import edu.agh.tunev.world.Physics;
 
 public final class Agent {
-
-	enum Stance {
-		STAND, CROUCH, CRAWL
-	}
 
 	/** Wspolczynnik przeskalowujacy temperature na zagrożenie */
 	static final double TEMP_THREAT_COEFF = 0.06;
@@ -96,7 +94,7 @@ public final class Agent {
 																// [s/ms]
 
 	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
-	Point position;
+	Point2D.Double position;
 
 	/** Aktualnie wybrane wyjście ewakuacyjne */
 	Exit exit;
@@ -143,21 +141,25 @@ public final class Agent {
 	 * @param position
 	 *            referencja to komórki będącej pierwotną pozycją agenta
 	 */
-	public Agent(Board board, Point position) {
+	public final PersonProfile profile;
+	public Agent(Board board, PersonProfile profile) {
+		this.profile = profile;
 		this.board = board;
-		this.position = position;
+		this.position = profile.initialPosition;
 		motion = new Motion(this);
 		psyche = new Psyche(this);
 
-		phi = Math.random() * 360 - 180;
+		phi = profile.initialOrientation;
+		motion.stance = profile.initialMovement;
 
 		alive = true;
 		exited = false;
 		hbco = 0;
 		dt = 0;
 
+		// TODO: <michał> co z nearest fire src?
 		pre_movement_t = (REACTION_COEFF
-				* position.evalDist(board.getNearestFireSrc(position)) + psyche.reaction_t);
+				* 1/*position.evalDist(board.getNearestFireSrc(position))*/ + psyche.reaction_t);
 	}
 
 	/**
@@ -185,11 +187,11 @@ public final class Agent {
 	 *            {@code dx = dt * v * cos(phi); dy = dt * v * sin(phi);}
 	 * @throws NoPhysicsDataException
 	 */
-	public void update(double _dt) throws NoPhysicsDataException {
+	public void update(double _dt) {
 		this.dt = _dt;
 		double curr_temp = getMeanPhysics(0, 360, BROADNESS,
-				Physics.TEMPERATURE);
-		double curr_co = MOL_TO_PPM * getMeanPhysics(0, 360, BROADNESS, Physics.CO);
+				Physics.Type.TEMPERATURE);
+		double curr_co = MOL_TO_PPM * getMeanPhysics(0, 360, BROADNESS, Physics.Type.CO);
 		checkIfIWillLive(curr_co, curr_temp);
 
 		if (alive) {
@@ -213,7 +215,7 @@ public final class Agent {
 						.getDimension().y);
 	}
 
-	public Point getPosition() {
+	public Point2D.Double getPosition() {
 		return position;
 	}
 
@@ -269,7 +271,7 @@ public final class Agent {
 		return motion.velocity;
 	}
 
-	public Motion.Stance getStance(){
+	public PersonState.Movement getStance(){
 		return motion.stance;
 	}
 	
@@ -284,7 +286,8 @@ public final class Agent {
 	 */
 	private void checkIfIWillLive(double curr_co, double curr_temp) {
 		evaluateHbCO(curr_co);
-		System.out.println(curr_co + " " + hbco);
+		// <michał> wykomentowałem
+		//System.out.println(curr_co + " " + hbco);
 
 		if (hbco > LETHAL_HbCO_CONCN || curr_temp > LETHAL_TEMP)
 			alive = false;
@@ -308,7 +311,7 @@ public final class Agent {
 	private void makeDecision() {
 		phi = calculateNewPhi();
 		double attractivness_ahead = computeThreatComponent(0);
-		Barrier barrier = motion.isStaticCollision(0);
+		Object barrier = motion.isStaticCollision(0);
 
 		if (distToExit(exit) > EXIT_RUSH_DIST
 				&& attractivness_ahead > MIN_THREAT_VAL && barrier == null) {
@@ -352,7 +355,7 @@ public final class Agent {
 											// m.
 			return phi;
 
-		Point checkpoint = motion.checkpoints
+		Point2D.Double checkpoint = motion.checkpoints
 				.get(motion.checkpoints.size() - 1);
 		double deltaY = checkpoint.y - position.y;
 		double deltaX = checkpoint.x - position.x;
@@ -366,7 +369,7 @@ public final class Agent {
 	 * 
 	 * @throws NoPhysicsDataException
 	 */
-	private void chooseExit() throws NoPhysicsDataException {
+	private void chooseExit() {
 		Exit chosen_exit = null;
 		Exit curr_exit = getNearestExit(-1);
 
@@ -427,9 +430,9 @@ public final class Agent {
 	// TODO: rework, uwaga na (....XXX__XX...)
 	private double checkForBlockage(Exit _exit) {
 		boolean viable_route = true;
-		double exit_y = _exit.getExitY();
+		double exit_y = board.getExitY(_exit);
 		double dist = Math.abs(position.y - exit_y);
-		double ds = board.getDataCellDimension().y;
+		double ds = 0.5; /*board.getDataCellDimension().y*/; //TODO:<michał> co tutaj?
 
 		if (position.y > exit_y)
 			ds = -ds;
@@ -439,25 +442,17 @@ public final class Agent {
 		while (Math.abs(y_coord - position.y) < dist) {
 			double x_coord = 0 + BROADNESS;
 			double checkpoint_y_temp = 0;
-			try {
-				checkpoint_y_temp = board.getPhysics(
-						new Point(x_coord, y_coord), Physics.TEMPERATURE);
-			} catch (NoPhysicsDataException ex) {
-				// nic sie nie dzieje
-			}
+			checkpoint_y_temp = board.getPhysics(
+					new Point2D.Double(x_coord, y_coord), Physics.Type.TEMPERATURE);
 
 			// poruszamy się po osi X, jeśli natrafiliśmy na blokadę
 			if (checkpoint_y_temp > MIN_FLAME_TEMP) {
 				viable_route = false;
 				while (x_coord < board.getDimension().x) {
 					double checkpoint_x_temp = MIN_FLAME_TEMP;
-					Point checkpoint_x = new Point(x_coord, y_coord);
-					try {
-						checkpoint_x_temp = board.getPhysics(checkpoint_x,
-								Physics.TEMPERATURE);
-					} catch (NoPhysicsDataException ex) {
-						// nic sie nie dzieje
-					}
+					Point2D.Double checkpoint_x = new Point2D.Double(x_coord, y_coord);
+					checkpoint_x_temp = board.getPhysics(checkpoint_x,
+							Physics.Type.TEMPERATURE);
 
 					if (checkpoint_x_temp < MIN_FLAME_TEMP
 							|| motion.isObstacleInPos(checkpoint_x) == null)
@@ -485,8 +480,8 @@ public final class Agent {
 	double distToExit(Exit _exit) {
 		if (_exit == null)
 			return Double.POSITIVE_INFINITY;
-		Point exit_closest_p = _exit.getClosestPoint(position);
-		return position.evalDist(exit_closest_p);
+		Point2D.Double exit_closest_p = board.getExitClosestPoint(_exit, position);
+		return position.distance(exit_closest_p);
 	}
 
 	/**
@@ -529,7 +524,7 @@ public final class Agent {
 	 * @return
 	 */
 	private double getMeanPhysics(double orientation, double alpha, double r,
-			Physics what) {
+			Physics.Type what) {
 		if (alpha < 0)
 			throw new IllegalArgumentException("alpha < 0");
 		if (r < 0)
@@ -556,14 +551,9 @@ public final class Agent {
 			double cos = Math.cos(Math.toRadians(alpha));
 			r = rA;
 			do {
-				try {
-					sum += board.getPhysics(new Point(position.x + cos * r,
-							position.y + sin * r), what);
-					num++;
-				} catch (NoPhysicsDataException e) {
-					// nie ma danych tego typu w tym punkcie -- nie uwzglęniaj
-					// go do średniej
-				}
+				sum += board.getPhysics(new Point2D.Double(position.x + cos * r,
+						position.y + sin * r), what);
+				num++;
 				r += dr;
 			} while (r <= rB);
 			alpha += dalpha;
@@ -586,7 +576,7 @@ public final class Agent {
 				BASE_RADIUS_CALC, angle);
 
 		attractivness_comp += getMeanPhysics(angle, CIRCLE_SECTOR, r_ahead,
-				Physics.TEMPERATURE);
+				Physics.Type.TEMPERATURE);
 		return attractivness_comp;
 	}
 

@@ -1,19 +1,14 @@
 package edu.agh.tunev.model.kkm;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import edu.agh.tunev.model.kkm.Board.Barrier;
-import edu.agh.tunev.model.kkm.Board.Obstacle;
-
+import edu.agh.tunev.model.PersonState;
+import edu.agh.tunev.world.Obstacle;
 
 class Motion {
-	/** TODO:Bedzie okreslac predkosc */
-	enum Stance {
-		ERECT, BENT, CRAWL
-	}
-
 	/** Wspolczynnik predkosci dla pozycji zgiętej */
 	private final static double BENT_COEFF = 0.75;
 
@@ -30,13 +25,13 @@ class Motion {
 	private final static double AVG_MOVING_SPEED = 1.6 / 1000;
 
 	/** Aktualna postawa agenta */
-	Stance stance;
+	PersonState.Movement stance;
 
 	/**
 	 * Lista punktow, ktore zamierzamy odwiedzic. Wybrane wyjscie jest
 	 * checkpointem o indeksie 0
 	 */
-	List<Point> checkpoints;
+	List<Point2D.Double> checkpoints;
 
 	/** Aktualna predkosc */
 	double velocity;
@@ -49,10 +44,10 @@ class Motion {
 
 	Motion(Agent _agent) {
 		this.agent = _agent;
-		checkpoints = new ArrayList<Point>();
+		checkpoints = new ArrayList<Point2D.Double>();
 		velocity_coeff = (Math.random() / 2) + 0.75; // range [0.75, 1.25]
 		velocity = velocity_coeff * AVG_MOVING_SPEED;
-		stance = Stance.ERECT;
+		stance = PersonState.Movement.STANDING;
 	}
 
 	/** Ruch w danym kierunki z aktualna predkoscia */
@@ -62,7 +57,7 @@ class Motion {
 		double y = agent.position.y + velocity * agent.dt
 				* Math.sin(Math.toRadians(agent.phi));
 
-		Point dest = new Point(x, y);
+		Point2D.Double dest = new Point2D.Double(x, y);
 
 		if (!isDynamicCollision(dest))
 			agent.position = dest;
@@ -81,9 +76,9 @@ class Motion {
 		changeStance(smoke_density);
 		velocity = velocity_coeff * anxiety * AVG_MOVING_SPEED;
 
-		if (stance == Stance.BENT)
+		if (stance == PersonState.Movement.SQUATTING)
 			velocity *= BENT_COEFF;
-		else if (stance == Stance.CRAWL)
+		else if (stance == PersonState.Movement.CRAWLING)
 			velocity *= CRAWL_COEFF;
 
 	}
@@ -97,17 +92,18 @@ class Motion {
 	 * @return przeszkoda(Obstacle lub Wall) albo null, jesli jest miejsce do
 	 *         ruchu
 	 */
-	Barrier isStaticCollision(double angle) {
+	// TODO: quick-fix: <michał> zmienić hierarchię? przerobiłem na Object -,-
+	Object isStaticCollision(double angle) {
 		double path_length = velocity * agent.dt + Agent.BROADNESS;
 		double alpha = angle + agent.phi;
 		double sin = Math.sin(Math.toRadians(alpha));
 		double cos = Math.cos(Math.toRadians(alpha));
 
-		Point p = new Point(agent.position.x + path_length * cos,
+		Point2D.Double p = new Point2D.Double(agent.position.x + path_length * cos,
 				agent.position.y + path_length * sin);
 
 		if (agent.board.isOutOfBounds(p))
-			return agent.board.new Wall();
+			return new Board.Wall();
 
 		return isObstacleInPos(p);
 	}
@@ -119,9 +115,9 @@ class Motion {
 	 *            punkt
 	 * @return referencja do przeszkody
 	 */
-	Obstacle isObstacleInPos(Point p) {
+	Obstacle isObstacleInPos(Point2D.Double p) {
 		for (Obstacle ob : agent.board.getObstacles()) {
-			if (ob.isInside(p, 2 * Agent.BROADNESS))
+			if (ob.contains(p, 2 * Agent.BROADNESS))
 				return ob;
 		}
 
@@ -139,18 +135,18 @@ class Motion {
 	 * @return wspolrzedne checkpointa
 	 */
 	// TODO: Motion
-	Point avoidCollision(Obstacle ob) {
-		Point start_point = ob.getStartPoint();
-		Point end_point = ob.getEndPoint();
+	Point2D.Double avoidCollision(Obstacle ob) {
+		Point2D.Double start_point = ob.p1;
+		Point2D.Double end_point = ob.p2;
 
 		// obliczamy wspolrzedne wierzcholkow przeszkody (za malym zapasem)
-		Point left_bot = new Point(start_point.x - Agent.BROADNESS,
+		Point2D.Double left_bot = new Point2D.Double(start_point.x - Agent.BROADNESS,
 				start_point.y - Agent.BROADNESS);
-		Point left_top = new Point(start_point.x - Agent.BROADNESS, end_point.y
+		Point2D.Double left_top = new Point2D.Double(start_point.x - Agent.BROADNESS, end_point.y
 				+ Agent.BROADNESS);
-		Point right_bot = new Point(end_point.x + Agent.BROADNESS,
+		Point2D.Double right_bot = new Point2D.Double(end_point.x + Agent.BROADNESS,
 				start_point.y - Agent.BROADNESS);
-		Point right_top = new Point(end_point.x + Agent.BROADNESS, end_point.y
+		Point2D.Double right_top = new Point2D.Double(end_point.x + Agent.BROADNESS, end_point.y
 				+ Agent.BROADNESS);
 
 		// obliczamy odleglosci agenta od poszczegolnych bokow przeszkody (z
@@ -167,7 +163,7 @@ class Motion {
 
 		// wybieramy najmniejsza odleglosc
 		double min_dist = Collections.min(dist_list);
-		Point[] selected_points = new Point[2];
+		Point2D.Double[] selected_points = new Point2D.Double[2];
 
 		// wybieramy odpowiednie wierzcholki
 		// left
@@ -188,10 +184,10 @@ class Motion {
 			selected_points[1] = right_bot;
 		}
 
-		Point exit_pos = agent.exit.getClosestPoint(agent.position);
+		Point2D.Double exit_pos = agent.board.getExitClosestPoint(agent.exit, agent.position);
 		double[] p_dists = new double[2];
-		p_dists[0] = exit_pos.evalDist(selected_points[0]);
-		p_dists[1] = exit_pos.evalDist(selected_points[1]);
+		p_dists[0] = exit_pos.distance(selected_points[0]);
+		p_dists[1] = exit_pos.distance(selected_points[1]);
 
 		// wybieramy wierzcholek blizszy wyjsciu
 		if (p_dists[0] < p_dists[1])
@@ -206,7 +202,7 @@ class Motion {
 	 * 
 	 * @param new_checkpoint
 	 */
-	void addCheckpoint(Point new_checkpoint) {
+	void addCheckpoint(Point2D.Double new_checkpoint) {
 		trimCheckpoints(new_checkpoint);
 		checkpoints.add(new_checkpoint);
 	}
@@ -222,7 +218,7 @@ class Motion {
 								// NullPointerException --
 								// m.
 			return;
-		Point exit_pos = agent.exit.getClosestPoint(agent.position);
+		Point2D.Double exit_pos = agent.board.getExitClosestPoint(agent.exit, agent.position);
 		if (!checkpoints.isEmpty())
 			checkpoints.set(0, exit_pos);
 		else
@@ -235,14 +231,14 @@ class Motion {
 	 * 
 	 * @param p
 	 */
-	private void trimCheckpoints(Point p) {
+	private void trimCheckpoints(Point2D.Double p) {
 		if (!checkpoints.isEmpty()) {
-			Point exit_pos = agent.exit.getClosestPoint(agent.position);
-			double new_dist = exit_pos.evalDist(p);
+			Point2D.Double exit_pos = agent.board.getExitClosestPoint(agent.exit, agent.position);
+			double new_dist = exit_pos.distance(p);
 
 			int index = 0;
 			while (index <= checkpoints.size() - 1
-					&& new_dist > exit_pos.evalDist(checkpoints.get(index)))
+					&& new_dist > exit_pos.distance(checkpoints.get(index)))
 				++index;
 
 			checkpoints.subList(index, checkpoints.size()).clear();
@@ -256,12 +252,12 @@ class Motion {
 	 */
 	private void changeStance(double smoke_density) {
 		if (smoke_density < SMOKE_BENT_DENSITY)
-			stance = Stance.ERECT;
+			stance = PersonState.Movement.STANDING;
 		else if (smoke_density >= SMOKE_BENT_DENSITY
 				&& smoke_density < SMOKE_CRAWL_DENSITY)
-			stance = Stance.BENT;
+			stance = PersonState.Movement.SQUATTING;
 		else
-			stance = Stance.CRAWL;
+			stance = PersonState.Movement.CRAWLING;
 	}
 
 	/**
@@ -272,12 +268,12 @@ class Motion {
 	 *            punkt do ktorego agent chce sie przemiescic
 	 * @return
 	 */
-	private boolean isDynamicCollision(Point dest) {
+	private boolean isDynamicCollision(Point2D.Double dest) {
 		for (Agent a : agent.board.getAgents()) {
 			if (!a.isAlive() || a.isExited() || a.equals(agent))
 				continue;
 			
-			double dest_dist = a.getPosition().evalDist(dest);
+			double dest_dist = a.getPosition().distance(dest);
 			if (dest_dist < Agent.THICKNESS)
 				return true;
 		}
