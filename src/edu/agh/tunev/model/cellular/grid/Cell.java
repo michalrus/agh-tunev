@@ -11,6 +11,7 @@ import edu.agh.tunev.model.cellular.NeighbourIndexException;
 import edu.agh.tunev.model.cellular.agent.NotANeighbourException;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.world.Exit;
+import edu.agh.tunev.world.FireSource;
 import edu.agh.tunev.world.Obstacle;
 import edu.agh.tunev.world.Physics;
 
@@ -252,11 +253,10 @@ public final class Cell {
 		Vector<Exit> exits = board.getExits();
 		Double dist = Double.MAX_VALUE;
 		Point2D.Double realPosition = getRealPosition();
-
+		
 		for (Exit e : exits) {
-			Point2D closestPoint = Common.getClosestPointOnSegment(e.p1, e.p2,
-					realPosition);
-			Double currDist = realPosition.distance(closestPoint);
+			Point2D middlePoint = Common.getMiddlePointOfSegment(e.p1, e.p2);
+			Double currDist = realPosition.distance(middlePoint);
 
 			if (currDist < dist) {
 				dist = currDist;
@@ -264,6 +264,16 @@ public final class Cell {
 		}
 
 		this.distToExit = dist;
+	}
+	
+	public double getDistToFireSrc(){
+		Point2D.Double realPosition = getRealPosition();
+		FireSource fireSrc = board.getFireSrc();
+		return realPosition.distance(fireSrc);
+	}
+
+	public double getDistToExit() {
+		return distToExit;
 	}
 
 	public Point2D.Double getRealPosition() {

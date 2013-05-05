@@ -145,6 +145,11 @@ public final class Common {
 		Shape ellipse = createEllipse(new Point2D.Double(0.0, 0.0), width, height, 0.0);
 		return intersectionArea(ellipse, ellipse);
 	}
+	
+	public static Point2D.Double getMiddlePointOfSegment(Point2D.Double start,
+			Point2D.Double end){
+		return new Point2D.Double((start.x + end.x)/2, (start.y + end.y)/2);
+	}
 
 	/**
 	 * Finds the closest point on a line segment.

@@ -126,8 +126,8 @@ public class Scene implements GLEventListener {
 		gl.glClearColor(0, 0, 0, 0.5f);
 		gl.glClearDepth(1.0);
 
-		gl.glEnable(GL2.GL_LINE_SMOOTH);
-		gl.glEnable(GL2.GL_POLYGON_SMOOTH);
+		//gl.glEnable(GL2.GL_LINE_SMOOTH);
+		//gl.glEnable(GL2.GL_POLYGON_SMOOTH);
 		gl.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL2.GL_NICEST);
 		gl.glHint(GL2.GL_LINE_SMOOTH, GL2.GL_NICEST);
 		gl.glEnable(GL.GL_BLEND);
@@ -159,7 +159,7 @@ public class Scene implements GLEventListener {
 		gl.glViewport(x, y, width, height);
 
 		GLU glu = GLU.createGLU(gl);
-		glu.gluPerspective(45, (float) width / height, 1, 1000);
+		glu.gluPerspective(45, (float) width / height, 1, 100);
 	}
 
 }

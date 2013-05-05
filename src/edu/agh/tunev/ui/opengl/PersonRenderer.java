@@ -85,7 +85,7 @@ final class PersonRenderer implements Renderable {
 	private void drawHead(GL2 gl, double radius) {
 		GLUT glut = new GLUT();
 		glut.glutSolidSphere(radius, 20, 20);
-		gl.glColor4d(1, 0, 0, 1);
-		glut.glutSolidCone(radius / 2, radius * 4, 20, 20);
+		//gl.glColor4d(1, 0, 0, 1);
+		//glut.glutSolidCone(radius / 2, radius * 4, 20, 20);
 	}
 }

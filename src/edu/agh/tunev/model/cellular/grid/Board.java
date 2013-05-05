@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import java.util.Vector;
 
 import edu.agh.tunev.world.Exit;
+import edu.agh.tunev.world.FireSource;
 import edu.agh.tunev.world.Obstacle;
 import edu.agh.tunev.world.World;
 
@@ -15,18 +16,25 @@ public final class Board {
 	private final Vector<Exit> exits;
 	private final Vector<Obstacle> obstacles;
 	private final Point worldDimension;
+	private final FireSource fireSrc;
 
 	public Board(World _world) {
 		this.world = _world;
 		worldDimension = Cell.c2d(world.getDimension());
 		exits = world.getExits();
 		obstacles = world.getObstacles();
+		fireSrc = world.getFireSources().get(0); //TODO: !!!
 		spawnCells();
 		assignObstacles();
 		assignExits();
 
 	}
 
+	/**
+	 * Updates board state in a certain slice of time.
+	 * 
+	 * @param t
+	 */
 	public void update(Double t) {
 		for (Vector<Cell> v : cells)
 			for (Cell c : v) {
@@ -64,6 +72,9 @@ public final class Board {
 		}
 	}
 
+	/**
+	 * Assign exits to proper cells.
+	 */
 	private void assignExits() {
 		for (Exit e : exits) {
 			Point p1 = Cell.c2d(e.p1);
@@ -79,6 +90,9 @@ public final class Board {
 		}
 	}
 
+	/**
+	 * Assign obstacles to proper cells.
+	 */
 	private void assignObstacles() {
 		for (Obstacle ob : obstacles) {
 			Point p1 = Cell.c2d(ob.p1);
@@ -102,6 +116,10 @@ public final class Board {
 
 	public Vector<Exit> getExits() {
 		return exits;
+	}
+
+	public FireSource getFireSrc() {
+		return fireSrc;
 	}
 
 }

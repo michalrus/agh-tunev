@@ -72,6 +72,15 @@ public class AllowedConfigs {
 		generateMap(consideredValues, indexes, consideredValues);
 	}
 
+	/**
+	 * Checks if move to a cell is possible for certain agent orientation.
+	 * 
+	 * @param cell
+	 * @param selfOrient
+	 * @return true if possible, false otherwise
+	 * @throws NeighbourIndexException
+	 * @throws NotANeighbourException
+	 */
 	public boolean checkCellAvailability(Cell cell,
 			Person.Orientation selfOrient) throws NeighbourIndexException,
 			NotANeighbourException {

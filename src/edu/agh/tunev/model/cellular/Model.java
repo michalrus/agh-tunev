@@ -11,19 +11,20 @@ import edu.agh.tunev.model.cellular.grid.Board;
 import edu.agh.tunev.model.cellular.grid.Cell;
 import edu.agh.tunev.statistics.LifeStatistics;
 import edu.agh.tunev.statistics.Statistics.AddCallback;
+import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
 
 public final class Model extends AbstractModel {
 
 	public final static String MODEL_NAME = "Social Distances Cellular Automata";
-	private final static double INTERSECTION_TOLERANCE = 0.2;
+	private final static double INTERSECTION_TOLERANCE = 0.1;
 
 	public Model(World world) {
 		super(world);
 	}
 
-	private static final double DT = 0.05;
+	public static final double DT = 0.05;
 
 	private Board board;
 	private AllowedConfigs allowedConfigs;
@@ -49,6 +50,7 @@ public final class Model extends AbstractModel {
 
 		// stwórz automat (planszę komórek)
 		board = new Board(world);
+		
 
 		// TODO: exception handling
 		try {
