@@ -1,7 +1,6 @@
 package edu.agh.tunev.ui;
 
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.Random;
 import java.util.Vector;
 
@@ -15,15 +14,6 @@ final class PeopleFactory {
 	static Vector<PersonProfile> random(int num, Point2D.Double maxPosition,
 			Vector<Obstacle> obstacles) {
 		Vector<PersonProfile> r = new Vector<PersonProfile>();
-		Vector<Rectangle2D.Double> obstacleRectangles = new Vector<Rectangle2D.Double>();
-
-		for (Obstacle o : obstacles) {
-			final double x = Math.min(o.p1.x, o.p2.x);
-			final double y = Math.min(o.p1.y, o.p2.y);
-			final double w = Math.abs(o.p2.x - o.p1.x);
-			final double h = Math.abs(o.p2.y - o.p1.y);
-			obstacleRectangles.add(new Rectangle2D.Double(x, y, w, h));
-		}
 
 		for (int i = 0; i < num; i++) {
 			Point2D.Double p;
@@ -32,8 +22,8 @@ final class PeopleFactory {
 				p = new Point2D.Double(rng.nextDouble() * maxPosition.x,
 						rng.nextDouble() * maxPosition.y);
 				insideAnyObstacle = false;
-				for (Rectangle2D.Double rect : obstacleRectangles)
-					if (rect.contains(p)) {
+				for (Obstacle o : obstacles)
+					if (o.contains(p)) {
 						insideAnyObstacle = true;
 						break;
 					}
@@ -43,6 +33,29 @@ final class PeopleFactory {
 
 		return r;
 	}
+	
+	/*
+	 * metoda generacji z poprzedniego modelu (kkm)
+	 * 
+	public void initAgents() {
+		for (Obstacle ob : obstacles) {
+			Point start = ob.getStartPoint();
+			Point end = ob.getEndPoint();
+			double veh_len = end.y - start.y;
+			int passengers = rng.nextInt(3) + 1;
+
+			for (int i = 0; i < passengers; ++i) {
+				Point coord = (i % 2 == 0) ? new Point(start.x - 2
+						* Agent.BROADNESS, start.y + (i / 2) * (veh_len / 2)
+						+ 2 * Agent.BROADNESS) : new Point(end.x + 2
+						* Agent.BROADNESS, start.y + (i / 2) * (veh_len / 2)
+						+ 2 * Agent.BROADNESS);
+				agents.add(new Agent(this, coord));
+			}
+		}
+	}
+	 *
+	 */
 
 	private PeopleFactory() {
 	}
