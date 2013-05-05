@@ -52,14 +52,19 @@ public final class Model extends AbstractModel {
 
 			// save states
 			for (Agent p : board.getAgents()) {
-				interpolator.saveState(p.profile, t, new PersonState(
-						p.position, p.phi, p.getStance()));
-				if (p.isExited())
+				PersonState.Movement stance = p.getStance(); 
+				if (p.isExited()) {
 					currentNumRescued++;
-				else if (!p.isAlive())
+					stance = PersonState.Movement.HIDDEN;
+				}
+				else if (!p.isAlive()) {
 					currentNumDead++;
+					stance = PersonState.Movement.DEAD;
+				}
 				else
 					currentNumAlive++;
+				interpolator.saveState(p.profile, t, new PersonState(
+						p.position, p.phi, stance));
 			}
 
 			// update charts
