@@ -9,7 +9,7 @@ import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.model.cellular.agent.WrongOrientationException;
 import edu.agh.tunev.model.cellular.grid.Board;
 import edu.agh.tunev.model.cellular.grid.Cell;
-import edu.agh.tunev.statistics.KilledStatistics;
+import edu.agh.tunev.statistics.LifeStatistics;
 import edu.agh.tunev.statistics.Statistics.AddCallback;
 import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.World;
@@ -67,8 +67,8 @@ public final class Model extends AbstractModel {
 		// pasuje do wielu modeli (np. liczba zabitych jako f(t)), to dodaj jego
 		// klasę do pakietu tunev.statistics; jeśli pasuje tylko do tego modelu,
 		// to dodaj do pakietu tego modelu
-		KilledStatistics killedStatistics = new KilledStatistics();
-		addCallback.add(killedStatistics);
+		LifeStatistics lifeStatistics = new LifeStatistics();
+		addCallback.add(lifeStatistics);
 
 		// TODO: pozaznaczaj przeszkody na planszy
 
@@ -106,7 +106,9 @@ public final class Model extends AbstractModel {
 			// symulowania
 			int currentNumDead = 123; // prawdopodobnie ta dana ustawiana
 										// gdzie indziej ;p~
-			killedStatistics.add(t, currentNumDead);
+			int currentNumAlive = 12;
+			int currentNumRescued = 72;
+			lifeStatistics.add(t, currentNumAlive, currentNumRescued, currentNumDead);
 
 			// grzeczność: zwiększ ProgressBar w UI
 			progressCallback.update(iteration, num,
