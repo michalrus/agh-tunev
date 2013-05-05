@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.model.PersonState;
+import edu.agh.tunev.model.PersonState.Movement;
 import edu.agh.tunev.model.cellular.AllowedConfigs;
 import edu.agh.tunev.model.cellular.NeighbourIndexException;
 import edu.agh.tunev.model.cellular.grid.Cell;
@@ -13,15 +14,15 @@ import edu.agh.tunev.world.Physics;
 
 public final class Person {
 
-	private final static int PERCEPTION_RANGE = 10;
+	private final static int PERCEPTION_RANGE = 20;
 
 	/** Physics coefficient useful for field value evaluation */
-	private final static double PHYSICS_COEFF = 1.0; // TODO: set
+	private final static double PHYSICS_COEFF = 0.3; // TODO: set
 
 	/** Distance coefficient useful for field value evaluation */
-	private final static double DIST_COEFF = 0.0; // TODO: set
+	private final static double DIST_COEFF = 1.0; // TODO: set
 
-	private final static double STATIC_COEFF = 0.0; // TODO:
+	private final static double STATIC_COEFF = 1.0; // TODO:
 
 	private final static double DYNAMIC_COEFF = 1.0; // TODO:
 
@@ -112,6 +113,8 @@ public final class Person {
 	private Cell cell;
 	private PersonState currentState;
 	private Orientation orientation;
+	private Movement pose;
+	private boolean active;
 	private final AllowedConfigs allowedConfigs;
 	public final PersonProfile profile;
 
@@ -122,6 +125,8 @@ public final class Person {
 		cell.setPerson(this);
 		this.allowedConfigs = _allowedConfigs;
 		this.orientation = Orientation.randomizeOrient();
+		this.pose = profile.initialMovement;
+		this.active = true;
 		saveState();
 	}
 
@@ -151,22 +156,39 @@ public final class Person {
 
 	public void update() throws NeighbourIndexException,
 			WrongOrientationException, NotANeighbourException {
-		Cell destination = selectField();
-		Orientation orient = turnTowardCell(destination);
-		orientation = orient;
 
-		cell.release();
-		cell = destination;
-		cell.setPerson(this);
+		checkActivity();
+		
+		if (active) {
+			Cell destination = selectField();
+			Orientation orient = turnTowardCell(destination);
+			orientation = orient;
+
+			cell.release();
+			cell = destination;
+			cell.setPerson(this);
+		}
 
 		saveState();
+	}
+	
+	private void checkActivity(){
+		if(this.cell.isExit()){
+			getThroughExit();
+		}
+	}
+	
+	private void getThroughExit(){
+		active = false;
+		pose = Movement.HIDDEN;
+		this.cell.release();
 	}
 
 	// TODO: remove currentState field, refactor function below
 	private void saveState() throws WrongOrientationException {
 		Point2D.Double position = Cell.d2c(cell.getPosition());
-		Double numOrient = 0.0;// = orientToAngle(orientation);
-		PersonState.Movement movement = PersonState.Movement.STANDING; // TODO:
+		Double numOrient = orientToAngle(orientation);
+		Movement movement = Movement.STANDING; // TODO:
 																		// adjusting
 																		// pose
 																		// to
@@ -175,6 +197,7 @@ public final class Person {
 
 		currentState = new PersonState(position, numOrient, movement);
 	}
+	
 
 	private Cell selectField() throws NeighbourIndexException,
 			NotANeighbourException {
@@ -195,18 +218,26 @@ public final class Person {
 
 	private Double getFieldPotential(Cell c) throws NeighbourIndexException,
 			NotANeighbourException {
+
+		if (c.equals(this.cell))
+			throw new NotANeighbourException();
+
 		if (checkFieldAvailability(c))
 			return evaluateCostFunc(c);
 
-		return Double.POSITIVE_INFINITY;
+		return Double.MAX_VALUE;
 	}
 
 	// TODO:change cost function, adjust to social dist model;
-	private Double evaluateCostFunc(Cell neighbour)
-			throws NeighbourIndexException, NotANeighbourException {
-		Double dist = evaluateDistComponent(neighbour);
-		Double heat = evaluateHeatComponent(neighbour);
-		return STATIC_COEFF * neighbour.getStaticFieldVal() + DYNAMIC_COEFF
+	private Double evaluateCostFunc(Cell cell) throws NeighbourIndexException,
+			NotANeighbourException {
+
+		if (cell.equals(this.cell))
+			return Double.MAX_VALUE;
+
+		Double dist = evaluateDistComponent(cell);
+		Double heat = evaluateHeatComponent(cell);
+		return STATIC_COEFF * cell.getStaticFieldVal() + DYNAMIC_COEFF
 				* (DIST_COEFF * dist + PHYSICS_COEFF * heat);
 	}
 
@@ -221,12 +252,9 @@ public final class Person {
 	 */
 	private Double evaluateHeatComponent(Cell neighbour)
 			throws NeighbourIndexException, NotANeighbourException {
-		Physics phys = null;
 
-		if (neighbour.equals(this.cell)) {
-			phys = this.cell.getPhysics();
-			return phys.get(Type.TEMPERATURE);
-		}
+		if (neighbour.equals(this.cell))
+			throw new NotANeighbourException();
 
 		int neighbourIndex = Cell.positionToIndex(this.cell, neighbour);
 		List<Cell> row = neighbour.getRow(neighbourIndex, PERCEPTION_RANGE);
@@ -234,14 +262,16 @@ public final class Person {
 		Double acc = 0.0;
 
 		for (Cell c : row) {
-			phys = c.getPhysics();
+			Physics phys = c.getPhysics();
 			if (phys != null) {
 				sum += c.getPhysics().get(Type.TEMPERATURE);
 				++acc;
 			}
 		}
-		
-		//TODO: sticky walls
+
+		if (acc == 0)
+			return Double.MAX_VALUE;
+
 		return sum / acc;
 	}
 
@@ -280,6 +310,7 @@ public final class Person {
 				turnTowardCell(c));
 
 		return cellAvailability;
+
 	}
 
 	private Orientation turnTowardCell(Cell c) throws NeighbourIndexException,
@@ -289,6 +320,15 @@ public final class Person {
 
 		int index = Cell.positionToIndex(this.cell, c);
 		return Orientation.neighbourIndexToOrient(index);
+	}
+	
+
+	public Movement getPose() {
+		return pose;
+	}
+
+	public void setPose(Movement pose) {
+		this.pose = pose;
 	}
 
 	public Cell getCell() {

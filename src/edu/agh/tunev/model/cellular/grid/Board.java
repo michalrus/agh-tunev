@@ -14,13 +14,16 @@ public final class Board {
 	private final World world;
 	private final Vector<Exit> exits;
 	private final Vector<Obstacle> obstacles;
+	private final Point worldDimension;
 
 	public Board(World _world) {
 		this.world = _world;
+		worldDimension = Cell.c2d(world.getDimension());
 		exits = world.getExits();
 		obstacles = world.getObstacles();
 		spawnCells();
 		assignObstacles();
+		assignExits();
 
 	}
 
@@ -51,7 +54,6 @@ public final class Board {
 	 */
 	private void spawnCells() {
 		cells = new Vector<Vector<Cell>>();
-		Point worldDimension = Cell.c2d(world.getDimension());
 
 		for (int iy = 0; iy < worldDimension.y; ++iy) {
 			cells.add(new Vector<Cell>());
@@ -61,35 +63,45 @@ public final class Board {
 			}
 		}
 	}
-	
-	private void assignExits(){
-		
+
+	private void assignExits() {
+		for (Exit e : exits) {
+			Point p1 = Cell.c2d(e.p1);
+			Point p2 = Cell.c2d(e.p2);
+
+			for (int iy = p1.y; iy <= p2.y; ++iy)
+				for (int ix = p1.x; ix <= p2.x; ++ix) {
+					Cell c = getCellAt(new Point(ix, iy));
+
+					if (c != null)
+						c.setExit(e);
+				}
+		}
 	}
-	
-	private void assignObstacles(){
-		for(Obstacle ob : obstacles){
+
+	private void assignObstacles() {
+		for (Obstacle ob : obstacles) {
 			Point p1 = Cell.c2d(ob.p1);
 			Point p2 = Cell.c2d(ob.p2);
-			//TODO: p1 < p2 (?)  <- this should be checked
-			
-			for(int iy = p1.y - 1; iy <= p2.y + 1; ++iy)
-				for(int ix = p1.x - 1; ix <= p2.x + 1; ++ix){
+			// TODO: p1 < p2 (?) <- this should be checked
+
+			for (int iy = p1.y - 1; iy <= p2.y + 1; ++iy)
+				for (int ix = p1.x - 1; ix <= p2.x + 1; ++ix) {
 					Cell c = getCellAt(new Point(ix, iy));
-					
-					if(c != null)
+
+					if (c != null)
 						c.setObstacle(ob);
 				}
 		}
-			
+
 	}
 
 	public Point getDimension() {
-		return new Point(cells.get(0).size(), cells.size());
+		return worldDimension;
 	}
 
 	public Vector<Exit> getExits() {
 		return exits;
 	}
-	
 
 }

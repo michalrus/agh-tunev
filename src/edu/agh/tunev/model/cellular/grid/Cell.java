@@ -58,9 +58,23 @@ public final class Cell {
 	public boolean isOccupied() {
 		return (person != null);
 	}
+
+	public boolean isBlocked() {
+		return (obstacle != null || isWall());
+	}
 	
-	public boolean isBlocked(){
-		return (obstacle != null);
+	public boolean isExit(){
+		return (exit != null);
+	}
+
+	private boolean isWall() {
+		Point boardDim = board.getDimension();
+		
+		if(isExit())
+			return false;
+		
+		return position.x == 0 || position.y == 0 || position.x == boardDim.x
+				|| position.y == boardDim.y;
 	}
 
 	/**
@@ -102,12 +116,13 @@ public final class Cell {
 	 * 
 	 * @param c
 	 * @return
-	 * @throws NotANeighbourException 
+	 * @throws NotANeighbourException
 	 */
-	public static int positionToIndex(Cell baseCell, Cell neighbourCell) throws NotANeighbourException {
-		if(baseCell.equals(neighbourCell))
+	public static int positionToIndex(Cell baseCell, Cell neighbourCell)
+			throws NotANeighbourException {
+		if (baseCell.equals(neighbourCell))
 			throw new NotANeighbourException();
-		
+
 		Point posCell = baseCell.getPosition();
 		Point posOth = neighbourCell.getPosition();
 

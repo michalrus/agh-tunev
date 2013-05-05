@@ -11,14 +11,13 @@ import edu.agh.tunev.model.cellular.grid.Board;
 import edu.agh.tunev.model.cellular.grid.Cell;
 import edu.agh.tunev.statistics.LifeStatistics;
 import edu.agh.tunev.statistics.Statistics.AddCallback;
-import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
 
 public final class Model extends AbstractModel {
 
 	public final static String MODEL_NAME = "Social Distances Cellular Automata";
-	private final static double INTERSECTION_TOLERANCE = 0.1;
+	private final static double INTERSECTION_TOLERANCE = 0.2;
 
 	public Model(World world) {
 		super(world);
@@ -32,23 +31,23 @@ public final class Model extends AbstractModel {
 	@Override
 	public void simulate(double duration, Vector<PersonProfile> profiles,
 			ProgressCallback progressCallback, AddCallback addCallback) {
-		// pokaż info o inicjalizacji w ui, bo trwa zanim zacznie iterować i nie
+		// pokaĹĽ info o inicjalizacji w ui, bo trwa zanim zacznie iterowaÄ‡ i nie
 		// wiadomo ocb :b
 		int num = (int) Math.round(Math.ceil(world.getDuration() / DT));
 		progressCallback.update(0, num, "Initializing...");
 
-		// TODO: pododawaj jakieś wykresy do UI związane z tym modelem
+		// TODO: pododawaj jakieĹ› wykresy do UI zwiÄ…zane z tym modelem
 		//
 		// sidenote: zobacz helpa do interfejsu Statistics: gdy dany wykres
 		// pasuje do wielu modeli (np. liczba zabitych jako f(t)), to dodaj jego
-		// klasę do pakietu tunev.statistics; jeśli pasuje tylko do tego modelu,
+		// klasÄ™ do pakietu tunev.statistics; jeĹ›li pasuje tylko do tego modelu,
 		// to dodaj do pakietu tego modelu
 		LifeStatistics lifeStatistics = new LifeStatistics();
 		addCallback.add(lifeStatistics);
-		// minor fix: przeniosłem wykresy przed tworzenie automatu, żeby już
-		// były dostępne do otwarcia na etapie inicjalizacji
+		// minor fix: przeniosĹ‚em wykresy przed tworzenie automatu, ĹĽeby juĹĽ
+		// byĹ‚y dostÄ™pne do otwarcia na etapie inicjalizacji
 
-		// stwórz automat (planszę komórek)
+		// stwĂłrz automat (planszÄ™ komĂłrek)
 		board = new Board(world);
 
 		// TODO: exception handling
@@ -60,7 +59,7 @@ public final class Model extends AbstractModel {
 			e.printStackTrace();
 		}
 
-		// stwórz sobie swoje reprezentacje ludzi:
+		// stwĂłrz sobie swoje reprezentacje ludzi:
 		Vector<Person> people = new Vector<Person>();
 		for (PersonProfile profile : profiles)
 			try {
@@ -73,13 +72,13 @@ public final class Model extends AbstractModel {
 
 		// TODO: pozaznaczaj przeszkody na planszy
 
-		// TODO: pozaznaczaj wyjścia na planszy
+		// TODO: pozaznaczaj wyjĹ›cia na planszy
 
-		// kolejne iteracje automatu -- uwaga, żadnego czekania w stylu
-		// Thread.sleep() -- to ma się policzyć *jak najszybciej*! --
-		// wyświetlanie "filmu" z symulacji jest niezależne od obliczania (no,
-		// tyle tylko zależne, że możemy wyświetlać tylko do momentu, który już
-		// się policzył)
+		// kolejne iteracje automatu -- uwaga, ĹĽadnego czekania w stylu
+		// Thread.sleep() -- to ma siÄ™ policzyÄ‡ *jak najszybciej*! --
+		// wyĹ›wietlanie "filmu" z symulacji jest niezaleĹĽne od obliczania (no,
+		// tyle tylko zaleĹĽne, ĹĽe moĹĽemy wyĹ›wietlaÄ‡ tylko do momentu, ktĂłry juĹĽ
+		// siÄ™ policzyĹ‚)
 		double t = 0;
 		for (int iteration = 1; iteration <= num; iteration++) {
 			// uaktualnij rzeczywisty czas naszej symulacji
@@ -87,7 +86,7 @@ public final class Model extends AbstractModel {
 
 			board.update(t);
 
-			// porób zdjęcia osobom w aktualnym rzeczywistym czasie
+			// porĂłb zdjÄ™cia osobom w aktualnym rzeczywistym czasie
 			for (Person p : people) {
 				try {
 					try {
@@ -103,7 +102,7 @@ public final class Model extends AbstractModel {
 				interpolator.saveState(p.profile, t, p.getCurrentState());
 			}
 
-			// TODO: uaktualnij wykresy, które mogą być aktualizowane w trakcie
+			// TODO: uaktualnij wykresy, ktĂłre mogÄ… byÄ‡ aktualizowane w trakcie
 			// symulowania
 			int currentNumDead = 123; // prawdopodobnie ta dana ustawiana
 										// gdzie indziej ;p~
@@ -111,13 +110,13 @@ public final class Model extends AbstractModel {
 			int currentNumRescued = 72;
 			lifeStatistics.add(t, currentNumAlive, currentNumRescued, currentNumDead);
 
-			// grzeczność: zwiększ ProgressBar w UI
+			// grzecznoĹ›Ä‡: zwiÄ™ksz ProgressBar w UI
 			progressCallback.update(iteration, num,
 					(iteration < num ? "Simulating..." : "Done."));
 		}
 
-		// TODO: ew. wypełnij wykresy, które mogą być wypełnione dopiero po
-		// zakończeniu całej symulacji
+		// TODO: ew. wypeĹ‚nij wykresy, ktĂłre mogÄ… byÄ‡ wypeĹ‚nione dopiero po
+		// zakoĹ„czeniu caĹ‚ej symulacji
 
 		// i tyle ^_^
 	}
