@@ -247,13 +247,10 @@ final class FDSDataSource extends AbstractDataSource {
 
 					obstacles.add(obst);
 					
-					if (line.contains("fire")) {
-						FireSource fs = new FireSource(
+					if (line.contains("fire"))
+						fireSources.add(new FireSource(
 								(obst.p1.x + obst.p2.x) / 2,
-								(obst.p1.y + obst.p2.y) / 2);
-						fireSources.add(fs);
-						System.out.println("Added FireSource @ " + fs);
-					}
+								(obst.p1.y + obst.p2.y) / 2));
 
 					continue;
 				}
