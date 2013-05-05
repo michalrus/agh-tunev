@@ -38,6 +38,8 @@ public final class LifeStatistics implements Statistics {
 
 	public void add(double time, int numAlive, int numRescued, int numDead) {
 		killed.add(time, numDead);
+		alive.add(time, numAlive);
+		rescued.add(time, numRescued);
 	}
 
 }
