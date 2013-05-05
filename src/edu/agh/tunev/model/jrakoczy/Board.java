@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.agh.tunev.world.Exit;
+import edu.agh.tunev.world.FireSource;
 import edu.agh.tunev.world.Obstacle;
 import edu.agh.tunev.world.Physics;
 import edu.agh.tunev.world.World;
@@ -31,11 +32,11 @@ public class Board {
 		return world.getObstacles();
 	}
 
-	public Point2D.Double getNearestFireSrc(Point2D.Double p) {
+	public FireSource getNearestFireSrc(Point2D.Double p) {
 		double min = Double.POSITIVE_INFINITY;
-		Point2D.Double nearest_src = null;
+		FireSource nearest_src = null;
 
-		for (Point2D.Double src : fire_srcs) {
+		for (FireSource src : fire_srcs) {
 			double dist = src.distance(p);
 			if (dist < min) {
 				min = dist;
@@ -46,10 +47,6 @@ public class Board {
 		return nearest_src;
 	}
 
-	public void addFireSrc(Point2D.Double _src) {
-		fire_srcs.add(_src);
-	}
-
 	public double getPhysics(Point2D.Double point, Physics.Type what) {
 		return world.getPhysicsAt(t, point).get(what);
 	}
@@ -58,7 +55,7 @@ public class Board {
 	private Point2D.Double dimension;
 
 	/** Środkowy punkt źródła ognia */
-	private List<Point2D.Double> fire_srcs;
+	private List<FireSource> fire_srcs;
 
 	private List<Agent> agents;
 	
@@ -68,7 +65,7 @@ public class Board {
 		this.world = world;
 		this.dimension = world.getDimension();
 		agents = new ArrayList<Agent>();
-		fire_srcs = new ArrayList<Point2D.Double>();
+		fire_srcs = world.getFireSources();
 	}
 
 	/**

@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.model.PersonState;
 import edu.agh.tunev.world.Exit;
+import edu.agh.tunev.world.FireSource;
 import edu.agh.tunev.world.Obstacle;
 import edu.agh.tunev.world.Physics;
 
@@ -158,8 +159,9 @@ public final class Agent {
 		dt = 0;
 
 		// TODO: <michał> co z nearest fire src?
+		final FireSource nearest = board.getNearestFireSrc(position);
 		pre_movement_t = (REACTION_COEFF
-				* 1/*position.evalDist(board.getNearestFireSrc(position))*/ + psyche.reaction_t);
+				* (nearest == null ? 1 : position.distance(nearest)) + psyche.reaction_t);
 	}
 
 	/**

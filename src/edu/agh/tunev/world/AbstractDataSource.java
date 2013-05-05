@@ -12,6 +12,7 @@ abstract class AbstractDataSource {
 	
 	abstract Vector<Exit> getExits();
 	abstract Vector<Obstacle> getObstacles();
+	abstract Vector<FireSource> getFireSources();
 	
 	abstract Physics getPhysicsAt(double t, Point2D.Double p);
 	abstract Point2D.Double getPhysicsGranularity();

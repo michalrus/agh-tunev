@@ -43,6 +43,11 @@ final class FDSDataSource extends AbstractDataSource {
 	}
 
 	@Override
+	Vector<FireSource> getFireSources() {
+		return fireSources;
+	}
+
+	@Override
 	Physics getPhysicsAt(double t, Point2D.Double p) {
 		Entry<Double, Vector<Vector<Physics>>> entry;
 
@@ -99,6 +104,7 @@ final class FDSDataSource extends AbstractDataSource {
 	private SortedMap<Integer, Map<Physics.Type, File>> dataFiles;
 	private Vector<Obstacle> obstacles = new Vector<Obstacle>();
 	private Vector<Exit> exits = new Vector<Exit>();
+	private Vector<FireSource> fireSources = new Vector<FireSource>();
 
 	/**
 	 * Czyta folder {@link #dataFolder} i jeśli znajdzie pliki o nazwach
@@ -232,15 +238,22 @@ final class FDSDataSource extends AbstractDataSource {
 					if (line.contains("PERMIT_HOLE=.TRUE."))
 						continue;
 
-					obstacles
-							.add(new Obstacle(new Point2D.Double(Double
-									.parseDouble(matcher.group(1)) - offset.x,
-									Double.parseDouble(matcher.group(3))
-											- offset.y), new Point2D.Double(
-									Double.parseDouble(matcher.group(2))
-											- offset.x, Double
-											.parseDouble(matcher.group(4))
-											- offset.y)));
+					Obstacle obst = new Obstacle(new Point2D.Double(
+							Double.parseDouble(matcher.group(1)) - offset.x,
+							Double.parseDouble(matcher.group(3)) - offset.y),
+							new Point2D.Double(Double.parseDouble(matcher
+									.group(2)) - offset.x, Double
+									.parseDouble(matcher.group(4)) - offset.y));
+
+					obstacles.add(obst);
+					
+					if (line.contains("fire")) {
+						FireSource fs = new FireSource(
+								(obst.p1.x + obst.p2.x) / 2,
+								(obst.p1.y + obst.p2.y) / 2);
+						fireSources.add(fs);
+						System.out.println("Added FireSource @ " + fs);
+					}
 
 					continue;
 				}

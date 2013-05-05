@@ -24,6 +24,10 @@ public class World {
 		return data.getObstacles();
 	}
 
+	public Vector<FireSource> getFireSources() {
+		return data.getFireSources();
+	}
+
 	/**
 	 * Zawsze zwróci jakąś wartość. Kiedy zapytasz o coś spoza granic świata,
 	 * zwróci wartość z najbliższego punktu leżącego na brzegu.
