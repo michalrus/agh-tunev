@@ -37,9 +37,19 @@ public final class Model extends AbstractModel {
 		int num = (int) Math.round(Math.ceil(world.getDuration() / DT));
 		progressCallback.update(0, num, "Initializing...");
 
+		// TODO: pododawaj jakieś wykresy do UI związane z tym modelem
+		//
+		// sidenote: zobacz helpa do interfejsu Statistics: gdy dany wykres
+		// pasuje do wielu modeli (np. liczba zabitych jako f(t)), to dodaj jego
+		// klasę do pakietu tunev.statistics; jeśli pasuje tylko do tego modelu,
+		// to dodaj do pakietu tego modelu
+		LifeStatistics lifeStatistics = new LifeStatistics();
+		addCallback.add(lifeStatistics);
+		// minor fix: przeniosłem wykresy przed tworzenie automatu, żeby już
+		// były dostępne do otwarcia na etapie inicjalizacji
+
 		// stwórz automat (planszę komórek)
 		board = new Board(world);
-
 
 		// TODO: exception handling
 		try {
@@ -60,15 +70,6 @@ public final class Model extends AbstractModel {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
-		// TODO: pododawaj jakieś wykresy do UI związane z tym modelem
-		//
-		// sidenote: zobacz helpa do interfejsu Statistics: gdy dany wykres
-		// pasuje do wielu modeli (np. liczba zabitych jako f(t)), to dodaj jego
-		// klasę do pakietu tunev.statistics; jeśli pasuje tylko do tego modelu,
-		// to dodaj do pakietu tego modelu
-		LifeStatistics lifeStatistics = new LifeStatistics();
-		addCallback.add(lifeStatistics);
 
 		// TODO: pozaznaczaj przeszkody na planszy
 
