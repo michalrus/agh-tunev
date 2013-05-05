@@ -21,7 +21,7 @@ public final class LifeStatistics implements Statistics {
 		dataset.addSeries(alive);
 		dataset.addSeries(rescued);
 
-		chart = ChartFactory.createXYLineChart(getTitle(), "Time [t]",
+		chart = ChartFactory.createXYLineChart(getTitle(), "Time [s]",
 				"Num. people", dataset, PlotOrientation.VERTICAL, true, true,
 				false);
 	}

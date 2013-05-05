@@ -7,6 +7,7 @@ import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.model.PersonState;
 import edu.agh.tunev.statistics.LifeStatistics;
 import edu.agh.tunev.statistics.Statistics.AddCallback;
+import edu.agh.tunev.statistics.VelocityStatistics;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
 
@@ -30,6 +31,8 @@ public final class Model extends AbstractModel {
 		// init charts
 		LifeStatistics lifeStatistics = new LifeStatistics();
 		addCallback.add(lifeStatistics);
+		VelocityStatistics velocityStatistics = new VelocityStatistics();
+		addCallback.add(velocityStatistics);
 
 		// init board
 		Board board = new Board(world);
@@ -49,9 +52,12 @@ public final class Model extends AbstractModel {
 			int currentNumDead = 0;
 			int currentNumAlive = 0;
 			int currentNumRescued = 0;
+			double averageVelocity = 0;
 
 			// save states
 			for (Agent p : board.getAgents()) {
+				averageVelocity += p.getVelocity();
+				
 				PersonState.Movement stance = p.getStance(); 
 				if (p.isExited()) {
 					currentNumRescued++;
@@ -66,10 +72,12 @@ public final class Model extends AbstractModel {
 				interpolator.saveState(p.profile, t, new PersonState(
 						p.position, p.phi, stance));
 			}
+			averageVelocity /= board.getAgents().size();
 
 			// update charts
 			lifeStatistics.add(t, currentNumAlive, currentNumRescued,
 					currentNumDead);
+			velocityStatistics.add(t, averageVelocity);
 
 			// UI simulation progress bar
 			progressCallback.update(iteration, num,
