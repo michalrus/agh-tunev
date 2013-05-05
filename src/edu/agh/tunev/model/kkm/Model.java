@@ -5,6 +5,7 @@ import java.util.Vector;
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.model.PersonState;
+import edu.agh.tunev.statistics.HCBOStatistics;
 import edu.agh.tunev.statistics.LifeStatistics;
 import edu.agh.tunev.statistics.Statistics.AddCallback;
 import edu.agh.tunev.statistics.VelocityStatistics;
@@ -33,6 +34,8 @@ public final class Model extends AbstractModel {
 		addCallback.add(lifeStatistics);
 		VelocityStatistics velocityStatistics = new VelocityStatistics();
 		addCallback.add(velocityStatistics);
+		HCBOStatistics hcboStatistics = new HCBOStatistics();
+		addCallback.add(hcboStatistics);
 
 		// init board
 		Board board = new Board(world);
@@ -53,10 +56,12 @@ public final class Model extends AbstractModel {
 			int currentNumAlive = 0;
 			int currentNumRescued = 0;
 			double averageVelocity = 0;
+			double averageHCBO = 0;
 
 			// save states
 			for (Agent p : board.getAgents()) {
 				averageVelocity += p.getVelocity();
+				averageHCBO += p.getHBCO();
 				
 				PersonState.Movement stance = p.getStance(); 
 				if (p.isExited()) {
@@ -73,11 +78,13 @@ public final class Model extends AbstractModel {
 						p.position, p.phi, stance));
 			}
 			averageVelocity /= board.getAgents().size();
+			averageHCBO /= board.getAgents().size();
 
 			// update charts
 			lifeStatistics.add(t, currentNumAlive, currentNumRescued,
 					currentNumDead);
 			velocityStatistics.add(t, averageVelocity);
+			hcboStatistics.add(t, averageHCBO);
 
 			// UI simulation progress bar
 			progressCallback.update(iteration, num,
