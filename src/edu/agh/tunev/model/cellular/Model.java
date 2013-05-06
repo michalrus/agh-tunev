@@ -114,7 +114,9 @@ public final class Model extends AbstractModel {
 				else 
 					++dead;
 					
-				if(p.getMovement() == Movement.HIDDEN)
+				if (p.getCurrentState().movement == Movement.HIDDEN) // ;) co
+																		// robi
+																		// .getMovement()?
 					++rescued;
 			}
 			
