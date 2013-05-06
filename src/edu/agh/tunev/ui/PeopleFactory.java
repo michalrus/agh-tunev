@@ -5,14 +5,13 @@ import java.util.Random;
 import java.util.Vector;
 
 import edu.agh.tunev.model.PersonProfile;
-import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.world.Obstacle;
 
 final class PeopleFactory {
 
 	static Random rng = new Random();
 
-	/*static Vector<PersonProfile> random(int num, Point2D.Double maxPosition,
+	static Vector<PersonProfile> random(int num, Point2D.Double maxPosition,
 			Vector<Obstacle> obstacles) {
 		Vector<PersonProfile> r = new Vector<PersonProfile>();
 
@@ -33,12 +32,12 @@ final class PeopleFactory {
 		}
 
 		return r;
-	}*/
+	}
 	
 	/*
 	 * metoda generacji z poprzedniego modelu (kkm)
 	 */
-	static Vector<PersonProfile> initAgents(Vector<Obstacle> obstacles) {
+	static Vector<PersonProfile> nearObstacles(Vector<Obstacle> obstacles) {
 		
 		Vector<PersonProfile> r = new Vector<PersonProfile>();
 		for (Obstacle ob : obstacles) {
