@@ -237,17 +237,20 @@ final class FDSDataSource extends AbstractDataSource {
 
 					if (line.contains("PERMIT_HOLE=.TRUE."))
 						continue;
+					
+					final boolean isFireSource = line.contains("fire");
 
 					Obstacle obst = new Obstacle(new Point2D.Double(
 							Double.parseDouble(matcher.group(1)) - offset.x,
 							Double.parseDouble(matcher.group(3)) - offset.y),
 							new Point2D.Double(Double.parseDouble(matcher
 									.group(2)) - offset.x, Double
-									.parseDouble(matcher.group(4)) - offset.y));
+									.parseDouble(matcher.group(4)) - offset.y),
+							isFireSource);
 
 					obstacles.add(obst);
-					
-					if (line.contains("fire"))
+
+					if (isFireSource)
 						fireSources.add(new FireSource(
 								(obst.p1.x + obst.p2.x) / 2,
 								(obst.p1.y + obst.p2.y) / 2));

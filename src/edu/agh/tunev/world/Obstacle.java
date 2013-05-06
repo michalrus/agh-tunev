@@ -9,11 +9,14 @@ public final class Obstacle {
 	
 	public final double height = 1.0; // [m]
 	
+	public final boolean isFireSource;
+	
 	private final Rectangle2D.Double rectangle;
 
-	public Obstacle(Point2D.Double p1, Point2D.Double p2) {
+	public Obstacle(Point2D.Double p1, Point2D.Double p2, boolean isFireSource) {
 		this.p1 = p1;
 		this.p2 = p2;
+		this.isFireSource = isFireSource;
 		
 		final double x = Math.min(p1.x, p2.x);
 		final double y = Math.min(p1.y, p2.y);
