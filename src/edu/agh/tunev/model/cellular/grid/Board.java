@@ -7,9 +7,13 @@ import java.util.Vector;
 import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.FireSource;
 import edu.agh.tunev.world.Obstacle;
+import edu.agh.tunev.world.Physics;
+import edu.agh.tunev.world.Physics.Type;
 import edu.agh.tunev.world.World;
 
 public final class Board {
+
+	private final static double BLOCKAGE_TEMP = 45;
 
 	private Vector<Vector<Cell>> cells;
 	private final World world;
@@ -23,7 +27,7 @@ public final class Board {
 		worldDimension = Cell.c2d(world.getDimension());
 		exits = world.getExits();
 		obstacles = world.getObstacles();
-		fireSrc = world.getFireSources().get(0); //TODO: !!!
+		fireSrc = world.getFireSources().get(0); // TODO: !!!
 		spawnCells();
 		assignObstacles();
 		assignExits();
@@ -109,6 +113,33 @@ public final class Board {
 		}
 
 	}
+
+	/**
+	 * Checks for blockage for one specific corridor orientation.
+	 * 
+	 * @return
+	 */
+	/*
+	private int checkForYBlockage() {
+		for (int iy = 1; iy < worldDimension.y; ++iy) {
+			Cell cY = getCellAt(new Point(1, iy));
+			Physics physY = cY.getPhysics();
+			double tempY = physY.get(Type.TEMPERATURE);
+
+			if (cY.isOccupied() || tempY > BLOCKAGE_TEMP) {
+				for (int ix = 2; ix < worldDimension.x; ++ix) {
+					Cell cX = getCellAt(new Point(ix, iy));
+					Physics physX = cX.getPhysics();
+					double tempX = physX.get(Type.TEMPERATURE);
+
+					if (!cX.isOccupied() || tempX > BLOCKAGE_TEMP)
+						return -1;
+				}
+				return iy;
+			}
+		}
+		return -1;
+	}*/
 
 	public Point getDimension() {
 		return worldDimension;

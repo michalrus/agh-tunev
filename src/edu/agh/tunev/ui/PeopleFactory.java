@@ -5,13 +5,14 @@ import java.util.Random;
 import java.util.Vector;
 
 import edu.agh.tunev.model.PersonProfile;
+import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.world.Obstacle;
 
 final class PeopleFactory {
 
 	static Random rng = new Random();
 
-	static Vector<PersonProfile> random(int num, Point2D.Double maxPosition,
+	/*static Vector<PersonProfile> random(int num, Point2D.Double maxPosition,
 			Vector<Obstacle> obstacles) {
 		Vector<PersonProfile> r = new Vector<PersonProfile>();
 
@@ -32,30 +33,34 @@ final class PeopleFactory {
 		}
 
 		return r;
-	}
+	}*/
 	
 	/*
 	 * metoda generacji z poprzedniego modelu (kkm)
-	 * 
-	public void initAgents() {
+	 */
+	static Vector<PersonProfile> initAgents(Vector<Obstacle> obstacles) {
+		
+		Vector<PersonProfile> r = new Vector<PersonProfile>();
 		for (Obstacle ob : obstacles) {
-			Point start = ob.getStartPoint();
-			Point end = ob.getEndPoint();
+			Point2D.Double start = ob.p1;
+			Point2D.Double end = ob.p2;
 			double veh_len = end.y - start.y;
-			int passengers = rng.nextInt(3) + 1;
+			//int passengers = rng.nextInt(3) + 1; TODO: !!
+			int passengers = 1;
 
 			for (int i = 0; i < passengers; ++i) {
-				Point coord = (i % 2 == 0) ? new Point(start.x - 2
-						* Agent.BROADNESS, start.y + (i / 2) * (veh_len / 2)
-						+ 2 * Agent.BROADNESS) : new Point(end.x + 2
-						* Agent.BROADNESS, start.y + (i / 2) * (veh_len / 2)
-						+ 2 * Agent.BROADNESS);
-				agents.add(new Agent(this, coord));
+				Point2D.Double coord = (i % 2 == 0) ? new Point2D.Double(start.x - 2
+						* PersonProfile.WIDTH, start.y + (i / 2) * (veh_len / 2)
+						+ 2 * PersonProfile.WIDTH) : new Point2D.Double(end.x + 2
+						* PersonProfile.WIDTH, start.y + (i / 2) * (veh_len / 2)
+						+ 2 * PersonProfile.WIDTH);
+				r.add(new PersonProfile(coord));
 			}
 		}
+		
+		return r;
 	}
-	 *
-	 */
+
 
 	private PeopleFactory() {
 	}

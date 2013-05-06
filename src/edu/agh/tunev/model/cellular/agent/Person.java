@@ -15,7 +15,7 @@ import edu.agh.tunev.world.Physics;
 
 public final class Person {
 
-	private final static int PERCEPTION_RANGE = 20;
+	private final static int PERCEPTION_RANGE = 50;
 
 	/** Physics coefficient useful for field value evaluation */
 	private final static double PHYSICS_COEFF = 0.3; // TODO: set
@@ -43,7 +43,9 @@ public final class Person {
 
 	private static final double MAX_SQUATTING_TEMP = 55;
 
-	private static final double MIN_ALERT_TEMP = 40;
+	private static final double MIN_ALERT_TEMP = 30;
+	
+	private static final double PHYSICS_BASE = 1.15;
 
 	// TODO: discard unnecessary fields
 	private Cell cell;
@@ -74,8 +76,7 @@ public final class Person {
 		this.pose = profile.initialMovement;
 		this.alive = true;
 		this.active = true;
-		this.reactionTime = (int) Math.ceil(cell.getDistToFireSrc());
-		System.out.println(reactionTime);
+		this.reactionTime = (int) Math.ceil(3 * cell.getDistToFireSrc());
 		saveState();
 	}
 
@@ -198,7 +199,7 @@ public final class Person {
 	private void setVelocity() {
 		switch (pose) {
 		case STANDING:
-			dtMultiplier = 1;
+			dtMultiplier = 4;
 			break;
 		case SQUATTING:
 			dtMultiplier = 8;
@@ -348,7 +349,7 @@ public final class Person {
 		Double dist = evaluateDistComponent(cell);
 		Double heat = evaluateHeatComponent(cell);
 		return STATIC_COEFF * cell.getStaticFieldVal() + DYNAMIC_COEFF
-				* (DIST_COEFF * dist + PHYSICS_COEFF * heat);
+				* (DIST_COEFF * dist + PHYSICS_COEFF * Math.pow(PHYSICS_BASE, heat));
 	}
 
 	/**

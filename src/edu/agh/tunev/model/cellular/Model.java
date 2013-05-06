@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.PersonProfile;
+import edu.agh.tunev.model.PersonState.Movement;
 import edu.agh.tunev.model.cellular.agent.NotANeighbourException;
 import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.model.cellular.agent.WrongOrientationException;
@@ -11,14 +12,13 @@ import edu.agh.tunev.model.cellular.grid.Board;
 import edu.agh.tunev.model.cellular.grid.Cell;
 import edu.agh.tunev.statistics.LifeStatistics;
 import edu.agh.tunev.statistics.Statistics.AddCallback;
-import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.World;
 import edu.agh.tunev.world.World.ProgressCallback;
 
 public final class Model extends AbstractModel {
 
 	public final static String MODEL_NAME = "Social Distances Cellular Automata";
-	private final static double INTERSECTION_TOLERANCE = 0.1;
+	private final static double INTERSECTION_TOLERANCE = 0.2;
 
 	public Model(World world) {
 		super(world);
@@ -102,15 +102,23 @@ public final class Model extends AbstractModel {
 					e.printStackTrace();
 				}
 				interpolator.saveState(p.profile, t, p.getCurrentState());
+				
 			}
-
-			// TODO: uaktualnij wykresy, które mogą być aktualizowane w trakcie
-			// symulowania
-			int currentNumDead = 123; // prawdopodobnie ta dana ustawiana
-										// gdzie indziej ;p~
-			int currentNumAlive = 12;
-			int currentNumRescued = 72;
-			lifeStatistics.add(t, currentNumAlive, currentNumRescued, currentNumDead);
+			
+			int alive = 0;
+			int dead = 0;
+			int rescued = 0;
+			for(Person p : people){
+				if(p.isAlive())
+					++alive;
+				else 
+					++dead;
+					
+				if(p.getMovement() == Movement.HIDDEN)
+					++rescued;
+			}
+			
+			lifeStatistics.add(t, alive, rescued, dead);
 
 			// grzeczność: zwiększ ProgressBar w UI
 			progressCallback.update(iteration, num,
