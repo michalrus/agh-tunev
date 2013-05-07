@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.Vector;
 
+import edu.agh.tunev.model.cellular.agent.Person;
 import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.FireSource;
 import edu.agh.tunev.world.Obstacle;
@@ -114,32 +115,64 @@ public final class Board {
 
 	}
 
+	private Point checkForBlockage() {
+		Point boundries = getParallelIterBoundries();
+
+		for (int iy = 0; iy <= boundries.y; ++iy)
+			for (int ix = 0; ix <= boundries.x; ++ix) {
+				Point checkedPoint = new Point(ix, iy);
+				Cell c = getCellAt(checkedPoint);
+				boolean blocked = c.checkTempLethality() || c.isBlocked();
+				if (blocked && isRowBlocked(checkedPoint))
+					return checkedPoint;			
+			}
+		
+		return null;
+	}
+
+	private boolean isRowBlocked(Point pointer){
+		Point boundries = getPerpendicularIterBoundries(pointer);
+		for(int iy = pointer.y; iy <= boundries.y; ++iy)
+			for(int ix = pointer.x; ix <= boundries.x; ++ix){
+				Cell c = getCellAt(new Point(ix, iy));
+				if(!c.checkTempLethality() || !c.isBlocked())
+					return false;
+			}
+		
+		return true;
+	}
+
+	private Point getParallelIterBoundries() {
+		if (worldDimension.x <= worldDimension.y)
+			return new Point(1, worldDimension.y - 1);
+		else
+			return new Point(worldDimension.x - 1, 1);
+	}
+
+	private Point getPerpendicularIterBoundries(Point p) {
+		if (worldDimension.x <= worldDimension.y)
+			return new Point(worldDimension.x - 1, p.y);
+		else
+			return new Point(p.x, worldDimension.y - 1);
+	}
+
 	/**
 	 * Checks for blockage for one specific corridor orientation.
 	 * 
 	 * @return
 	 */
 	/*
-	private int checkForYBlockage() {
-		for (int iy = 1; iy < worldDimension.y; ++iy) {
-			Cell cY = getCellAt(new Point(1, iy));
-			Physics physY = cY.getPhysics();
-			double tempY = physY.get(Type.TEMPERATURE);
-
-			if (cY.isOccupied() || tempY > BLOCKAGE_TEMP) {
-				for (int ix = 2; ix < worldDimension.x; ++ix) {
-					Cell cX = getCellAt(new Point(ix, iy));
-					Physics physX = cX.getPhysics();
-					double tempX = physX.get(Type.TEMPERATURE);
-
-					if (!cX.isOccupied() || tempX > BLOCKAGE_TEMP)
-						return -1;
-				}
-				return iy;
-			}
-		}
-		return -1;
-	}*/
+	 * private int checkForYBlockage() { for (int iy = 1; iy < worldDimension.y;
+	 * ++iy) { Cell cY = getCellAt(new Point(1, iy)); Physics physY =
+	 * cY.getPhysics(); double tempY = physY.get(Type.TEMPERATURE);
+	 * 
+	 * if (cY.isOccupied() || tempY > BLOCKAGE_TEMP) { for (int ix = 2; ix <
+	 * worldDimension.x; ++ix) { Cell cX = getCellAt(new Point(ix, iy)); Physics
+	 * physX = cX.getPhysics(); double tempX = physX.get(Type.TEMPERATURE);
+	 * 
+	 * if (!cX.isOccupied() || tempX > BLOCKAGE_TEMP) return -1; } return iy; }
+	 * } return -1; }
+	 */
 
 	public Point getDimension() {
 		return worldDimension;

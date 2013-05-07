@@ -14,6 +14,7 @@ import edu.agh.tunev.world.Exit;
 import edu.agh.tunev.world.FireSource;
 import edu.agh.tunev.world.Obstacle;
 import edu.agh.tunev.world.Physics;
+import edu.agh.tunev.world.Physics.Type;
 
 public final class Cell {
 
@@ -83,6 +84,13 @@ public final class Cell {
 	 */
 	public void release() {
 		setPerson(null);
+	}
+	
+	public boolean checkTempLethality(){
+		if(physics.get(Type.TEMPERATURE) >= Person.LETHAL_TEMP)
+			return true;
+		
+		return false;
 	}
 
 	/**

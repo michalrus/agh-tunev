@@ -28,7 +28,7 @@ public final class Person {
 	private final static double DYNAMIC_COEFF = 1.0; // TODO:
 
 	/** Smiertelna wartosc temp. na wysokosci 1,5m */
-	private static final double LETHAL_TEMP = 80;
+	public static final double LETHAL_TEMP = 80;
 
 	/** Stezenie CO w powietrzu powodujace natychmiastowy zgon [ppm] */
 	private static final double LETHAL_CO_CONCN = 30000.0;
