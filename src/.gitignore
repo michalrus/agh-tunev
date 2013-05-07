@@ -1,3 +1,8 @@
+#
+# Anything that is not a `*.java' file in `src/' directory
+# will get rejected at an attempt to push to the server.
+#
+
 *
 !*.java
 !*/
