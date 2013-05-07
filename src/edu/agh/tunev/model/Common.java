@@ -257,7 +257,19 @@ public final class Common {
 			return true;
 		return false;
 	}
-
+	
+	public static boolean isValInRange(int b1, int b2, int val){
+		int range = b1 - b2;
+		int dist = b1 - val;
+		double signRange = Math.signum(range);
+		double signDist = Math.signum(dist);
+		
+		if(Math.abs(dist) < Math.abs(range) && signRange == signDist)
+			return true;
+		
+		return false;
+	}
+	
 	private Common() {
 		// you shall not instantiate ^-^
 	}

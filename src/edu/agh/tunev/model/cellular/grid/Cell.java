@@ -29,6 +29,7 @@ public final class Cell {
 	private Double distToExit;
 	private Obstacle obstacle;
 	private Exit exit;
+	private Point blockage; // it should be an array
 
 	public Cell(Point _position, Board _board) {
 		this.position = _position;
@@ -46,7 +47,8 @@ public final class Cell {
 	 * @param phys
 	 *            current physics data for this cell
 	 */
-	public void update(Physics phys) {
+	public void update(Physics phys, Point _blockage) {
+		this.blockage = _blockage;
 		setPhysics(phys);
 		calculateDistToExit();
 		evaluateStaticFieldVal();
@@ -64,17 +66,17 @@ public final class Cell {
 	public boolean isBlocked() {
 		return (obstacle != null || isWall());
 	}
-	
-	public boolean isExit(){
+
+	public boolean isExit() {
 		return (exit != null);
 	}
 
 	private boolean isWall() {
 		Point boardDim = board.getDimension();
-		
-		if(isExit())
+
+		if (isExit())
 			return false;
-		
+
 		return position.x == 0 || position.y == 0 || position.x == boardDim.x
 				|| position.y == boardDim.y;
 	}
@@ -85,11 +87,14 @@ public final class Cell {
 	public void release() {
 		setPerson(null);
 	}
-	
-	public boolean checkTempLethality(){
-		if(physics.get(Type.TEMPERATURE) >= Person.LETHAL_TEMP)
-			return true;
+
+	public boolean checkTempLethality() {
+		if(physics == null)
+			return false;
 		
+		if (physics.get(Type.TEMPERATURE) >= Person.LETHAL_TEMP)
+			return true;
+
 		return false;
 	}
 
@@ -261,20 +266,35 @@ public final class Cell {
 		Vector<Exit> exits = board.getExits();
 		Double dist = Double.MAX_VALUE;
 		Point2D.Double realPosition = getRealPosition();
-		
-		for (Exit e : exits) {
-			Point2D middlePoint = Common.getMiddlePointOfSegment(e.p1, e.p2);
-			Double currDist = realPosition.distance(middlePoint);
 
-			if (currDist < dist) {
+		for (Exit e : exits) {
+			Point2D.Double middlePoint = Common.getMiddlePointOfSegment(e.p1, e.p2);
+			double currDist = realPosition.distance(middlePoint);
+
+			if (currDist < dist && !isBlockageBetween(middlePoint)) {
 				dist = currDist;
 			}
 		}
 
 		this.distToExit = dist;
 	}
-	
-	public double getDistToFireSrc(){
+
+	private boolean isBlockageBetween(Point2D.Double middleExitPoint){
+		if(blockage == null)
+			return false;
+		
+		Point middle = c2d(middleExitPoint);
+		boolean betweenX = Common.isValInRange(middle.x, position.x, blockage.x);
+		boolean betweenY = Common.isValInRange(middle.y, position.y, blockage.y);
+		
+		if(betweenX || betweenY)
+			return true;
+		
+		return false;
+		
+	}
+
+	public double getDistToFireSrc() {
 		Point2D.Double realPosition = getRealPosition();
 		FireSource fireSrc = board.getFireSrc();
 		return realPosition.distance(fireSrc);

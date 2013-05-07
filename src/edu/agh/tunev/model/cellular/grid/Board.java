@@ -41,10 +41,12 @@ public final class Board {
 	 * @param t
 	 */
 	public void update(Double t) {
+		Point blockage = checkForBlockage();
+		
 		for (Vector<Cell> v : cells)
 			for (Cell c : v) {
 				Point2D.Double position = Cell.d2c(c.getPosition());
-				c.update(world.getPhysicsAt(t, position));
+				c.update(world.getPhysicsAt(t, position), blockage);
 			}
 	}
 
