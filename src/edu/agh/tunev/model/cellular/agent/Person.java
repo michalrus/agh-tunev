@@ -45,7 +45,9 @@ public final class Person {
 
 	private static final double MIN_ALERT_TEMP = 30;
 	
-	private static final double PHYSICS_BASE = 1.05;
+	private static final double PHYSICS_BASE = 0;
+	
+	private static final int PRE_MOV_TIME = 10;
 
 	// TODO: discard unnecessary fields
 	private Cell cell;
@@ -76,7 +78,8 @@ public final class Person {
 		this.pose = profile.initialMovement;
 		this.alive = true;
 		this.active = true;
-		this.reactionTime = (int) Math.ceil(3 * cell.getDistToFireSrc());
+		int responseTime = (int) Math.ceil(3 * cell.getDistToFireSrc());
+		this.reactionTime = PRE_MOV_TIME + responseTime;
 		saveState();
 	}
 
