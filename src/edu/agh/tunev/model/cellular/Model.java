@@ -18,7 +18,7 @@ import edu.agh.tunev.world.World.ProgressCallback;
 public final class Model extends AbstractModel {
 
 	public final static String MODEL_NAME = "Social Distances Cellular Automata";
-	private final static double INTERSECTION_TOLERANCE = 0.01;
+	private final static double INTERSECTION_TOLERANCE = 0.001;
 
 	public Model(World world) {
 		super(world);

@@ -14,7 +14,7 @@ import edu.agh.tunev.world.World.ProgressCallback;
 
 public final class Model extends AbstractModel {
 
-	public final static String MODEL_NAME = "Autorski (\u00a9 2012 Jakub Rakoczy)";
+	public final static String MODEL_NAME = "Continuous Space Discreet Time (Experimental)";
 
 	public Model(World world) {
 		super(world);

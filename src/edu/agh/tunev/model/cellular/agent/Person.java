@@ -2,6 +2,7 @@ package edu.agh.tunev.model.cellular.agent;
 
 import java.awt.geom.Point2D;
 import java.util.List;
+import java.util.Random;
 
 import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.model.PersonState;
@@ -10,15 +11,15 @@ import edu.agh.tunev.model.cellular.AllowedConfigs;
 import edu.agh.tunev.model.cellular.Model;
 import edu.agh.tunev.model.cellular.NeighbourIndexException;
 import edu.agh.tunev.model.cellular.grid.Cell;
-import edu.agh.tunev.world.Physics.Type;
 import edu.agh.tunev.world.Physics;
+import edu.agh.tunev.world.Physics.Type;
 
 public final class Person {
 
 	private final static int PERCEPTION_RANGE = 100;
 
 	/** Physics coefficient useful for field value evaluation */
-	private final static double PHYSICS_COEFF = 0.3; // TODO: set
+	private final static double PHYSICS_COEFF = 0.3; // TODO:validation
 
 	/** Distance coefficient useful for field value evaluation */
 	private final static double DIST_COEFF = 1.0; // TODO: set
@@ -29,7 +30,7 @@ public final class Person {
 
 	/** Smiertelna wartosc temp. na wysokosci 1,5m */
 	public static final double LETHAL_TEMP = 80;
-	
+
 	/** Stezenie CO w powietrzu powodujace natychmiastowy zgon [ppm] */
 	private static final double LETHAL_CO_CONCN = 30000.0;
 
@@ -39,14 +40,14 @@ public final class Person {
 	/** Prędkość z jaką usuwane są karboksyhemoglobiny z organizmu */
 	private static final double CLEANSING_VELOCITY = 0.08;
 
-	private static final double MAX_STANDING_TEMP = 40;
+	private static final double MAX_STANDING_TEMP = 55; //TODO:validation
 
 	private static final double MAX_SQUATTING_TEMP = 55;
 
-	private static final double MIN_ALERT_TEMP = 30;
-	
-	private static final double PHYSICS_BASE = 0;
-	
+	private static final double MIN_ALERT_TEMP = 3000; //TODO:validation
+
+	private static final double PHYSICS_BASE = 1.02;
+
 	private static final int PRE_MOV_TIME = 10;
 
 	// TODO: discard unnecessary fields
@@ -79,7 +80,8 @@ public final class Person {
 		this.alive = true;
 		this.active = true;
 		int responseTime = (int) Math.ceil(3 * cell.getDistToFireSrc());
-		this.reactionTime = PRE_MOV_TIME + responseTime;
+		//TODO: validation!
+		this.reactionTime = 0; // = PRE_MOV_TIME + responseTime;
 		saveState();
 	}
 
@@ -199,7 +201,7 @@ public final class Person {
 	 * Sets agent's velocity depending on their pose.
 	 */
 	// TODO: inelegant and lame, needs major rework
-	private void setVelocity() {
+	/*private void setVelocity() {
 		switch (pose) {
 		case STANDING:
 			dtMultiplier = 4;
@@ -216,6 +218,12 @@ public final class Person {
 
 		if (alerted)
 			dtMultiplier /= 4;
+	}*/
+	
+	//TODO:validate!
+	private void setVelocity(){
+		Random rnd = new Random();
+		dtMultiplier = (rnd.nextInt(3) + 1)*2;
 	}
 
 	/**
@@ -351,8 +359,11 @@ public final class Person {
 
 		Double dist = evaluateDistComponent(cell);
 		Double heat = evaluateHeatComponent(cell);
-		return STATIC_COEFF * cell.getStaticFieldVal() + DYNAMIC_COEFF
-				* (DIST_COEFF * dist + PHYSICS_COEFF * Math.pow(PHYSICS_BASE, heat));
+		return STATIC_COEFF
+				* cell.getStaticFieldVal()
+				+ DYNAMIC_COEFF
+				* (DIST_COEFF * dist + PHYSICS_COEFF
+						* Math.pow(PHYSICS_BASE, heat));
 	}
 
 	/**

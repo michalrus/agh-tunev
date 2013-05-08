@@ -72,7 +72,10 @@ final class ControllerFrame extends JInternalFrame {
 
 		setModel(model);
 
-		people = PeopleFactory.nearObstacles(world.getObstacles());
+		//TODO:validation!
+		Point2D.Double minPos = new Point2D.Double(0.0, 12);
+		Point2D.Double maxPos = new Point2D.Double(world.getDimension().x, 20);
+		people = PeopleFactory.random(200, minPos, maxPos, world.getObstacles());
 
 		init();
 		createGLFrame();
