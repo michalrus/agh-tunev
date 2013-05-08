@@ -201,7 +201,7 @@ public final class Person {
 	 * Sets agent's velocity depending on their pose.
 	 */
 	// TODO: inelegant and lame, needs major rework
-	/*private void setVelocity() {
+	private void setVelocity() {
 		switch (pose) {
 		case STANDING:
 			dtMultiplier = 4;
@@ -218,13 +218,8 @@ public final class Person {
 
 		if (alerted)
 			dtMultiplier /= 4;
-	}*/
-	
-	//TODO:validate!
-	private void setVelocity(){
-		Random rnd = new Random();
-		dtMultiplier = (rnd.nextInt(3) + 1)*2;
 	}
+	
 
 	/**
 	 * Sets agent in alerted state if conditions are menacing.

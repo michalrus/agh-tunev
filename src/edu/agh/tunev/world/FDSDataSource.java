@@ -400,10 +400,10 @@ final class FDSDataSource extends AbstractDataSource {
 		obstacles = new Vector<Obstacle>();
 		
 		Point2D.Double ob1p1 = new Point2D.Double(0.0, 0.0);
-		Point2D.Double ob1p2 = new Point2D.Double(dimension.x/2-1, 10.0);
+		Point2D.Double ob1p2 = new Point2D.Double(dimension.x/2-0.5, 10.0);
 		obstacles.add(new Obstacle(ob1p1, ob1p2, false));
 		
-		Point2D.Double ob2p1 = new Point2D.Double(dimension.x/2+1, 0.0);
+		Point2D.Double ob2p1 = new Point2D.Double(dimension.x/2+0.5, 0.0);
 		Point2D.Double ob2p2 = new Point2D.Double(dimension.x, 10.0);
 		obstacles.add(new Obstacle(ob2p1, ob2p2, false));
 	}
