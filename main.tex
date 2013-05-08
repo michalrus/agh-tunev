@@ -1,6 +1,67 @@
-\documentclass{beamer}
+\documentclass[xcolor=x11names,compress]{beamer}
+
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usetikzlibrary{decorations.fractals}
+
+%% Beamer Layout %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  This Beamer template was created by Cameron Bracken.
+%%  Anyone can freely use or modify it for any purpose
+%%  without attribution.
+%%
+%%  Last Modified: January 9, 2009
+\useoutertheme[subsection=false,shadow]{miniframes}
+\useinnertheme{default}
+\usefonttheme{serif}
+\usepackage{palatino}
+
+\setbeamerfont{title like}{shape=\scshape}
+\setbeamerfont{frametitle}{shape=\scshape}
+
+\setbeamercolor*{lower separation line head}{bg=DeepSkyBlue4} 
+\setbeamercolor*{normal text}{fg=black,bg=white} 
+\setbeamercolor*{alerted text}{fg=red} 
+\setbeamercolor*{example text}{fg=black} 
+\setbeamercolor*{structure}{fg=black} 
+ 
+\setbeamercolor*{palette tertiary}{fg=black,bg=black!10} 
+\setbeamercolor*{palette quaternary}{fg=black,bg=black!10} 
+
+\renewcommand{\(}{\begin{columns}}
+\renewcommand{\)}{\end{columns}}
+\newcommand{\<}[1]{\begin{column}{#1}}
+\renewcommand{\>}{\end{column}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
-  \input{frame-title.tex}
-  \input{frame-somemath.tex}
+
+\section{\scshape Spis treści}
+\begin{frame}
+\title{Ewakuacja tunelu w warunkach pożaru}
+%\subtitle{SUBTITLE}
+\author{
+	Jakub Rakoczy, Michał Rus\\
+	{\it dr inż. Jarosław Wąs}\\
+}
+\date{
+	\begin{tikzpicture}[decoration=Koch curve type 2] 
+		\draw[DeepSkyBlue4] decorate{ decorate{ decorate{ (0,0) -- (3,0) }}}; 
+	\end{tikzpicture}  
+	\\
+	\vspace{1cm}
+	\today
+}
+\titlepage
+\end{frame}
+
+\begin{frame}{Spis treści}
+\tableofcontents
+\end{frame}
+
+\input{matematyka.tex}
+\input{wykresy.tex}
+
 \end{document}
