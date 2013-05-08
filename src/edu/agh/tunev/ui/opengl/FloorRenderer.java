@@ -64,8 +64,42 @@ final class FloorRenderer implements Renderable {
 
 				gl.glEnd();
 			}
+		
+		// narysuj siatkę 2x2 m
+		drawGrid(gl, dim, 2.0, 2.0);
 
 		gl.glPopMatrix();
+	}
+
+	/** rysuje siatkę na podłodze o zadanej dyskretyzacji */
+	private void drawGrid (GL2 gl, Point2D.Double dim, double dx, double dy) {
+		final int nx = (int) Math.round(Math.ceil(dim.x / dx));
+		final int ny = (int) Math.round(Math.ceil(dim.y / dy));
+
+		for (int ix = 0; ix < nx; ix++)
+			for (int iy = 0; iy < ny; iy++) {
+				final double x1 = dx * ix;
+				final double y1 = dy * iy;
+				final double x2 = (ix < nx - 1 ? x1 + dx : dim.x);
+				final double y2 = (iy < ny - 1 ? y1 + dy : dim.y);
+
+				gl.glColor4d(0, 0, 0, 1);
+				gl.glBegin(GL2.GL_LINES);
+				
+				gl.glVertex3d(x1, 0.01, y1);
+				gl.glVertex3d(x1, 0.01, y2);
+
+				gl.glVertex3d(x1, 0.01, y2);
+				gl.glVertex3d(x2, 0.01, y2);
+				
+				gl.glVertex3d(x2, 0.01, y2);
+				gl.glVertex3d(x2, 0.01, y1);
+				
+				gl.glVertex3d(x2, 0.01, y1);
+				gl.glVertex3d(x1, 0.01, y1);
+				
+				gl.glEnd();
+			}
 	}
 
 }
