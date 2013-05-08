@@ -14,7 +14,7 @@ import edu.agh.tunev.world.World;
 
 public final class Board {
 
-	private final static double BLOCKAGE_TEMP = 45;
+	private static final double BLOCKED_AREA_TOL = 0.7;
 
 	private Vector<Vector<Cell>> cells;
 	private final World world;
@@ -124,7 +124,7 @@ public final class Board {
 			for (int ix = 0; ix <= boundries.x; ++ix) {
 				Point checkedPoint = new Point(ix, iy);
 				Cell c = getCellAt(checkedPoint);
-				boolean blocked = c.checkTempLethality() || c.isBlocked();
+				boolean blocked = (c.checkTempLethality() || c.isBlocked());
 				if (blocked && isRowBlocked(checkedPoint))
 					return checkedPoint;			
 			}
@@ -133,15 +133,18 @@ public final class Board {
 	}
 
 	private boolean isRowBlocked(Point pointer){
+		int cntr = 0;
+		
 		Point boundries = getPerpendicularIterBoundries(pointer);
 		for(int iy = pointer.y; iy <= boundries.y; ++iy)
 			for(int ix = pointer.x; ix <= boundries.x; ++ix){
 				Cell c = getCellAt(new Point(ix, iy));
-				if(!c.checkTempLethality() || !c.isBlocked())
-					return false;
+				if(c.checkTempLethality() || c.isBlocked())
+					++cntr;
 			}
 		
-		return true;
+		return cntr > BLOCKED_AREA_TOL*Math.min(worldDimension.x, worldDimension.y);
+		
 	}
 
 	private Point getParallelIterBoundries() {

@@ -167,7 +167,9 @@ public final class Common {
 	static {
 		// maps temp [*C] -> jetMap.index [0;1)
 		heatMapScale.put(23.0, 0.0);
-		heatMapScale.put(100.0, 1.0);
+		heatMapScale.put(40.0, 0.4);
+		heatMapScale.put(100.0, 0.8);
+		heatMapScale.put(200.0, 1.0);
 	}
 
 	private static Color jetMap(double x) {

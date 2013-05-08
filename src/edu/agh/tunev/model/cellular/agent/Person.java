@@ -15,20 +15,22 @@ import edu.agh.tunev.world.Physics;
 
 public final class Person {
 
-	private final static int PERCEPTION_RANGE = 50;
+	private final static int PERCEPTION_RANGE = 100;
 
 	/** Physics coefficient useful for field value evaluation */
-	private final static double PHYSICS_COEFF = 0.3; // TODO: set
+	private final static double PHYSICS_COEFF = 0.00; // TODO: set
 
 	/** Distance coefficient useful for field value evaluation */
 	private final static double DIST_COEFF = 1.0; // TODO: set
 
-	private final static double STATIC_COEFF = 1.0; // TODO:
+	private final static double STATIC_COEFF = 100.0; // TODO:
 
 	private final static double DYNAMIC_COEFF = 1.0; // TODO:
 
 	/** Smiertelna wartosc temp. na wysokosci 1,5m */
 	public static final double LETHAL_TEMP = 80;
+	
+	public static final double DANGER_TEMP = 100;
 
 	/** Stezenie CO w powietrzu powodujace natychmiastowy zgon [ppm] */
 	private static final double LETHAL_CO_CONCN = 30000.0;
@@ -45,7 +47,7 @@ public final class Person {
 
 	private static final double MIN_ALERT_TEMP = 30;
 	
-	private static final double PHYSICS_BASE = 1.15;
+	private static final double PHYSICS_BASE = 1.1;
 
 	// TODO: discard unnecessary fields
 	private Cell cell;

@@ -20,6 +20,7 @@ public final class Cell {
 
 	/** side of a cell represented by square */
 	public final static double CELL_SIZE = 0.25;
+	
 
 	private final Board board;
 	private final Point position;
@@ -90,7 +91,7 @@ public final class Cell {
 
 	public boolean checkTempLethality() {
 		if(physics == null)
-			return false;
+			return true;     //cheat
 		
 		if (physics.get(Type.TEMPERATURE) >= Person.LETHAL_TEMP)
 			return true;

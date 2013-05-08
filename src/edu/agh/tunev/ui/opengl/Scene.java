@@ -159,7 +159,7 @@ public class Scene implements GLEventListener {
 		gl.glViewport(x, y, width, height);
 
 		GLU glu = GLU.createGLU(gl);
-		glu.gluPerspective(45, (float) width / height, 1, 100);
+		glu.gluPerspective(45, (float) width / height, 1, 1000);
 	}
 
 }
