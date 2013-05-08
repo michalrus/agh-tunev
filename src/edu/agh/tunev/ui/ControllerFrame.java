@@ -101,7 +101,7 @@ final class ControllerFrame extends JInternalFrame {
 	private JSlider slider;
 	private double sliderTime = 0.0, progressTime = 0.0;
 	private double rho = 25, phi = 20, theta = 81;
-	private boolean paintTemp;
+	private boolean paintTemp, paintGrid;
 	private Point2D.Double anchor = new Point2D.Double(0, 0);
 	private DecimalFormat decimalFormat = new DecimalFormat("0.00");
 	Refresher refresher;
@@ -143,6 +143,10 @@ final class ControllerFrame extends JInternalFrame {
 
 							public boolean getPaintTemp() {
 								return paintTemp;
+							}
+
+							public boolean getPaintGrid() {
+								return paintGrid;
 							}
 						}));
 
@@ -330,6 +334,19 @@ final class ControllerFrame extends JInternalFrame {
 		checkPaintTemp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				paintTemp = checkPaintTemp.isSelected();
+				refresh();
+			}
+		});
+
+		c.gridx += c.gridwidth;
+		c.gridwidth = 1;
+		final JCheckBox checkPaintGrid = new JCheckBox("paint []");
+		paintGrid = false;
+		checkPaintGrid.setSelected(paintGrid);
+		p.add(checkPaintGrid, c);
+		checkPaintGrid.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				paintGrid = checkPaintGrid.isSelected();
 				refresh();
 			}
 		});

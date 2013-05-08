@@ -29,8 +29,10 @@ public class Scene implements GLEventListener {
 		public double getTheta();
 
 		public Point2D.Double getAnchor();
-		
+
 		public boolean getPaintTemp();
+		
+		public boolean getPaintGrid();
 	}
 
 	private final World world;
