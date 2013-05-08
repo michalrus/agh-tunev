@@ -93,7 +93,7 @@ public final class Cell {
 		if(physics == null)
 			return true;     //cheat
 		
-		if (physics.get(Type.TEMPERATURE) >= Person.LETHAL_TEMP)
+		if (physics.get(Type.TEMPERATURE) >= Person.LETHAL_TEMP/2)
 			return true;
 
 		return false;

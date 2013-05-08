@@ -18,12 +18,12 @@ public final class Person {
 	private final static int PERCEPTION_RANGE = 100;
 
 	/** Physics coefficient useful for field value evaluation */
-	private final static double PHYSICS_COEFF = 0.00; // TODO: set
+	private final static double PHYSICS_COEFF = 0.3; // TODO: set
 
 	/** Distance coefficient useful for field value evaluation */
 	private final static double DIST_COEFF = 1.0; // TODO: set
 
-	private final static double STATIC_COEFF = 100.0; // TODO:
+	private final static double STATIC_COEFF = 1.0; // TODO:
 
 	private final static double DYNAMIC_COEFF = 1.0; // TODO:
 
@@ -39,13 +39,13 @@ public final class Person {
 	/** Prędkość z jaką usuwane są karboksyhemoglobiny z organizmu */
 	private static final double CLEANSING_VELOCITY = 0.08;
 
-	private static final double MAX_STANDING_TEMP = 35;
+	private static final double MAX_STANDING_TEMP = 40;
 
 	private static final double MAX_SQUATTING_TEMP = 55;
 
 	private static final double MIN_ALERT_TEMP = 30;
 	
-	private static final double PHYSICS_BASE = 1.1;
+	private static final double PHYSICS_BASE = 1.05;
 
 	// TODO: discard unnecessary fields
 	private Cell cell;
