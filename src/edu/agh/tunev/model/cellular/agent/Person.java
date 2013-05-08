@@ -30,8 +30,6 @@ public final class Person {
 	/** Smiertelna wartosc temp. na wysokosci 1,5m */
 	public static final double LETHAL_TEMP = 80;
 	
-	public static final double DANGER_TEMP = 100;
-
 	/** Stezenie CO w powietrzu powodujace natychmiastowy zgon [ppm] */
 	private static final double LETHAL_CO_CONCN = 30000.0;
 
@@ -421,7 +419,7 @@ public final class Person {
 			return false;
 
 		boolean cellAvailability = allowedConfigs.checkCellAvailability(c,
-				turnTowardCell(c));
+				turnTowardCell(c), this);
 
 		return cellAvailability;
 
@@ -458,10 +456,6 @@ public final class Person {
 
 	public Orientation getOrientation() {
 		return orientation;
-	}
-
-	public PersonState.Movement getMovement() {
-		return null; // TODO
 	}
 
 	public PersonState getCurrentState() {

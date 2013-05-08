@@ -82,16 +82,19 @@ public class AllowedConfigs {
 	 * @throws NotANeighbourException
 	 */
 	public boolean checkCellAvailability(Cell cell,
-			Person.Orientation selfOrient) throws NeighbourIndexException,
+			Person.Orientation selfOrient, Person agent) throws NeighbourIndexException,
 			NotANeighbourException {
 
 		List<Cell> occupiedNeighbours = cell.getOccupiedNeighbours();
 		selfOrient = Person.Orientation.translateOrient(selfOrient);
 
 		for (Cell neighbour : occupiedNeighbours) {
+			Person neighPerson = neighbour.getPerson();
+			if(neighPerson.equals(agent))
+				continue;
+			
 			int neighbourIndex = Cell.positionToIndex(cell, neighbour);
-			Orientation neighbourOrient = neighbour.getPerson()
-					.getOrientation();
+			Orientation neighbourOrient = neighPerson.getOrientation();
 			neighbourOrient = Person.Orientation
 					.translateOrient(neighbourOrient);
 
