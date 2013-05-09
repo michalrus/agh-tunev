@@ -1,7 +1,28 @@
 #
-# Anything that is not a `*.java' file in `src/' directory
-# will get rejected at an attempt to push to the server.
+# WARNING: Anything that is not a `*.java' file in `src/'
+# directory will get rejected at an attempt to push to the
+# server. (This is a server-side check!)
+#
+# 1) Ignore everything not in /src/ in project root.
 #
 
 /*
 !/src/
+
+#
+# File-type ignores; unfortunately...
+#
+# *
+# !*.java
+# !*/
+#
+# ... won't work in EGit (while it does in git). =/
+# This also, unfortunately ignores any directory containing
+# a dot `.' in its name. Adding `!*/' unignores all subdir
+# contents, regardless of their extension. EGit bug that is.
+#
+# 2) Ignore all non-*.java files
+#
+
+*.*
+!*.java
