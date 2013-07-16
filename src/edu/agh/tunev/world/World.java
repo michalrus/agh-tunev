@@ -46,10 +46,10 @@ public class World {
 	}
 
 	/**
-	 * Zawsze zwróci jakąś wartość. Kiedy zapytasz o coś spoza granic świata,
-	 * zwróci wartość z najbliższego punktu leżącego na brzegu.
+	 * Will always return some value. When asked about something from beyond
+	 * World's bounds, will return a value from nearest edge-point.
 	 * 
-	 * Przykład użycia:
+	 * Example:
 	 * 
 	 * <pre>
 	 * <code>
@@ -60,16 +60,18 @@ public class World {
 	 * </pre>
 	 * 
 	 * @param t
-	 *            Rzeczywisty czas, o który pytasz.
+	 *            Real (continuous) time.
 	 * @param p
-	 *            Punkt, o który pytasz.
+	 *            Real (continuous) point.
 	 * @return
 	 */
 	public Physics getPhysicsAt(double t, Point2D.Double p) {
 		return data.getPhysicsAt(t, p);
 	}
 	
-	/** zwraca dyskretyzację fizyki */
+	/**
+	 * @return discretization of physics
+	 */
 	public Point2D.Double getPhysicsGranularity() {
 		return data.getPhysicsGranularity();
 	}

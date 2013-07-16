@@ -22,7 +22,7 @@ import edu.agh.tunev.ui.MainFrame;
 public class Main {
 
 	/**
-	 * Tutaj rejestrujemy wszystkie nasze modele, które mają być widoczne w UI.
+	 * All our models that we want to appear in UI are registered here.
 	 * 
 	 * @param args
 	 */

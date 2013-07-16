@@ -27,10 +27,10 @@ import java.util.concurrent.ConcurrentSkipListMap;
 public final class Interpolator {
 
 	/**
-	 * Zapisuje dyskretny stan w interpolatorze. -- m.
+	 * Saves discreet state in Interpolator. -- m.
 	 * 
 	 * @param t
-	 *            Dana chwila czasu dla jakiej zapisujemy stan.
+	 *            Time of the state.
 	 */
 	public void saveState(PersonProfile profile, double t, PersonState state) {
 		if (profile == null || state == null)
@@ -70,8 +70,8 @@ public final class Interpolator {
 		if (Common.equal(nextT, prevT))
 			return next;
 
-		// splajny 1-go stopnia? będzie git
-
+		// 1st order splines? should work
+		
 		final double ratio = (t - prevT) / (nextT - prevT);
 
 		final Point2D.Double p = prev.position;

@@ -126,9 +126,8 @@ final class FDSDataSource extends AbstractDataSource {
 	private Vector<FireSource> fireSources = new Vector<FireSource>();
 
 	/**
-	 * Czyta folder {@link #dataFolder} i jeśli znajdzie pliki o nazwach
-	 * pasujących do konwencji ustalonej z Kaśką, zapisuje je sobie odpowiednio
-	 * w pamięci (w {@link #inputFile} i {@link #dataFiles}).
+	 * Reads {@link #dataFolder} and if there are any matching file names,
+	 * saves the data in {@link #inputFile} and {@link @dataFiles}.
 	 */
 	private void parseFilenames() {
 		Map<Physics.Type, Pattern> patterns = new EnumMap<Physics.Type, Pattern>(
@@ -177,10 +176,10 @@ final class FDSDataSource extends AbstractDataSource {
 	}
 
 	/**
-	 * Wczytywanie danych z pliku wejściowego FDS-a.
+	 * Reads input data from FDS file.
 	 * 
-	 * Pamiętaj: x to szerokość tunelu, y to długość. Podajemy często
-	 * współrzędne x,y,z albo x,x1,y,y1,z,z1.
+	 * Remember: x is tunnel's width, y is height. Coords in the file
+	 * are often in x,y,z or x,x1,y,y1,z,z1 form.
 	 * 
 	 * @throws FileNotFoundException
 	 * @throws ParseException
@@ -309,8 +308,7 @@ final class FDSDataSource extends AbstractDataSource {
 						+ ": no simulation duration declared", 0);
 		}
 
-		// TODO: Kasiu, jakoś oznaczamy główne wyjścia w .fds?
-		if (dimension.x > dimension.y) { // poziomy tunel
+		if (dimension.x > dimension.y) { // horizontal tunnel
 			exits.add(new Exit(new Point2D.Double(0, 0), new Point2D.Double(0,
 					dimension.y)));
 			exits.add(new Exit(new Point2D.Double(dimension.x, 0),

@@ -34,7 +34,7 @@ public final class PlotFrame extends JInternalFrame {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Nazwa wykresu w UI.
+	 * Name of the plot in UI.
 	 */
 	public static String PLOT_NAME;
 

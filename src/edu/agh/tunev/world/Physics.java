@@ -26,9 +26,9 @@ public final class Physics {
 	}
 	
 	/**
-	 * Zwraca konkretne wartości fizyczne z danego punktu.
+	 * Will return specific physical params of a given point.
 	 * 
-	 * Przykład użycia:
+	 * Example
 	 * 
 	 * <pre><code>
 	 * Physics p = world.getPhysicsAt(13.33, 0.0, 1.0); 
@@ -36,7 +36,7 @@ public final class Physics {
 	 * double co = p.get(Physics.Type.CO);
 	 * </code></pre>
 	 * 
-	 * @param type  Typ wartości.
+	 * @param type  Physical param type.
 	 * @return
 	 */
 	public double get(Type type) {

@@ -23,12 +23,12 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-public final class HCBOStatistics implements Statistics {
+public final class HbCOStatistics implements Statistics {
 
 	private JFreeChart chart;
 	private XYSeries average;
 
-	public HCBOStatistics() {
+	public HbCOStatistics() {
 		average = new XYSeries("average");
 
 		XYSeriesCollection dataset = new XYSeriesCollection();
@@ -41,7 +41,7 @@ public final class HCBOStatistics implements Statistics {
 
 	@Override
 	public String getTitle() {
-		return "HCBO statistics";
+		return "HbCO statistics";
 	}
 
 	@Override

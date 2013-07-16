@@ -42,8 +42,13 @@ final class WallsRenderer implements Renderable {
 			length = p1.distance(p2);
 		}
 
-		// tworzy nową ścianę jako wycinek ze starej (start i end na długości
-		// starej)
+		/**
+		 * Creates new Wall as a segment of an old one. 
+		 * 
+		 * @param init old Wall
+		 * @param start start position
+		 * @param end end position
+		 */
 		public Wall(Wall init, double start, double end) {
 			this.line = init.line;
 			this.p1 = new Point2D.Double(init.p1.x + start/init.length * (init.p2.x - init.p1.x),
@@ -86,27 +91,27 @@ final class WallsRenderer implements Renderable {
 			final double ex1 = Math.min(tmpx1, tmpx2);
 			final double ex2 = Math.max(tmpx1, tmpx2);
 
-			// lewy i prawy koniec ściany (umownie)
+			// left and right ends of Wall (only convention)
 			final double lx = 0 + Common.epsilon;
 			final double rx = Math.abs(rwp2.x) - Common.epsilon;
 
-			if (ex1 < lx) { // 1. pierwszy punkt drzwi przed ściana
-				if (ex2 < lx) // 1.a. drugi punkt drzwi przed ścianą
+			if (ex1 < lx) { // 1. first exit point before wall
+				if (ex2 < lx) // 1.a. second exit point before wall
 					walls.add(this);
-				else if (ex2 < rx) // 1.b. drugi punkt drzwi w ścianie
+				else if (ex2 < rx) // 1.b. second exit point inside wall
 					walls.add(new Wall(this, ex2, length));
-				else // 1.c. drugi za ścianą, całkowite wycięcie
+				else // 1.c. second after wall (total destruction)
 					;
 			}
-			else if (ex1 < rx) { // 2. pierwszy punkt w ścianie
-				if (ex2 < rx) { // 2.a. drugi w ścianie
+			else if (ex1 < rx) { // 2. first exit point inside wall
+				if (ex2 < rx) { // 2.a. second inside wall
 					walls.add(new Wall(this, 0, ex1));
 					walls.add(new Wall(this, ex2, length));
 				}
-				else // 2.b. drugi za ścianą
+				else // 2.b. second after wall
 					walls.add(new Wall(this, 0, ex1));
 			}
-			else // 3. oba za ścianą
+			else // 3. both after wall
 				walls.add(this);
 
 			return walls;
@@ -137,7 +142,7 @@ final class WallsRenderer implements Renderable {
 
 	private static final double thickness = 0.3;
 	private static final double height = 2.0;
-	/** ile względem thickness ściana zachodzi na podłogę */
+	/** Wall-floor overlap (relative to Wall thickness) */
 	private static final double overlap = 0.1;
 
 	@Override
@@ -151,7 +156,7 @@ final class WallsRenderer implements Renderable {
 		gl.glPopMatrix();
 	}
 
-	/** rysuje ścianę między dwoma Worldowymi punktami (x,y) */
+	/** draws Wall between two World points (x,y) */
 	private void drawWall(GL2 gl, Point2D.Double a, Point2D.Double b) {
 		gl.glPushMatrix();
 

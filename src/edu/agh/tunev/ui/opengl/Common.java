@@ -32,7 +32,7 @@ public final class Common {
 		return edu.agh.tunev.model.Common.equal(a, b);
 	}
 
-	// -- translacje, rotacje, wiatr *.*
+	// -- Translations, rotations
 
 	public static Point2D.Double rotate(Point2D.Double vec, double angle) {
 		return new Point2D.Double(vec.x * Math.cos(angle) - vec.y
@@ -40,7 +40,7 @@ public final class Common {
 				* Math.cos(angle));
 	}
 
-	// -- bryły
+	// -- Solids
 
 	public static void drawCuboid(GL2 gl, double lx, double ly, double lz) {
 		drawCuboid(gl, lx, (int) Math.round(Math.ceil(lx)), ly,

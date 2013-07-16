@@ -23,11 +23,9 @@ import edu.agh.tunev.world.World;
 import edu.agh.tunev.statistics.Statistics;
 
 /**
- * Po tym dziedziczy klasa główna każdego modelu.
+ * Main class of every model inherits this.
  * 
- * Żeby "zarejestrować" nowy model, żeby był widoczny w UI, trzeba dodać linijkę
- * z nazwą jego klasy do funkcji wejścia <code>edu.agh.tunev.Main.main()</code>.
- * 
+ * To register your model in UI, add it in <code>edu.agh.tunev.Main.main</code>. 
  */
 public abstract class AbstractModel {
 
@@ -35,8 +33,9 @@ public abstract class AbstractModel {
 	final protected Interpolator interpolator;
 
 	/**
-	 * Nazwa modelu w UI. Jak to nie będzie ustawione w klasie dziedziczącej, to
-	 * register() w main() rzuci wyjątek.
+	 * Name of the model in UI.
+	 * 
+	 * *Do* set it in derived class or register() in main() will throw.
 	 */
 	public static String MODEL_NAME;
 
@@ -46,24 +45,24 @@ public abstract class AbstractModel {
 	}
 
 	/**
-	 * Metoda startująca symulację.
+	 * Starts the simulation.
 	 * 
 	 * @param duration
-	 *            Czas trwania symulacji.
+	 *            Duration of the sim.
 	 * @param profiles
-	 *            Lista profili osób stworzona przez użytkownika.
+	 *            List of PersonProfiles created by user.
 	 * @param progressCallback
-	 *            Wywołujemy po każdej iteracji
-	 *            <code>callback.update(done, total,
-	 *            msg</code>), gdzie <code>done</code> to numer aktualnej
-	 *            iteracji, a <code>total</code> to liczba wszystkich
-	 *            zaplanowanych, a <code>msg</code> to jakiś komunikat tekstowy,
-	 *            może być <code>""</code>/<code>null</code>. Po to, żeby
-	 *            rysować ProgressBar ile już się policzyło z całości.
+	 *            We call <code>callback.update(done, total,
+	 *            msg</code> after each iteration. <code>done</code>
+	 *            is a number of current iteration and <code>total</code>
+	 *            is a number of all planned iteratons and <code>msg</code>
+	 *            is some text message to display to user, it can be
+	 *            <code>""</code>/<code>null</code>. Used to draw simulation's
+	 *            progress.
 	 * @param addCallback
-	 *            Wywołujemy gdy chcemy dodać jakiś wykres do UI. W dowolnym
-	 *            momencie. Może być na początku i uaktualniamy w trakcie, może
-	 *            być na końcu, jak już się wszystko policzy.
+	 *            Called when we want to add some plot to UI. At any moment.
+	 *            We might add a plot at the beginning a then provide new
+	 *            data samples in every iteration. Or add it at the end.
 	 */
 	public abstract void simulate(double duration,
 			Vector<PersonProfile> profiles,

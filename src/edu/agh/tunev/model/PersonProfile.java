@@ -20,13 +20,12 @@ package edu.agh.tunev.model;
 import java.awt.geom.Point2D;
 
 /**
- * Reprezentuje właściwości jakiejś osoby niezależne od używanego modelu.
+ * Represents properties of a person. Model-independent.
  * 
- * Instancje tworzone przez użytkownika oprogramowania.
+ * Instances are created by the user (currently in PeopleFactory).
  * 
- * Użytkownik może użyć dokładnie tych samych profili na kilku modelach i
- * prawdopodobnie zrobi to, żeby porównać wyniki. Dlatego, dla bezpieczeństwa,
- * wszystkie pola klasy są niezmienne.
+ * The user may use the same profiles in many models (and they probably
+ * will, to compare the results). So, for safety, this class is immutable.
  * 
  */
 public final class PersonProfile {

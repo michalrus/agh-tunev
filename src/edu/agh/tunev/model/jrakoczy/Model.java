@@ -22,7 +22,7 @@ import java.util.Vector;
 import edu.agh.tunev.model.AbstractModel;
 import edu.agh.tunev.model.PersonProfile;
 import edu.agh.tunev.model.PersonState;
-import edu.agh.tunev.statistics.HCBOStatistics;
+import edu.agh.tunev.statistics.HbCOStatistics;
 import edu.agh.tunev.statistics.LifeStatistics;
 import edu.agh.tunev.statistics.Statistics.AddCallback;
 import edu.agh.tunev.statistics.VelocityStatistics;
@@ -51,7 +51,7 @@ public final class Model extends AbstractModel {
 		addCallback.add(lifeStatistics);
 		VelocityStatistics velocityStatistics = new VelocityStatistics();
 		addCallback.add(velocityStatistics);
-		HCBOStatistics hcboStatistics = new HCBOStatistics();
+		HbCOStatistics hcboStatistics = new HbCOStatistics();
 		addCallback.add(hcboStatistics);
 
 		// init board

@@ -29,7 +29,7 @@ public final class Common {
 	private final static int INTERSECTION_AREA_GRID_RESOLUTION = 1000;
 
 	/**
-	 * Normalizuje podany kąt do przedziału [0, 360).
+	 * Normalizes any given angle in degrees to [0, 360).
 	 * 
 	 * @param angle
 	 * @return
@@ -43,8 +43,10 @@ public final class Common {
 	}
 
 	/**
-	 * Oblicza kąt o danym położeniu względnym na odległości między podanymi
-	 * kątami. (Po węższej stronie).
+	 * Returns an angle between two given angles (on the narrower side), for
+	 * which dist(ret,angle1) / dist(ret,angle2) == ratio.
+	 * 
+	 * Use ratio of 0.5 to bisect etc.
 	 * 
 	 * @param angle1
 	 * @param angle2
@@ -94,35 +96,37 @@ public final class Common {
 	}
 
 	/**
-	 * Zwraca wspólne pole dwóch Shape.
+	 * Returns area of intersection of two Shapes.
 	 */
 	public static double intersectionArea(Shape s1, Shape s2) {
-		// poniższe liczby definiują wymiary siatki na którą zostanie
-		// przeskalowana (rozciągnięta) część wspólna kształtów s1, s2
+		// Below are the dimensions of a grid which the intersection of
+		// s1 and s2 will be scaled to and drawn on.
 		//
-		// oczywiście im większa siatka, tym dłużej zajmie policzenie tego
+		// The more granular the grid, the longer it will take to calculate
+		// the area.
 		//
-		// złożoność tej funkcji to O(w*h)
+		// Complexity: O(w*h)
+		
 		final int w = INTERSECTION_AREA_GRID_RESOLUTION;
 		final int h = INTERSECTION_AREA_GRID_RESOLUTION;
-		// dla siatki 5000x5000 i dwóch identycznych elips 200x100:
+		
+		// E.g. for grid of 5000x5000 and 2 identical ellipses 200x100:
 		//
 		// Shape e1 = ellipse(250, 250, 200, 100, 0);
 		// Shape e2 = ellipse(250, 250, 200, 100, 0);
 		//
-		// zwrócony wynik to:
+		// This method returns:
 		// 15711.904
 		//
-		// a analityczny wynik:
+		// While analytical calculation:
 		// 200/2*100/2*Math.PI == 15707.9632679489661923
 		//
-		// procentowa różnica: -0.0251%
+		// Relative error: -0.0251%
 		//
-		// oczywiście 5000x5000 to zabójcza wielkość, liczy się jakieś 2
-		// sekundy u mnie, nie wspominając o zajętej pamięci
+		// Obviously 5000x5000 is a killer dimension, it takes 2 sec to
+		// calculate. Not to mention used memory.
 		//
-		// dla porównania: siatka 100x100 daje błąd 0.66%, więc wciąż
-		// spoko
+		// Grid of 100x100 produces 0.66% error, still ok.
 		//
 		// 10x10 -> 10.87%
 
@@ -206,13 +210,14 @@ public final class Common {
 	}
 
 	/**
-	 * postać normalna prostej na OXY (czyli tak jak widzą prostą ludzie) zob.
-	 * https://pl.wikipedia.org/wiki/Prosta#R.C3.B3wnanie_normalne
+	 * Normal form of OXY line (as people see it).
+	 * 
+	 * See http://en.wikipedia.org/wiki/Line_(geometry)#Normal_form
 	 */
 	public static class LineNorm {
-		/** odległość prostej od (0,0) */
+		/** Distance from (0,0) */
 		public final double r;
-		/** kąt między prostą a OY (czyli między r i OY) */
+		/** Angle between the line and OY (between r and OY) */
 		public final double phi;
 
 		public LineNorm(double r, double phi) {
@@ -220,19 +225,16 @@ public final class Common {
 			this.phi = phi;
 		}
 
-		// to można by napisać w Scali:
-		// `case class LineNorm(phi: Double, r: Double)'
-		// bez żadnych konstruktorów, niczego... :p
-		/** postać normalna prostej przechodzącej przez punkty p2, p2 */
+		/** Normal form of a line that contains p1 & p2 */
 		public static LineNorm create(Point2D.Double p1, Point2D.Double p2) {
 			final boolean vertical = equal(p1.x, p2.x);
 			
-			// równanie ogólne Ax+By+C=0
+			// Canonical form: Ax+By+C=0
 			final double A = (vertical ? 1 : (p2.y - p1.y) / (p2.x - p1.x));
 			final double B = (vertical ? 0 : -1);
 			final double C = (vertical ? -p1.x : (p2.x*p1.y - p1.x*p2.y) / (p2.x - p1.x));
 			
-			// równanie normalne x cosphi + y sinphi - r = 0
+			// Normal form: x cosphi + y sinphi - r = 0
 			final double r = Math.abs(C) / Math.sqrt(A * A + B * B);
 			final double phi = (C < 0 ? Math.atan2(B, A) : Math.atan2(-B, -A));
 			
@@ -240,26 +242,26 @@ public final class Common {
 		}
 		
 		public boolean liesOn(LineNorm rhs, double rTolerance, double phiTolerance) {
-			// czy ta sama odległość prostej od środka?
+			// same r?
 			final boolean sameR = Math.abs(rhs.r - r) < rTolerance;
 			
 			if (!sameR)
 				return false;
 			
-			// policz znormalizowane kąty obu prostych
+			// calculate normalized phi's of both lines
 			final double phi1n = normalizeRad(phi);
 			final double phi2n = normalizeRad(rhs.phi);
 
-			// czy ten sam kąt z OY?
+			// same phi?
 			final double phiDiff = Math.abs(phi1n - phi2n);
 			final boolean samePhi = phiDiff < phiTolerance;
 			
 			if (samePhi)
 				return true;
 			
-			// jeśli proste nie mają tego samego phi, ale przechodzą przez (0,0)... 
+			// if !samePhi and the lines both contain (0,0)... 
 			if (equal(r, 0))
-				// sprawdź czy aby kąty nie różnią się o 180*
+				// check if phiDiff is not 180*
 				if (Math.abs(phiDiff - Math.PI) < phiTolerance)
 					return true;
 			
@@ -268,7 +270,7 @@ public final class Common {
 	}
 
 	public static final double epsilon = 0.000001;
-	/** stwierdza czy dwa double są równe z dokładnością do epsilon */
+	/** Are two doubles equal with epsilon precision */
 	public static boolean equal(double a, double b) {
 		if (Math.abs(a - b) < epsilon)
 			return true;

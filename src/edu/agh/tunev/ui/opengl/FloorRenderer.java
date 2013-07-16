@@ -82,7 +82,7 @@ final class FloorRenderer implements Renderable {
 				gl.glEnd();
 			}
 		
-		// narysuj siatkę 1x1 m
+		// Draw the grid (1x1 m)
 		if (sceneGetter.getPaintGrid())
 			drawGrid(gl, dim, 1.0, 1.0);
 

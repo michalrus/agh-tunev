@@ -55,10 +55,9 @@ final class PeopleFactory {
 	}
 	
 	/*
-	 * metoda generacji z poprzedniego modelu (kkm)
+	 * PersonProfile generation method from our previous model (model.jrakoczy)
 	 */
 	static Vector<PersonProfile> nearObstacles(Vector<Obstacle> obstacles) {
-		
 		Vector<PersonProfile> r = new Vector<PersonProfile>();
 		for (Obstacle ob : obstacles) {
 			Point2D.Double start = ob.p1;

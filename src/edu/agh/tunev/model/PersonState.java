@@ -20,15 +20,13 @@ package edu.agh.tunev.model;
 import java.awt.geom.Point2D;
 
 /**
- * Reprezentuje stan przypisany do danego PersonProfile w jakiejś chwili czasu,
- * niezależny od wybranego konkretnego modelu.
+ * Represents state of a PersonProfile at some given time. This is
+ * model-independent.
  * 
- * Obiekty tej klasy używane są głównie do rysowania przebiegu symulacji.
+ * Objects of this class are mainly used to draw simulation playback.
  * 
- * Obiekty tej klasy w postaci przekazanej interpolatorowi są w nim pamiętane,
- * więc klasa ta musi być niezmienna (wszystkie jej pola). Gdyby zmienić jedno
- * pole już zapisanego obiektu, to zmieniłby się też w pamięci Interpolatora, a
- * tego nie chcemy.
+ * Objects of this class are remembered in Interpolator, so it has to be
+ * immutable.
  * 
  */
 public final class PersonState {

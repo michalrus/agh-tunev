@@ -20,15 +20,7 @@ package edu.agh.tunev.statistics;
 import org.jfree.chart.JFreeChart;
 
 /**
- * Interfejs, który implementują obiekty reprezentujące jakieś zmierzone dane w
- * modelu.
- * 
- * Dla danych mających sens dla każdego modelu (np. liczba zabitych w czasie),
- * umieszczajmy ich klasę w tym pakiecie.
- * 
- * Dla danych mających sens tylko dla konkretnego modelu, umieszczajmy ich klasę
- * gdzieś w pakiecie tego modelu. Może edu.agh.tunev.model._nazwa_.statistics?
- * 
+ * Interface implemented by object that represent some measured data in a model.
  */
 public interface Statistics {
 
@@ -37,10 +29,11 @@ public interface Statistics {
 	public abstract JFreeChart getChart();
 
 	/**
-	 * Kiedy chcemy, żeby konkretne Statistics było dostępne w UI, musimy wywołać
-	 * Statistics.AddCallback.add(konkretne_statistics). AddCallback jest
-	 * przekazywany w parametrze do AbstractModel.simulate(), podobnie jak
-	 * ProgressCallback.
+	 * When we want some Statistics to be available in UI for a Model, we
+	 * have to call AddCallback.add(these_statistics). An AddCallback is passed
+	 * to AbstractModel.simulate().
+	 * 
+	 * What an awful language. :(
 	 */
 	public interface AddCallback {
 		public void add(Statistics statistics);
