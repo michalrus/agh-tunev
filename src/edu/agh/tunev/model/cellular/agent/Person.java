@@ -45,16 +45,16 @@ public final class Person {
 
 	private final static double DYNAMIC_COEFF = 1.0; // TODO:
 
-	/** Smiertelna wartosc temp. na wysokosci 1,5m */
+	/** Deathly temperature at eye-height of 1.5 m */
 	public static final double LETHAL_TEMP = 80;
 
-	/** Stezenie CO w powietrzu powodujace natychmiastowy zgon [ppm] */
+	/** CO concentration causing instant death [ppm] */
 	private static final double LETHAL_CO_CONCN = 30000.0;
 
-	/** Stezenie karboksyhemoglobiny we krwi powodujace natychmiastowy zgon [%] */
+	/** HbCO blood concentration causing instant death [%] */
 	private static final double LETHAL_HbCO_CONCN = 75.0;
 
-	/** Prędkość z jaką usuwane są karboksyhemoglobiny z organizmu */
+	/** HbCO excretion velocity */
 	private static final double CLEANSING_VELOCITY = 0.08;
 
 	private static final double MAX_STANDING_TEMP = 55; //TODO:validation
@@ -522,7 +522,7 @@ public final class Person {
 		}
 
 		/**
-		 * Agent needs to turn toward a cell before he moves. This method maps a
+		 * Agent needs to turn towards a cell before he moves. This method maps a
 		 * neighbour index (check {@link Cell#positionToIndex(Cell, Cell)}) of
 		 * that cell to the anticipated orientation of an agent.
 		 * 

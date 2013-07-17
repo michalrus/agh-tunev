@@ -49,25 +49,20 @@ public final class Model extends AbstractModel {
 	@Override
 	public void simulate(double duration, Vector<PersonProfile> profiles,
 			ProgressCallback progressCallback, AddCallback addCallback) {
-		// pokaż info o inicjalizacji w ui, bo trwa zanim zacznie iterować i nie
-		// wiadomo ocb :b
+		// show some initialization message in UI; it takes some time before
+		// this
+		// start to iterate
 		int num = (int) Math.round(Math.ceil(world.getDuration() / DT));
 		progressCallback.update(0, num, "Initializing...");
 
-		// TODO: pododawaj jakieś wykresy do UI związane z tym modelem
+		// TODO: add some plots to the UI related to this model
 		//
-		// sidenote: zobacz helpa do interfejsu Statistics: gdy dany wykres
-		// pasuje do wielu modeli (np. liczba zabitych jako f(t)), to dodaj jego
-		// klasę do pakietu tunev.statistics; jeśli pasuje tylko do tego modelu,
-		// to dodaj do pakietu tego modelu
+		// sidenote: see javadoc for Statistics interface
 		LifeStatistics lifeStatistics = new LifeStatistics();
 		addCallback.add(lifeStatistics);
-		// minor fix: przeniosłem wykresy przed tworzenie automatu, żeby już
-		// były dostępne do otwarcia na etapie inicjalizacji
 
-		// stwórz automat (planszę komórek)
+		// create the automaton (board of cells)
 		board = new Board(world);
-		
 
 		// TODO: exception handling
 		try {
@@ -78,7 +73,7 @@ public final class Model extends AbstractModel {
 			e.printStackTrace();
 		}
 
-		// stwórz sobie swoje reprezentacje ludzi:
+		// create our own person representations
 		Vector<Person> people = new Vector<Person>();
 		for (PersonProfile profile : profiles)
 			try {
@@ -89,23 +84,17 @@ public final class Model extends AbstractModel {
 				e.printStackTrace();
 			}
 
-		// TODO: pozaznaczaj przeszkody na planszy
-
-		// TODO: pozaznaczaj wyjścia na planszy
-
-		// kolejne iteracje automatu -- uwaga, żadnego czekania w stylu
-		// Thread.sleep() -- to ma się policzyć *jak najszybciej*! --
-		// wyświetlanie "filmu" z symulacji jest niezależne od obliczania (no,
-		// tyle tylko zależne, że możemy wyświetlać tylko do momentu, który już
-		// się policzył)
+		// iterations of automaton -- caution: no waiting (like Thread.sleep)
+		// here -- this has to be calculated *as fast as possible*! --
+		// simulation playback is independent of calculation
 		double t = 0;
 		for (int iteration = 1; iteration <= num; iteration++) {
-			// uaktualnij rzeczywisty czas naszej symulacji
+			// update the real time of our simulation
 			t += DT;
 
 			board.update(t);
 
-			// porób zdjęcia osobom w aktualnym rzeczywistym czasie
+			// take "shots" of people in their current states
 			for (Person p : people) {
 				try {
 					try {
@@ -119,35 +108,36 @@ public final class Model extends AbstractModel {
 					e.printStackTrace();
 				}
 				interpolator.saveState(p.profile, t, p.getCurrentState());
-				
+
 			}
-			
+
 			int alive = 0;
 			int dead = 0;
 			int rescued = 0;
-			for(Person p : people){
-				if(p.isAlive())
+			for (Person p : people) {
+				if (p.isAlive())
 					++alive;
-				else 
+				else
 					++dead;
-					
-				if (p.getCurrentState().movement == Movement.HIDDEN) // ;) co
-																		// robi
-																		// .getMovement()?
+
+				if (p.getCurrentState().movement == Movement.HIDDEN) // ;) what
+																		// does
+																		// .getMovement()
+																		// do?
 					++rescued;
 			}
-			
+
 			lifeStatistics.add(t, alive, rescued, dead);
 
-			// grzeczność: zwiększ ProgressBar w UI
+			// courtesy: increase ProgressBar value in UI
 			progressCallback.update(iteration, num,
 					(iteration < num ? "Simulating..." : "Done."));
 		}
 
-		// TODO: ew. wypełnij wykresy, które mogą być wypełnione dopiero po
-		// zakończeniu całej symulacji
+		// TODO: finally, add datasets to plots that can be filled only
+		// after simulation ends
 
-		// i tyle ^_^
+		// that's it ^_^
 	}
 
 }

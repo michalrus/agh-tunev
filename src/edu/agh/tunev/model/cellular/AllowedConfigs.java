@@ -336,7 +336,7 @@ public class AllowedConfigs {
 		return Common.intersectionArea(ellipse1, ellipse2);
 	}
 
-	// TODO: wyjebać
+	// TODO: remove this
 	public void printIntersectionMap() {
 		int i = 0;
 		for (Entry<ConfigKey, Double> e : intersectionMap.entrySet()) {
