@@ -26,37 +26,36 @@ import edu.agh.tunev.model.PersonState;
 import edu.agh.tunev.world.Obstacle;
 
 class Motion {
-	/** Wspolczynnik predkosci dla pozycji zgiętej */
+	/** Velocity coefficient for bent position */
 	private final static double BENT_COEFF = 0.75;
 
-	/** Wspolczynnik predkosci dla czołgania */
+	/** Velocity coefficient for crawling position */
 	private final static double CRAWL_COEFF = 0.1;
 
-	/** Gęstość dymu przy której agent musi się zgiąć */
+	/** Smoke density that makes an agent bend */
 	private final static double SMOKE_BENT_DENSITY = 5200;
 
-	/** Gęstość dymu, przy której agent musi się czołgać */
+	/** Smoke density that makes an agent crawl */
 	private final static double SMOKE_CRAWL_DENSITY = 20800;
 
-	/** Standardowa, poczatkowa predkosc ruchu */
+	/** Default (initial) movement velocity */
 	private final static double AVG_MOVING_SPEED = 1.6;
 
-	/** Aktualna postawa agenta */
+	/** Current stance of an agent */
 	PersonState.Movement stance;
 
 	/**
-	 * Lista punktow, ktore zamierzamy odwiedzic. Wybrane wyjscie jest
-	 * checkpointem o indeksie 0
+	 * List of points we're going to "visit". Chosen exit has index 0.
 	 */
 	List<Point2D.Double> checkpoints;
 
-	/** Aktualna predkosc */
+	/** Current velocity */
 	double velocity;
 
-	/** Referencja do szefa */
+	/** Reference to the boss */
 	private Agent agent;
 
-	/** Wsp. predkosci, cecha osobnicza agenta */
+	/** Velocity coefficient, individual characteristic */
 	private double velocity_coeff;
 
 	Motion(Agent _agent) {
@@ -67,7 +66,7 @@ class Motion {
 		stance = PersonState.Movement.STANDING;
 	}
 
-	/** Ruch w danym kierunki z aktualna predkoscia */
+	/** Move in given direction with current velocity */
 	void move() {
 		double x = agent.position.x + velocity * agent.dt
 				* Math.cos(Math.toRadians(agent.phi));
@@ -81,13 +80,13 @@ class Motion {
 	}
 
 	/**
-	 * Dostosowuje predkosc agenta do warunkow srodowiskowych i uwzglednia
-	 * poziom jego przerazenia
+	 * Adjusts Agent's velocity to environmental conditions and takes his
+	 * dismay into account.
 	 * 
 	 * @param smoke_density
-	 *            gęstość dymu na aktualnej pozycji
+	 *            density of smoke in current position
 	 * @param anxiety
-	 *            poziom przerażenia
+	 *            dismay level
 	 */
 	void adjustVelocity(double smoke_density, double anxiety) {
 		changeStance(smoke_density);
@@ -101,15 +100,14 @@ class Motion {
 	}
 
 	/**
-	 * Sprawdza, czy w punkcie, do ktorego sie chcemy przemiescic nie ma
-	 * przeszkody. Punkt jest wyliczany na podstawie kata i predkosci ruchu.
+	 * Checks if there's no obstacle in the point we're heading to.
+	 * This point is calculated based on angle and current velocity.
 	 * 
 	 * @param angle
-	 *            kat wyznaczajacy kierunek ruchu
-	 * @return przeszkoda(Obstacle lub Wall) albo null, jesli jest miejsce do
-	 *         ruchu
+	 *            direction of movement
+	 * @return Obstacle or Board.Wall or null, if there's free space
 	 */
-	// TODO: quick-fix: <michał> zmienić hierarchię? przerobiłem na Object -,-
+	// TODO: quick-fix: <michał> change the hierarchy? Rewritten to use Object for now -,-
 	Object isStaticCollision(double angle) {
 		double path_length = velocity * agent.dt + Agent.BROADNESS;
 		double alpha = angle + agent.phi;
@@ -126,11 +124,11 @@ class Motion {
 	}
 
 	/**
-	 * Sprawdza czy w danym punkcie znajduje się przeszkoda.
+	 * Checks if there's an Obstacle in given point
 	 * 
 	 * @param p
-	 *            punkt
-	 * @return referencja do przeszkody
+	 *            point
+	 * @return reference to the Obstacle or null
 	 */
 	Obstacle isObstacleInPos(Point2D.Double p) {
 		for (Obstacle ob : agent.board.getObstacles()) {
@@ -142,21 +140,21 @@ class Motion {
 	}
 
 	/**
-	 * Funkcja oblicza punkt, w ktory agent musi sie udac, by obejsc przeszkode.
-	 * Najpierw sprawdza, z której strony Obstacle sie znajduje, a nastepnie
-	 * wybiera, w strone ktorego wierzcholka sie poruszyc (wybiera ten, ktory
-	 * znajduje sie blizej wyjscia);
+	 * Calculates the point to which an Agent needs to go to bypass the obstacle.
+	 * 
+	 * First it checks on which side of the Obstacle it stands and then decides
+	 * to which vertex to move. (Chooses one closer to an Exit.)
 	 * 
 	 * @param ob
-	 *            przeszkoda, ktora agent chce ominac
-	 * @return wspolrzedne checkpointa
+	 *            an Obstacle we wanto to bypass
+	 * @return coordinate of chosen checkpoint
 	 */
 	// TODO: Motion
 	Point2D.Double avoidCollision(Obstacle ob) {
 		Point2D.Double start_point = ob.p1;
 		Point2D.Double end_point = ob.p2;
 
-		// obliczamy wspolrzedne wierzcholkow przeszkody (za malym zapasem)
+		// calculate coordinates of Obstacle vertices (with a little margin)
 		Point2D.Double left_bot = new Point2D.Double(start_point.x - Agent.BROADNESS,
 				start_point.y - Agent.BROADNESS);
 		Point2D.Double left_top = new Point2D.Double(start_point.x - Agent.BROADNESS, end_point.y
@@ -166,8 +164,8 @@ class Motion {
 		Point2D.Double right_top = new Point2D.Double(end_point.x + Agent.BROADNESS, end_point.y
 				+ Agent.BROADNESS);
 
-		// obliczamy odleglosci agenta od poszczegolnych bokow przeszkody (z
-		// zapasem)
+		// calculate distances between Agent and Obstacle sides (again with
+		// a margin)
 		List<Double> dist_list = new ArrayList<Double>();
 		dist_list.add(Math.abs(agent.position.x
 				- (start_point.x - 2 * Agent.BROADNESS))); // left
@@ -178,11 +176,11 @@ class Motion {
 		dist_list.add(Math.abs(agent.position.y
 				- (start_point.y - 2 * Agent.BROADNESS))); // bottom
 
-		// wybieramy najmniejsza odleglosc
+		// choose the least distance
 		double min_dist = Collections.min(dist_list);
 		Point2D.Double[] selected_points = new Point2D.Double[2];
 
-		// wybieramy odpowiednie wierzcholki
+		// choose suitable vertices
 		// left
 		if (min_dist == dist_list.get(0)) {
 			selected_points[0] = left_bot;
@@ -206,7 +204,7 @@ class Motion {
 		p_dists[0] = exit_pos.distance(selected_points[0]);
 		p_dists[1] = exit_pos.distance(selected_points[1]);
 
-		// wybieramy wierzcholek blizszy wyjsciu
+		// choose a vertex closer to the exit
 		if (p_dists[0] < p_dists[1])
 			return selected_points[0];
 		else
@@ -214,8 +212,8 @@ class Motion {
 	}
 
 	/**
-	 * Dodaje checkpoint do listy. Jesli jego odleglosc od wyjscia jest mniejsza
-	 * niz innych, to odpowiednio przycina liste.
+	 * Adds a checkpoint to the list. If its distance from exit is less
+	 * than others, crops the list.
 	 * 
 	 * @param new_checkpoint
 	 */
@@ -225,13 +223,13 @@ class Motion {
 	}
 
 	/**
-	 * Aktualizuje liste checkpointow, uwzgledniajac aktualna pozycje agenta.
-	 * Jesli jest blizej wyjscia niz, ktorys z punktow na liscie, to ow punkt
-	 * jest usuwany. Koordynaty wybranego wyjscia(exit) sa zawsze pierwsze na
-	 * liscie.
+	 * Analyzes the list of checkpoints, accounting for Agent's current position.
+	 * If it is closer to the exit than any of the points in the list, then
+	 * this point is removed. Coordinate of chosen exit is always first on the
+	 * list.
 	 */
 	void updateCheckpoints() {
-		if (agent.exit == null) // TODO:dodałem, bo wywalało
+		if (agent.exit == null) // TODO: added this check to fix
 								// NullPointerException --
 								// m.
 			return;
@@ -244,7 +242,7 @@ class Motion {
 	}
 
 	/**
-	 * Usuwa te checkpointy z listy, ktore sa dalej od wyjscia niz punkt p
+	 * Removes these checkpoints from the list that are further from exit than p
 	 * 
 	 * @param p
 	 */
@@ -263,7 +261,7 @@ class Motion {
 	}
 
 	/**
-	 * Określa postawę agenta w zależnosci od gęstości dymu.
+	 * Updates Agent's stance depending on smoke density.
 	 * 
 	 * @param smoke_density
 	 */
@@ -278,11 +276,10 @@ class Motion {
 	}
 
 	/**
-	 * Sprawdza, czy w punkcie, do ktorego agent sie chce przemiescic, nie
-	 * znajduje się inny ewakuowany
+	 * Checks if there's no other Agent in the point we want to move to.
 	 * 
 	 * @param dest
-	 *            punkt do ktorego agent chce sie przemiescic
+	 *            point to which we want to move to
 	 * @return
 	 */
 	private boolean isDynamicCollision(Point2D.Double dest) {

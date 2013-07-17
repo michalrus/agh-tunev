@@ -71,7 +71,7 @@ public class Board {
 	// ------------- internals start here, an Agent should not use those
 	private Point2D.Double dimension;
 
-	/** Środkowy punkt źródła ognia */
+	/** Central points of fire sources */
 	private List<FireSource> fire_srcs;
 
 	private List<Agent> agents;
@@ -86,11 +86,11 @@ public class Board {
 	}
 
 	/**
-	 * Jedna iteracja symulacji. Agent uaktualnia swoj stan, tylko jesli zyje,
-	 * jest na planszy i uplynal juz jego pre movement time
+	 * One iteration of simulation. Agent updates its state only if it's
+	 * alive, on-board and its pre-movement time has already passed.
 	 * 
 	 * @param dt
-	 *            czas w [ms] który upłynął od poprzedniej iteracji
+	 *            time in [s] that passed since previous iteration
 	 * @throws NoPhysicsDataException
 	 */
 	private double t = 0;
@@ -112,12 +112,11 @@ public class Board {
 	}
 
 	/**
-	 * Znajduje punkt leżący na odcinku reprezentującym wyjście, będący w
-	 * najmniejszej odległości do zadanego punktu
+	 * Finds a point on Exit that is closest to given point.
 	 * 
 	 * @param p
-	 *            zadany punkt
-	 * @return najbliżej leżący punkt
+	 *            given point
+	 * @return closest point
 	 */
 	public Point2D.Double getExitClosestPoint(Exit e, Point2D.Double p) {
 		Point2D.Double closestPoint;

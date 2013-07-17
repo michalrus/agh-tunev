@@ -28,136 +28,120 @@ import edu.agh.tunev.world.Physics;
 
 public final class Agent {
 
-	/** Wspolczynnik przeskalowujacy temperature na zagrożenie */
+	/** Temperature-to-threat coefficient */
 	static final double TEMP_THREAT_COEFF = 0.06;
 
-	/** Szerokość elipsy Agenta w [m]. */
+	/** Broadness of Agent's ellipse in [m]. */
 	public static final double BROADNESS = 0.33;
 
-	/** Ten drugi wymiar (grubość?) elipsy Agenta w [m]. */
+	/** Thickness of Agent's ellipse in [m]. */
 	public static final double THICKNESS = 0.2;
 
-	/**
-	 * Długość wektora orientacji Agenta w [m]. Nic nie robi, tylko do
-	 * rysowania.
-	 */
-	public static final double ORIENTATION_VECTOR = 1.0;
-
-	/** Kat miedzy promieniami wyznaczajacymi wycinek kola bedacy sasiedztwem */
+	/** Angle between radiuses defining circle sector that is a Neighborhood */ 
 	private static final double CIRCLE_SECTOR = 45; // 360/8
 
 	/**
-	 * Wartosc podstawy w f. wykladniczej wykorzystywana do obliczania promienia
-	 * sasiedztwa za pomoca kata
+	 * Base of exponential function used to calculate neighborhood radius
+	 * depending on its angle.
 	 */
 	private static final double BASE_RADIUS_CALC = 1.2;
 
 	/**
-	 * Wartosc podstawy w f. wykladniczej wykorzystywana do obliczania
-	 * wspolczynnika atrakcyjnosci danego kierunku. Wspolczynniki dla kierunkow
-	 * o mniejszych katach, czyli takich, ktore pozwola mniej wiecej zachowac
-	 * kierunek ucieczki, maja odpowiednio wieksza wartosc.
+	 * Base of exponential function used to calculate attractiveness coefficient
+	 * of given direction. Coefficients for directions of smaller angles which will
+	 * more-or-less keep escape direction are of greater value.
 	 */
 	private static final double BASE_ATTR_CALC = 1.01;
 
 	/**
-	 * Współczynnik do skalowania funkcji wykładniczej wykorzystywanej do
-	 * obliczania promienia sąsiedztwa
+	 * Scaling coefficient for exponential function used to calculate
+	 * neighborhood radius.
 	 */
 	private static final double POW_RADIUS_COEFF = 8;
 
 	/**
-	 * Współczynnik do skalowania funkcji wykładniczej wykorzystywanej do
-	 * obliczania wspolczynnika atrakcyjnosci.
+	 * Scaling coefficient for exponential function used to calculate
+	 * attractiveness coefficient.
 	 */
 	private static final double POW_ATTR_COEFF = 1;
 
 	/**
-	 * Minimalna wartość współczynnika zagrożenia powodująca zmianę kierunku.
-	 * Agent zawsze kieruję się w stronę wyjścia, chyba że czynniki środowiskowe
-	 * mu na to nie pozwalają.
+	 * Minimal value of threat coefficient causing change of direction.
+	 * Agent always heads to exit, except when environmental condition
+	 * doesn't allow for that.
 	 */
 	private static final double MIN_THREAT_VAL = 60;
 
 	/**
-	 * Odleglosc od wyjscia, dla ktorej agent przestaje zwracac uwage na
-	 * czynniki zewnetrzne i rzuca sie do drzwi/portalu
+	 * Distance from exit for which an agent stops paying attention to
+	 * external factors and pounces on the door/portal
 	 */
 	private static final double EXIT_RUSH_DIST = 3;
 
-	/** Minimalna temp. przy której agent widzi ogień */
+	/** Minimal temperature for which an agent sees flame */
 	private static final double MIN_FLAME_TEMP = 70;
 
-	/** Smiertelna wartosc temp. na wysokosci 1,5m */
+	/** Deathly temperature at eye-height of 1.5 m */
 	private static final double LETHAL_TEMP = 80;
 
-	/** Stezenie CO w powietrzu powodujace natychmiastowy zgon [ppm] */
+	/** CO concentration causing instant death [ppm] */
 	private static final double LETHAL_CO_CONCN = 30000.0;
 
-	/** Stezenie karboksyhemoglobiny we krwi powodujace natychmiastowy zgon [%] */
+	/** HbCO blood concentration causing instant death [%] */
 	private static final double LETHAL_HbCO_CONCN = 75.0;
 
-	/** Prędkość z jaką usuwane są karboksyhemoglobiny z organizmu */
+	/** HbCO excretion velocity */
 	private static final double CLEANSING_VELOCITY = 0.08;
 
-	/** Wsp. do obliczania gęstości dymu na podstawie stężenia CO */
-	// TODO: bardzo naciągane, ale to jest zbyt zmienne i nie ma danych
+	/** Coefficient used to calculate smoke density based on CO concentration */
+	// TODO: very far-fetched but it's too variable and we have no data
 	private static final double CO_SMOKE_COEFF = 6.5;
 	
-	/** Mol/mol do ppm*/
+	/** Mol/mol to ppm conversion */
 	private static final double MOL_TO_PPM = 1E11;
 
-	/** Współczynnik funkcji przekształcającej odległość na czas reakcji */
-	private static final double REACTION_COEFF = 0.3; // wspolczynnik *
-																// [s/ms]
+	/** Coefficient of function transforming distance to reaction time */
+	private static final double REACTION_COEFF = 0.3;
 
-	/** Pozycja Agenta na planszy w rzeczywistych [m]. */
+	/** Agent's position on the board in real meters. */
 	Point2D.Double position;
 
-	/** Aktualnie wybrane wyjście ewakuacyjne */
+	/** Currently selected evac exit */
 	Exit exit;
 
-	/** Referencja do planszy. */
+	/** Reference to the Board */
 	Board board;
 
 	/**
-	 * Orientacja: kąt między wektorem "wzroku" i osią OX w [deg]. Kiedy wynosi
-	 * 0.0 deg, to Agent "patrzy" jak oś OX (jak na geometrii analitycznej).
-	 * Wtedy też sin() i cos() działają ~intuicyjne, tak samo jak analityczne
-	 * wzory. :] -- m.
+	 * Orientation: angle between sight vector and X axe in [deg] (like in
+	 * analytic geometry).
 	 */
 	double phi;
 
-	/** Flaga informująca o statusie jednostki - zywa lub martwa */
+	/** Dead or alive? */
 	private boolean alive;
 
-	/** Flaga mówiąca o tym, czy Agentowi udało się już uciec. */
+	/** Have we escaped succesfully? */
 	boolean exited;
 
-	/** Czas, który upłynie, nim agent podejmie decyzje o ruchu */
+	/** Time that will pass before the Agent will make some movement decision. */
 	private double pre_movement_t;
 
-	/** Aktualne stezenie karboksyhemoglobiny we krwii */
+	/** Current HbCO blood concentration */
 	private double hbco;
 
-	/** Czas ruchu agenta */
+	/** Agent's movement time */
 	double dt;
 
-	/** 'Modul' ruchu agenta */
+	/** Agent's movement "module" */
 	private Motion motion;
 
-	/** Charakterystyka psychiki agenta */
+	/** Agent's psyche characteristic */
 	private Psyche psyche;
 
 	/**
-	 * Konstruktor agenta. Inicjuje wszystkie pola niezbędne do jego egzystencji
-	 * na planszy. Pozycja jest z góry narzucona z poziomu Board. Orientacja
-	 * zostaje wylosowana.
-	 * 
-	 * @param board
-	 *            referencja do planszy
-	 * @param position
-	 *            referencja to komórki będącej pierwotną pozycją agenta
+	 * Agent's constructor. Initiates all field required for his existence on
+	 * the Board.
 	 */
 	public final PersonProfile profile;
 	public Agent(Board board, PersonProfile profile) {
@@ -175,34 +159,31 @@ public final class Agent {
 		hbco = 0;
 		dt = 0;
 
-		// TODO: <michał> co z nearest fire src?
 		final FireSource nearest = board.getNearestFireSrc(position);
 		pre_movement_t = (REACTION_COEFF
 				* (nearest == null ? 1 : position.distance(nearest)) + psyche.reaction_t);
 	}
 
 	/**
-	 * Akcje agenta w danej iteracji.
+	 * Agent's actions taken in an iteration.
 	 * 
-	 * 1. Sprawdza, czy agent nie powinien zginac w tej turze.
+	 * 1. Checks if it should die.
 	 * 
-	 * 2. Wybiera wyjście.
+	 * 2. Chooses an exit.
 	 * 
-	 * 3. Aktualizuje liste checkpointow.
+	 * 3. Updates list of checkpoints.
 	 * 
-	 * 4. Aktualizuje stopień poddenerwowania agenta.
+	 * 4. Updates anxiety of agent.
 	 * 
-	 * 5. Dostosowuje prędkość do warunków z uwzględnieniem poddenerwowania.
+	 * 5. Adjusts movement velocity based on conditions and anxiety.
 	 * 
-	 * 6. Na podstawie danych otrzymanych w poprzednim punkcie podejmuje
-	 * decyzje.
+	 * 6. Makes a decision based on data in collected in previous steps.
 	 * 
-	 * 7. Wykonuje ruch.
+	 * 7. Makes a movement.
 	 * 
 	 * @param dt
-	 *            Czas w [ms] jaki upłynął od ostatniego update()'u. Można
-	 *            wykorzystać go do policzenia przesunięcia w tej iteracji z
-	 *            zadaną wartością prędkości:
+	 *            Time [s] that passed since last movement. Can be used to
+	 *            calculate current movement like:
 	 *            {@code dx = dt * v * cos(phi); dy = dt * v * sin(phi);}
 	 * @throws NoPhysicsDataException
 	 */
@@ -224,10 +205,10 @@ public final class Agent {
 			motion.move();
 		}
 
-		// jak wyszliśmy poza planszę, to wyszliśmy z tunelu? exited = true
-		// spowoduje zaprzestanie wyświetlania agenta i podbicie statystyk
-		// uratowanych w każdym razie :]
-		// TODO: zmieniać na true dopiero gdy doszliśmy do wyjścia
+		// when we're beyond the board, then we've exited? exited = true
+		// will cause an agent to stop being displayed and a raise in
+		// rescued stats :]
+		// TODO: set to true only when we're at an Exit
 		exited = (distToExit(exit) < THICKNESS)
 				|| (position.x < 0 || position.y < 0
 						|| position.x > board.getDimension().x || position.y > board
@@ -240,23 +221,23 @@ public final class Agent {
 
 	/**
 	 * 
-	 * @return obrot wzg OX
+	 * @return Orientation angle.
 	 */
 	public double getOrientation() {
 		return phi;
 	}
 
 	/**
-	 * Zwraca wartość niezależnie od tego, czy jest na planszy, czy nie.
+	 * Returns irrespective of exited status.
 	 * 
-	 * @return stan zdrowia
+	 * @return health
 	 */
 	public boolean isAlive() {
 		return alive;
 	}
 
 	/**
-	 * Sprawdza czy agent jest na planszy
+	 * Checks if the agent is on the Board
 	 * 
 	 * @return
 	 */
@@ -265,24 +246,23 @@ public final class Agent {
 	}
 
 	/**
-	 * 
-	 * @return czas ktory uplynie przed podjeciem ruchu
+	 * @return time that will pass before movement starts
 	 */
 	public double getPreMoveTime() {
 		return pre_movement_t;
 	}
 
 	/**
-	 * Zwraca stężenie karboksyhemoglobiny we krwi
+	 * Returns HbCO blood concentration.
 	 * 
-	 * @return hbco
+	 * @return HbCO
 	 */
 	public double getHBCO() {
 		return hbco;
 	}
 
 	/**
-	 * Zwraca aktualna prędkość agenta
+	 * Returns current speed of the agent
 	 * 
 	 * @return velocity
 	 */
@@ -295,17 +275,17 @@ public final class Agent {
 	}
 	
 	/**
-	 * Okresla, czy agent przezyje, sprawdzajac temperature otoczenia i stezenie
-	 * toksyn we krwii
+	 * Checks if the agent will live based on temperature of neightborhood
+	 * and toxins blood concentration.
 	 * 
 	 * @param curr_co
-	 *            stężenie co w bliskim otoczeniu agenta
+	 *            CO concentration in neighborhood
 	 * @param curr_temp
-	 *            średnia temp. w bliskim otoczeniu agenta
+	 *            average temperature in neighborhood
 	 */
 	private void checkIfIWillLive(double curr_co, double curr_temp) {
 		evaluateHbCO(curr_co);
-		// <michał> wykomentowałem
+		// <michał> commented out
 		//System.out.println(curr_co + " " + hbco);
 
 		if (hbco > LETHAL_HbCO_CONCN || curr_temp > LETHAL_TEMP)
@@ -313,11 +293,11 @@ public final class Agent {
 	}
 
 	/**
-	 * Funkcja oblicza aktualne stezenie karboksyhemoglobiny, uwzgledniajac
-	 * zdolnosci organizmu do usuwania toksyn
+	 * Calculates current HbCO concentration accounting for ability of the
+	 * organism to excrete toxins.
 	 */
 	private void evaluateHbCO(double curr_co) {
-		// TODO: Dobrac odpowiednie parametry
+		// TODO: Tune the params below
 		if (hbco > dt * CLEANSING_VELOCITY)
 			hbco -= dt * CLEANSING_VELOCITY;
 
@@ -325,7 +305,7 @@ public final class Agent {
 	}
 
 	/**
-	 * Podejmuje decyzje, co do kierunku ruchu lub ustala nowy checkpoint.
+	 * Makes a decision regarding new phi or sets new checkpoint.
 	 */
 	private void makeDecision() {
 		phi = calculateNewPhi();
@@ -359,17 +339,13 @@ public final class Agent {
 	}
 
 	/**
-	 * Metoda obliczająca kąt, który agent musi obrać, by skierować się do
-	 * wybranego checkpointa. Kąt jest wyznaczony przez oś X i odcinek łączący
-	 * najblizszy checkpoint z aktualną pozycją agenta. Korzysta z funkcji
-	 * atan2(), która w przeciwieństwie do atan() uwzględnia orientację na
-	 * płaszczyźnie.
+	 * Calculates an angle that the Agent has to choose to get to selected
+	 * checkpoint.
 	 * 
-	 * @return kąt zawart w przedziale [-180, 180)
+	 * @return angle in [-180, 180)
 	 */
 	private double calculateNewPhi() {
-		if (motion.checkpoints.isEmpty()) // TODO: chyba tak ma być, nie było
-											// tego sprawdzenia i wywalało
+		if (motion.checkpoints.isEmpty()) // TODO: fixed
 											// ArrayIndexOutOfBoundsException --
 											// m.
 			return phi;
@@ -384,7 +360,7 @@ public final class Agent {
 	}
 
 	/**
-	 * Wybór najbliższego wyjścia do którego możliwe jest przejście
+	 * Chooses nearest Exit which is reachable
 	 * 
 	 * @throws NoPhysicsDataException
 	 */
@@ -403,14 +379,9 @@ public final class Agent {
 	}
 
 	/**
-	 * Bierze pod uwage odległości na tylko jednej osi. Szuka najbliższego
-	 * wyjścia w odległości nie mniejszej niż dist. Pozwala to na szukanie wyjść
-	 * będących alternatywami. Dla min_dist mniejszego od 0 szuka po prostu
-	 * najbliższego wyjścia
-	 * 
-	 * @param min_dist
-	 *            zadana minimalna odległość
-	 * @return najbliższe wyjście spełniające warunki
+	 * Uses distances on one axe only. Seeks for nearest Exit that is not
+	 * closer than min_dist, so that we can find alternative exits. When
+	 * min_dist < 0, finds the nearest Exit.
 	 */
 	private Exit getNearestExit(double min_dist) {
 		double shortest_dist = board.getDimension().x + board.getDimension().y;
@@ -427,36 +398,36 @@ public final class Agent {
 	}
 
 	/**
-	 * Algorytm działa, poruszając sie po dwóch osiach: X - zawsze, Y - jeśli
-	 * znajdzie blokadę. Zaczyna od wspolrzędnej Y agenta i porszuamy się po tej
-	 * osi w stronę potencjalnego wyjścia. Jeśli natrafi na przeszkodę, to
-	 * sprawdza, czy cała szerokość tunelu dla tej wartości Y jest zablokowana.
-	 * Porszuając się po osi X o szerokość agenta, sprawdza, czy na całym
-	 * odcinku o dł. równej szerokości tunelu znajdują się blokady. Jeśli
-	 * znajdzie się choć jeden przesmyk - przejście istnieje -> sprawdzamy
-	 * kolejne punkty na osi Y. Jeśli nie istnieje, metoda zwraca wspolrzedna Y
-	 * blokady.
+	 * This algorithm works by moving along two axes: X - always, Y - only if it
+	 * finds a blockade. Starts with Agent's Y coordinate and moves along this
+	 * axis towards potential Exit. If it stumbles upon a blockade, it then
+	 * checks if the overall width of the tunnel for this Y value is blocked.
 	 * 
-	 * TODO: W bardziej rzeczywistym modelu agent wybierze kierunek przeciwny do
-	 * źródła ognia.
+	 * Moving along X axis of Agent's width, it checks whether entire line
+	 * of tunnel-width length is blocked. If there's at least one pass, it then
+	 * checks next points on Y axis. If it doesn't exist, the method returns
+	 * Y coordinate of the blockade.
+	 * 
+	 * TODO: In a more real model, the Agent will choose a direction opposite
+	 * to fire source.
 	 * 
 	 * @param _exit
-	 *            wyjście, w kierunku którego agent chce uciekać
-	 * @return -1 jeśli drgoa do wyjścia _exit nie jest zablokowana wspolrzedna
-	 *         y blokady, jesli nie ma przejscia
+	 *            an exit towards which we want to escape
+	 * @return -1 if path to exit is not blocked in any way
+	 *         y of blockade if there's no passing by
 	 * @throws NoPhysicsDataException
 	 */
-	// TODO: rework, uwaga na (....XXX__XX...)
+	// TODO: rework, watch out for (....XXX__XX...)
 	private double checkForBlockage(Exit _exit) {
 		boolean viable_route = true;
 		double exit_y = board.getExitY(_exit);
 		double dist = Math.abs(position.y - exit_y);
-		double ds = 0.5; /*board.getDataCellDimension().y*/; //TODO:<michał> co tutaj?
+		double ds = 0.5; /*board.getDataCellDimension().y*/; //TODO:<michał> what here?
 
 		if (position.y > exit_y)
 			ds = -ds;
 
-		// poruszamy się po osi Y w kierunku wyjścia
+		// move along Y axis towards the exit
 		double y_coord = position.y + ds;
 		while (Math.abs(y_coord - position.y) < dist) {
 			double x_coord = 0 + BROADNESS;
@@ -464,7 +435,7 @@ public final class Agent {
 			checkpoint_y_temp = board.getPhysics(
 					new Point2D.Double(x_coord, y_coord), Physics.Type.TEMPERATURE);
 
-			// poruszamy się po osi X, jeśli natrafiliśmy na blokadę
+			// move along X axis if we got to a blockade
 			if (checkpoint_y_temp > MIN_FLAME_TEMP) {
 				viable_route = false;
 				while (x_coord < board.getDimension().x) {
@@ -480,7 +451,7 @@ public final class Agent {
 					x_coord += BROADNESS;
 				}
 			}
-			// jeśli nie ma przejścia zwracamy wsp. Y blokady
+			// if there's no exit, return Y coordinate of the blockade
 			if (!viable_route)
 				return y_coord;
 
@@ -490,11 +461,11 @@ public final class Agent {
 	}
 
 	/**
-	 * Oblicza odleglosc miedzy aktualna pozycja a wyjsciem
+	 * Calculates distance from current position to given exit.
 	 * 
 	 * @param _exit
-	 *            wybrane wyjscie
-	 * @return odleglosc
+	 *            selected exit
+	 * @return distance
 	 */
 	double distToExit(Exit _exit) {
 		if (_exit == null)
@@ -504,42 +475,33 @@ public final class Agent {
 	}
 
 	/**
-	 * Zwraca średnią wartość parametru fizycznego na wybranej powierzchni --
-	 * wycinka koła o środku w środku danego Agenta.
+	 * Returns average value of some physical param in a circular sector
+	 * which "starts" at Agent's position. Surface integral... kind of.
 	 * 
-	 * Koncept: 1) jedziemy ze stałym {@code dalpha} po całym {@code alpha}; 2)
-	 * dla każdego z tych kątów jedziemy ze stałym {@code dr} po {@code r}. 3)
-	 * Bierzemy wartość parametru w punkcie określonym przez {@code dalpha} i
-	 * {@code dr}, dodajemy do sumy, a na końcu 4) zwracamy sumę podzieloną
-	 * przez liczbę wybranych w ten sposób punktów.
+	 * Concept: 1) discretize alpha by dalpha; 2) for each of these angles
+	 * discretize r by dr; 3) take param's value in point specified by dalpha
+	 * and dr, add it to accumulator and 4) return accumulator divided by
+	 * number of discrete points.
 	 * 
-	 * Taki sposób ma 2 zalety: 1) jest ultraprosty, 2) punkty bliżej pozycji
-	 * Agenta są gęściej rozmieszczone na wycinku, dlatego większe znaczenie ma
-	 * temperatura przy nim. ^_^ (Jeszcze kwestia dobrego dobrania
-	 * {@code dalpha} i {@code dr}).
+	 * This is 1) ultrasimple, 2) points closer to Agent are more densely
+	 * placed, so value closer to the Agent has more impact.
 	 * 
 	 * @param orientation
-	 *            Kąt między wektorem orientacji Agenta a osią symetrii wycinka
-	 *            koła. Innymi słowy, jak chcemy wycinek po lewej ręce danego
-	 *            Agenta, to dajemy tu 90.0 [deg], jak po prawej to -90.0 [deg].
-	 *            (Dlatego, że kąty w geometrii analitycznej rosną przeciwnie do
-	 *            ruchu wskazówek zegara!).
+	 *            Angle between Agent's orientation vector and symmetry axis of
+	 *            circular sector. Agent's left hand is +90.0 [deg], right hand
+	 *            is -90.0 [deg].
 	 * @param alpha
-	 *            Rozstaw "ramion" wycinka koła w [deg]. Jak chcemy np. 1/8
-	 *            koła, to dajemy 45.0 [deg], w miarę oczywiste chyba. Być może
-	 *            warto zmienić nazwę tego parametru.
-	 * 
-	 *            Nic nie stoi na przeszkodzie, żeby wywołać tę funkcję z
-	 *            {@code alpha == 0.0} i zdjąć średnią tylko z linii.
-	 * 
-	 *            Można także przyjąć {@code alpha == 360.0} i policzyć średnią
-	 *            z całego otoczenia, np. do wyznaczenia warunków śmierci
-	 *            (zamiast punktowo, tylko na pozycji Agenta). ^_^
+	 *            Angle [deg] of sector's arc.
+	 *            
+	 *            Of course we can call this with alpha == 0.0 and get
+	 *            line-average only.
+	 *            
+	 *            We can also set alpha == 360.0 and calculate average value
+	 *            in whole neighborhood.
 	 * @param r
-	 *            Promień koła, na powierzchni wycinka którego obliczamy
-	 *            średnią. (Ale konstrukt językowy ;b).
+	 *            Radius of the sector's circle.
 	 * @param what
-	 *            O którą wielkość fizyczną nam chodzi.
+	 *            Which physical param we want to use for calculations.
 	 * @return
 	 */
 	private double getMeanPhysics(double orientation, double alpha, double r,
@@ -561,10 +523,8 @@ public final class Agent {
 		long num = 0;
 
 		alpha = alphaA;
-		// dlatego jest potrzebna konstrukcja do-while, żeby to wykonało się
-		// przynajmniej raz (nie jestem pewien czy przy kącie zerowym by
-		// zadziałało z użyciem for-a -- błędy numeryczne: nie można porównywać
-		// zmiennoprzecinkowych)
+		// do-while needed here to run it at least once (not sure if 0* angle
+		// would trigger for-loop -- numerical errors)
 		do {
 			double sin = Math.sin(Math.toRadians(alpha));
 			double cos = Math.cos(Math.toRadians(alpha));
@@ -582,12 +542,11 @@ public final class Agent {
 	}
 
 	/**
-	 * Oblicza wspolczynnik zagrozenia dla danego kierunku.
+	 * Computes threat coefficient for a given direction.
 	 * 
 	 * @param angle
-	 *            potencjalnie obrany kierunek
-	 * @return wspolczynnik atrakcyjnosci dla zadanego kierunku, im wyzszy tym
-	 *         GORZEJ
+	 *             potential direction
+	 * @return threat coeff, the larger, the WORSE
 	 */
 	private double computeThreatComponent(double angle) {
 		double attractivness_comp = 0.0;
@@ -600,14 +559,13 @@ public final class Agent {
 	}
 
 	/**
-	 * Dzieki tej funkcji mozemy latwo otrzymac odpowiednia dlugosc promienia
-	 * sasiedztwa, zaleznie od tego, pod jakim katem jest ono obrocone.
+	 * Computes neighborhood radius based on its rotation angle.
 	 * 
 	 * @param base
-	 *            podstawa potegowania, ma duzy wplyw na zroznicowanie dlugosci
-	 *            promienia, jako ze zmienia sie ona wykladniczo
+	 *            Power base. Strongly influeneces diversity of radiuses that
+	 *            change exponentially
 	 * @param angle
-	 * @return dlugosc promienia
+	 * @return radius
 	 */
 	private double computeMagnitudeByAngle(double pow_coeff, double base,
 			double angle) {
