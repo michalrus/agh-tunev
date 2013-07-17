@@ -1,7 +1,7 @@
 agh-tunev
 =========
 
-This is a simulational framework. The simulation concerns tunnel evacuation in fire conditions. We're using FDS to generate physics data. Two crowd models are implemented:
+This is a simulational framework. The simulation concerns tunnel evacuation in fire conditions. We're using [Fire Dynamics Simulator](https://code.google.com/p/fds-smv/) to generate physics data. Two crowd models are implemented:
 
 * Social Distances Cellular Automata,
 * Continuous Space Discreet Time (*experimental*).
