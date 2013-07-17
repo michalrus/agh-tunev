@@ -4,10 +4,12 @@
 # server. (This is a server-side check!)
 #
 # 1) Ignore everything not in /src/ in project root.
+# 2) ... or not in /doc/.
 #
 
 /*
 !/src/
+!/doc/
 
 #
 # File-type ignores; unfortunately...
@@ -26,3 +28,12 @@
 
 *.*
 !*.java
+
+#
+# LaTeX filters
+#
+
+!*.tex
+!*.eps
+!*.jpg
+!*.png
