@@ -11,25 +11,36 @@
 # contents, regardless of their extension. EGit bug that is.
 #
 
+/*
+
 *.*
 
-#
-# Source filters
-#
+# IntelliJ
+
+!*.xml
+
+!/.idea/
+/.idea/tasks.xml
+/.idea/workspace.xml
+
+# Source
 
 !*.java
 
-#
-# Lib filters
-#
+!/src/
+!/res/
+
+# Lib
 
 !*.jar
 
-#
-# LaTeX filters
-#
+!/lib/
+
+# LaTeX
 
 !*.tex
 !*.eps
 !*.jpg
 !*.png
+
+!/doc/
